@@ -7,6 +7,7 @@ public class CursorManager : MonoBehaviour
     public Color DisappearBubbleColor;
     public Color NormalBubbleColor;
 
+
     // Start is called before the first frame update
     void Start()
     {
@@ -25,6 +26,7 @@ public class CursorManager : MonoBehaviour
         switch (GameManager.State)
         {
             case GameState.Play:
+                Cursor.visible = false;
                 switch (GameManager.HeldBubbleType)
                 {
                     case BubbleType.Disappear:
@@ -39,6 +41,7 @@ public class CursorManager : MonoBehaviour
                 break;
             case GameState.Show:
                 GetComponent<SpriteRenderer>().color = new Color(1, 1, 1, 0);
+                Cursor.visible = true;
                 break;
             default:
                 break;

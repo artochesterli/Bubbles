@@ -93,9 +93,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a5360c3da17dc8f4d819b14bad99e906, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Selected: 0
-  SelectedColor: {r: 1, g: 1, b: 1, a: 1}
-  DefaultColor: {r: 1, g: 1, b: 1, a: 0.5019608}
+  MapPivotOffset: {x: 0, y: 0}
+  SelectedAlpha: 1
+  DefaultAlpha: 0.5
+  Type: 0
 --- !u!61 &8344971114956251629
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -120,5 +121,5 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1.06, y: 1.06}
+  m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0

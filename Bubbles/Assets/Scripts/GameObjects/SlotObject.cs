@@ -2,23 +2,32 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum SlotType
+{
+    Normal,
+    Target
+}
+
 public class SlotObject : MonoBehaviour
 {
+    public List<List<SlotInfo>> ConnectedMap;
     public SlotInfo ConnectedSlotInfo;
-    public bool Selected;
+    public Vector2 MapPivotOffset;
+    
+    public float SelectedAlpha;
+    public float DefaultAlpha;
+    public SlotType Type;
 
-    public Color SelectedColor;
-    public Color DefaultColor;
-
+    private bool Selected;
     // Start is called before the first frame update
     void Start()
     {
-        EventManager.instance.AddHandler<Place>(OnPlace);
+
     }
 
     private void OnDestroy()
     {
-        EventManager.instance.RemoveHandler<Place>(OnPlace);
+
     }
 
     // Update is called once per frame
@@ -29,30 +38,38 @@ public class SlotObject : MonoBehaviour
 
     private void OnMouseOver()
     {
-        if (ConnectedSlotInfo.InsideBubbleType==BubbleType.Null && GameManager.State==GameState.Play)
+        if (ConnectedSlotInfo.InsideBubbleType==BubbleType.Null && GameManager.HeldBubbleType!=BubbleType.Null && GameManager.State==GameState.Play && AvailablePos())
         {
             Selected = true;
-            GetComponent<SpriteRenderer>().color = SelectedColor;
+            Color color = GetComponent<SpriteRenderer>().color;
+            GetComponent<SpriteRenderer>().color = new Color(color.r, color.g, color.b, SelectedAlpha);
         }
     }
 
     private void OnMouseExit()
     {
         Selected = false;
-        GetComponent<SpriteRenderer>().color = DefaultColor;
+        Color color = GetComponent<SpriteRenderer>().color;
+        GetComponent<SpriteRenderer>().color = new Color(color.r, color.g, color.b, DefaultAlpha);
     }
 
     private void OnMouseDown()
     {
         if (Selected)
         {
-            EventManager.instance.Fire(new Place(ConnectedSlotInfo.Pos));
+            EventManager.instance.Fire(new Place(ConnectedSlotInfo.Pos, GameManager.HeldBubbleType));
+            Selected = false;
+            Color color = GetComponent<SpriteRenderer>().color;
+            GetComponent<SpriteRenderer>().color = new Color(color.r, color.g, color.b, DefaultAlpha);
         }
     }
 
-    private void OnPlace(Place P)
+    public bool AvailablePos()
     {
-        Selected = false;
-        GetComponent<SpriteRenderer>().color = DefaultColor;
+        Vector2Int Coordinate = new Vector2Int(Mathf.RoundToInt(transform.localPosition.x - MapPivotOffset.x), Mathf.RoundToInt(transform.localPosition.y - MapPivotOffset.y));
+        return Coordinate.x < ConnectedMap.Count - 1 && ConnectedMap[Coordinate.x + 1][Coordinate.y] != null && ConnectedMap[Coordinate.x + 1][Coordinate.y].InsideBubbleType != BubbleType.Null ||
+            Coordinate.x > 0 && ConnectedMap[Coordinate.x - 1][Coordinate.y] != null && ConnectedMap[Coordinate.x - 1][Coordinate.y].InsideBubbleType != BubbleType.Null ||
+            Coordinate.y < ConnectedMap[Coordinate.x].Count - 1 && ConnectedMap[Coordinate.x][Coordinate.y + 1] != null && ConnectedMap[Coordinate.x][Coordinate.y + 1].InsideBubbleType != BubbleType.Null ||
+            Coordinate.y > 0 && ConnectedMap[Coordinate.x][Coordinate.y - 1] != null && ConnectedMap[Coordinate.x][Coordinate.y - 1].InsideBubbleType != BubbleType.Null;
     }
 }

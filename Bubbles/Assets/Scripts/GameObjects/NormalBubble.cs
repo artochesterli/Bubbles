@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class NormalBubble : MonoBehaviour
 {
-    public Color DefaultColor;
-    public Color InfectedColor;
 
     // Start is called before the first frame update
     void Start()
@@ -19,24 +17,4 @@ public class NormalBubble : MonoBehaviour
         //SetAppearance();
     }
 
-    private void SetAppearance()
-    {
-        switch (GetComponent<Bubble>().State)
-        {
-            case BubbleState.Default:
-                GetComponent<SpriteRenderer>().color = DefaultColor;
-                break;
-            case BubbleState.Blocked:
-                GetComponent<SpriteRenderer>().color = InfectedColor;
-                break;
-            case BubbleState.Moving:
-                GetComponent<SpriteRenderer>().color = InfectedColor;
-                break;
-            case BubbleState.Inflated:
-                GetComponent<SpriteRenderer>().color = InfectedColor;
-                break;
-            default:
-                break;
-        }
-    }
 }

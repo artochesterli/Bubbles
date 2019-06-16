@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 5329439176264175711}
   - component: {fileID: 6251712977265158087}
+  - component: {fileID: 4449895371926025500}
   m_Layer: 0
   m_Name: Level
   m_TagString: Untagged
@@ -49,6 +50,27 @@ MonoBehaviour:
   AllSlot: {fileID: 8357767004902170851}
   AllBubble: {fileID: 5579169563043507166}
   MotionInterval: 0.5
+--- !u!114 &4449895371926025500
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5329439176264175710}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 35cadfd079d3d2c42b695aa41ec5bce3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  MoveDis: 1
+  MoveTime: 0.2
+  DropScale: 0.5
+  OriScale: 1
+  InflatedScale: 1.4
+  InflateTime: 0.2
+  DeflateTime: 0.2
+  BlockedDis: 0.2
+  BlockedTime: 0.2
 --- !u!1 &5579169563043507166
 GameObject:
   m_ObjectHideFlags: 0
