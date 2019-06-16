@@ -7,6 +7,7 @@ public class BubbleMotionData : MonoBehaviour
     public float MoveDis;
     public float MoveTime;
 
+    public Vector3 DropScale;
     public Vector3 OriScale;
     public Vector3 InflatedScale;
     public float InflateTime;

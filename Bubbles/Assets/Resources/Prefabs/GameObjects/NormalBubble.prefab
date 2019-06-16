@@ -110,12 +110,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MoveDis: 1
   MoveTime: 0.5
+  DropScale: {x: 0.5, y: 0.5, z: 0.5}
   OriScale: {x: 1, y: 1, z: 1}
   InflatedScale: {x: 1.2, y: 1.2, z: 1.2}
-  InflateTime: 0.5
-  DeflateTime: 0.5
+  InflateTime: 0.2
+  DeflateTime: 0.2
   BlockedDis: 0.2
-  BlockedTime: 0.5
+  BlockedTime: 0.2
 --- !u!114 &6110996369827273768
 MonoBehaviour:
   m_ObjectHideFlags: 0

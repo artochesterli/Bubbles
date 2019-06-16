@@ -13,7 +13,12 @@ public class SlotObject : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+        EventManager.instance.AddHandler<Place>(OnPlace);
+    }
+
+    private void OnDestroy()
+    {
+        EventManager.instance.RemoveHandler<Place>(OnPlace);
     }
 
     // Update is called once per frame
@@ -22,7 +27,7 @@ public class SlotObject : MonoBehaviour
         
     }
 
-    private void OnMouseEnter()
+    private void OnMouseOver()
     {
         if (ConnectedSlotInfo.InsideBubbleType==BubbleType.Null && GameManager.State==GameState.Play)
         {
@@ -43,5 +48,11 @@ public class SlotObject : MonoBehaviour
         {
             EventManager.instance.Fire(new Place(ConnectedSlotInfo.Pos));
         }
+    }
+
+    private void OnPlace(Place P)
+    {
+        Selected = false;
+        GetComponent<SpriteRenderer>().color = DefaultColor;
     }
 }

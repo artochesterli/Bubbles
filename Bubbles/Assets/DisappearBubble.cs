@@ -8,7 +8,7 @@ public class DisappearBubble : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        GetComponent<SpriteRenderer>().color = color;
+        //GetComponent<SpriteRenderer>().color = color;
     }
 
 }

@@ -33,10 +33,6 @@ public class InflateTask : Task
         if (TimeCount >= InflateTime)
         {
             SetState(TaskState.Success);
-            if (Obj.GetComponent<Bubble>().Type == BubbleType.Disappear)
-            {
-                GameObject.Destroy(Obj);
-            }
         }
     }
 }

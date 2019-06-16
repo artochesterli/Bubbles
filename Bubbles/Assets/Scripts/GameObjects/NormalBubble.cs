@@ -16,7 +16,7 @@ public class NormalBubble : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        SetAppearance();
+        //SetAppearance();
     }
 
     private void SetAppearance()

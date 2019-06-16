@@ -34,6 +34,10 @@ public class DeflateTask : Task
         {
             Obj.GetComponent<Bubble>().State = BubbleState.Default;
             SetState(TaskState.Success);
+            if (Obj.GetComponent<Bubble>().Type == BubbleType.Disappear)
+            {
+                GameObject.Destroy(Obj);
+            }
         }
     }
 }

@@ -12,7 +12,6 @@ public class LevelManager : MonoBehaviour
 
     private List<List<SlotInfo>> Map;
     private Vector2 PivotOffset;
-    private BubbleType HeldBubbleType;
 
     private SerialTasks BubbleMotionTasks = new SerialTasks();
 
@@ -21,7 +20,6 @@ public class LevelManager : MonoBehaviour
         Map = new List<List<SlotInfo>>();
         GetMapInfo();
         //ShowMapInfo();
-        HeldBubbleType = BubbleType.Disappear;
         EventManager.instance.AddHandler<Place>(OnPlace);
         EventManager.instance.AddHandler<MotionFinish>(OnMotionFinish);
     }
@@ -110,13 +108,15 @@ public class LevelManager : MonoBehaviour
     {
         List<Vector2Int> PosList = new List<Vector2Int>();
         PosList.Add(Pos);
-        switch (HeldBubbleType)
+        Vector3 WorldPos = Pos + PivotOffset + (Vector2)transform.position;
+        switch (GameManager.HeldBubbleType)
         {
             case BubbleType.Disappear:
-                Map[Pos.x][Pos.y].ConnectedBubble = (GameObject)Instantiate(Resources.Load("Prefabs/GameObjects/DisappearBubble"), Pos + PivotOffset, Quaternion.Euler(0, 0, 0));
+                Map[Pos.x][Pos.y].ConnectedBubble = (GameObject)Instantiate(Resources.Load("Prefabs/GameObjects/DisappearBubble"), WorldPos, Quaternion.Euler(0, 0, 0));
+                Map[Pos.x][Pos.y].ConnectedBubble.transform.localScale = Map[Pos.x][Pos.y].ConnectedBubble.GetComponent<BubbleMotionData>().OriScale;
                 Map[Pos.x][Pos.y].InsideBubbleType = BubbleType.Disappear;
                 Map[Pos.x][Pos.y].InsideBubbleState = BubbleState.Default;
-                BubbleInflate(PosList);
+                BubbleInflate(PosList, true);
                 break;
 
             default:
@@ -124,7 +124,7 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    private void BubbleInflate(List<Vector2Int> PosList)
+    private void BubbleInflate(List<Vector2Int> PosList, bool Drop)
     {
         if (PosList.Count == 0)
         {
@@ -139,6 +139,13 @@ public class LevelManager : MonoBehaviour
                         GameObject Bubble = Map[i][j].ConnectedBubble;
                         var Data = Bubble.GetComponent<BubbleMotionData>();
                         BubbleDeflateTasks.Add(new DeflateTask(Bubble, Data.InflatedScale, Data.OriScale, Data.DeflateTime));
+
+                        if(Map[i][j].InsideBubbleType == BubbleType.Disappear)
+                        {
+                            Map[i][j].ConnectedBubble = null;
+                            Map[i][j].InsideBubbleType = BubbleType.Null;
+                            Map[i][j].InsideBubbleState = BubbleState.Default;
+                        }
                     }
                 }
             }
@@ -155,7 +162,15 @@ public class LevelManager : MonoBehaviour
             Map[PosList[i].x][PosList[i].y].InsideBubbleState = BubbleState.Inflated;
             GameObject Bubble = Map[PosList[i].x][PosList[i].y].ConnectedBubble;
             var Data = Bubble.GetComponent<BubbleMotionData>();
-            BubbleInflateMoveBlocked.Add(new InflateTask(Bubble, Data.OriScale, Data.InflatedScale, Data.InflateTime));
+            if (Drop)
+            {
+                BubbleInflateMoveBlocked.Add(new InflateTask(Bubble, Data.DropScale, Data.InflatedScale, Data.InflateTime));
+            }
+            else
+            {
+                BubbleInflateMoveBlocked.Add(new InflateTask(Bubble, Data.OriScale, Data.InflatedScale, Data.InflateTime));
+            }
+            
 
             if (PosList[i].x < Map.Count - 1)
             {
@@ -281,20 +296,13 @@ public class LevelManager : MonoBehaviour
                 }
             }
 
-            if (Map[PosList[i].x][PosList[i].y].ConnectedBubble.GetComponent<Bubble>().Type == BubbleType.Disappear)
-            {
-                Map[PosList[i].x][PosList[i].y].ConnectedBubble = null;
-                Map[PosList[i].x][PosList[i].y].InsideBubbleType = BubbleType.Null;
-                Map[PosList[i].x][PosList[i].y].InsideBubbleState = BubbleState.Default;
-            }
+            
         }
 
         BubbleMotionTasks.Add(BubbleInflateMoveBlocked);
         BubbleMotionTasks.Add(new WaitTask(MotionInterval));
-        Debug.Log("cc");
-
         
-        BubbleInflate(NewPosList);
+        BubbleInflate(NewPosList, false);
     }
 
     private void Synchronize()
@@ -304,9 +312,12 @@ public class LevelManager : MonoBehaviour
         {
             for(int j = 0; j < Map[i].Count; j++)
             {
-                Map[i][j].ConnectedBubble = null;
-                Map[i][j].InsideBubbleState = BubbleState.Default;
-                Map[i][j].InsideBubbleType = BubbleType.Null;
+                if (Map[i][j] != null)
+                {
+                    Map[i][j].ConnectedBubble = null;
+                    Map[i][j].InsideBubbleState = BubbleState.Default;
+                    Map[i][j].InsideBubbleType = BubbleType.Null;
+                }
             }
         }
 
