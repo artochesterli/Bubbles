@@ -29,6 +29,7 @@ public class LevelManager : MonoBehaviour
         GetMapInfo();
         RemainedDisappearBubble = DisappearBubbleInitNum;
         RemainedNormalBubble = NormalBubbleInitNum;
+        CheckAvailableBubble();
         //ShowMapInfo();
         EventManager.instance.AddHandler<Place>(OnPlace);
         EventManager.instance.AddHandler<MotionFinish>(OnMotionFinish);
