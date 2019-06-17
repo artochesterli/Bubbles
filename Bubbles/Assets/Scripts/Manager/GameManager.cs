@@ -109,7 +109,6 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator LoadLevel(int index)
     {
-        Debug.Log("Load");
         if (index <= MaxLevelIndex)
         {
             if(index > MinLevelIndex)
@@ -128,7 +127,6 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                Debug.Log(CurrentLevel);
                 Destroy(SortedLevelList[CurrentLevel - MinLevelIndex]);
                 SortedLevelList[CurrentLevel- MinLevelIndex] = CopiedLevel;
                 CopiedLevel = Instantiate(SortedLevelList[index - MinLevelIndex]);
