@@ -13,11 +13,19 @@ public class BubbleSelector : MonoBehaviour
 
     public float CurrentScale;
 
-    private int num;
+    private bool Remained;
+
     // Start is called before the first frame update
     void Start()
     {
+        EventManager.instance.AddHandler<LevelLoaded>(OnLevelLoaded);
+        EventManager.instance.AddHandler<BubbleNumSet>(OnBubbleNumSet);
+    }
 
+    private void OnDestroy()
+    {
+        EventManager.instance.RemoveHandler<LevelLoaded>(OnLevelLoaded);
+        EventManager.instance.RemoveHandler<BubbleNumSet>(OnBubbleNumSet);
     }
 
     // Update is called once per frame
@@ -25,7 +33,6 @@ public class BubbleSelector : MonoBehaviour
     {
         CheckSelected();
         SetScale();
-        SetText();
     }
 
     private void SetScale()
@@ -52,7 +59,7 @@ public class BubbleSelector : MonoBehaviour
 
     private void CheckSelected()
     {
-        if (EventSystem.current.IsPointerOverGameObject() && num > 0 && Input.GetMouseButtonDown(0))
+        if (EventSystem.current.IsPointerOverGameObject() && Remained && Input.GetMouseButtonDown(0))
         {
             PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
             pointerEventData.position = Input.mousePosition;
@@ -71,7 +78,7 @@ public class BubbleSelector : MonoBehaviour
         }
     }
 
-    private void SetText()
+    /*private void SetText()
     {
         switch (Type)
         {
@@ -85,5 +92,39 @@ public class BubbleSelector : MonoBehaviour
                 break;
         }
         transform.Find("RemainedNumber").GetComponent<Text>().text = num.ToString();
+    }*/
+
+    private void OnLevelLoaded(LevelLoaded L)
+    {
+        Remained = false;
     }
+    
+    private void OnBubbleNumSet(BubbleNumSet B)
+    {
+        if (B.Type == Type)
+        {
+            Transform Text = transform.Find("RemainedNumber");
+            Text.GetComponent<Text>().text = B.Num.ToString();
+            Color CurrentColor = GetComponent<Image>().color;
+
+            if (B.Num == 0)
+            {
+                if (!Remained)
+                {
+                    GetComponent<Image>().color = new Color(CurrentColor.r, CurrentColor.g, CurrentColor.b, 0);
+                    Text.GetComponent<Text>().color = new Color(1, 1, 1, 0);
+                }
+                Remained = false;
+            }
+            else
+            {
+                GetComponent<Image>().color = new Color(CurrentColor.r, CurrentColor.g, CurrentColor.b, 1);
+                Text.GetComponent<Text>().color = Color.white;
+                Remained = true;
+            }
+
+
+        }
+    }
+
 }

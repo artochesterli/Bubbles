@@ -14,17 +14,24 @@ public class ResultText : MonoBehaviour
     void Start()
     {
         EventManager.instance.AddHandler<LevelFinish>(OnLevelFinish);
+        EventManager.instance.AddHandler<LevelLoaded>(OnLevelLoaded);
     }
 
     private void OnDestroy()
     {
         EventManager.instance.RemoveHandler<LevelFinish>(OnLevelFinish);
+        EventManager.instance.RemoveHandler<LevelLoaded>(OnLevelLoaded);
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+    private void OnLevelLoaded(LevelLoaded L)
+    {
+        GetComponent<Text>().color = new Color(1, 1, 1, 0);
     }
 
     private void OnLevelFinish(LevelFinish L)

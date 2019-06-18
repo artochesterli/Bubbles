@@ -29,14 +29,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        State = GameState.Play;
-        SortedLevelList = new List<GameObject>();
-        GetLevelInfo();
-        CurrentLevel = MinLevelIndex;
-        CopiedLevel = Instantiate(SortedLevelList[0]);
-        CopiedLevel.transform.parent = AllLevel.transform;
-        CopiedLevel.SetActive(false);
-        StartCoroutine(LoadLevel(MinLevelIndex));
+        Init();
 
         EventManager.instance.AddHandler<Place>(OnPlace);
         EventManager.instance.AddHandler<MotionFinish>(OnMotionFinish);
@@ -53,7 +46,23 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            StartCoroutine(LoadLevel(CurrentLevel + 1));
+            CurrentLevel++;
+        }
+    }
 
+    private void Init()
+    {
+        State = GameState.Play;
+        SortedLevelList = new List<GameObject>();
+        GetLevelInfo();
+        CopiedLevel = Instantiate(SortedLevelList[CurrentLevel-MinLevelIndex]);
+        CopiedLevel.transform.parent = AllLevel.transform;
+        CopiedLevel.SetActive(false);
+        EventManager.instance.Fire(new LevelLoaded(CurrentLevel));
+        StartCoroutine(ScreenAppear());
     }
 
     private void GetLevelInfo()
@@ -79,6 +88,14 @@ public class GameManager : MonoBehaviour
                     SortedLevelList[j] = SortedLevelList[j + 1];
                     SortedLevelList[j + 1] = g;
                 }
+            }
+        }
+
+        for(int i = 0; i < SortedLevelList.Count; i++)
+        {
+            if (SortedLevelList[i].activeSelf)
+            {
+                CurrentLevel = IndexList[i];
             }
         }
 
@@ -111,10 +128,7 @@ public class GameManager : MonoBehaviour
     {
         if (index <= MaxLevelIndex)
         {
-            if(index > MinLevelIndex)
-            {
-                yield return StartCoroutine(ScreenFade());
-            }
+            yield return StartCoroutine(ScreenFade());
 
             if (index == CurrentLevel)
             {
@@ -137,6 +151,7 @@ public class GameManager : MonoBehaviour
             
             CurrentLevel = index;
             State = GameState.Play;
+            EventManager.instance.Fire(new LevelLoaded(CurrentLevel));
 
             yield return StartCoroutine(ScreenAppear());
         }

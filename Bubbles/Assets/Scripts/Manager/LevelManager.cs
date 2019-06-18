@@ -23,22 +23,26 @@ public class LevelManager : MonoBehaviour
     private const float DropMoveTime = 0.1f;
     private Vector3 SlotScale = Vector3.one;
 
-    void Start()
+    private void OnEnable()
     {
         Map = new List<List<SlotInfo>>();
         GetMapInfo();
-        RemainedDisappearBubble = DisappearBubbleInitNum;
-        RemainedNormalBubble = NormalBubbleInitNum;
-        CheckAvailableBubble();
-        //ShowMapInfo();
+
         EventManager.instance.AddHandler<Place>(OnPlace);
         EventManager.instance.AddHandler<MotionFinish>(OnMotionFinish);
+        EventManager.instance.AddHandler<LevelLoaded>(OnLevelLoaded);
+    }
+
+    void Start()
+    {
+        
     }
 
     private void OnDestroy()
     {
         EventManager.instance.RemoveHandler<Place>(OnPlace);
         EventManager.instance.RemoveHandler<MotionFinish>(OnMotionFinish);
+        EventManager.instance.RemoveHandler<LevelLoaded>(OnLevelLoaded);
     }
 
     void Update()
@@ -127,6 +131,7 @@ public class LevelManager : MonoBehaviour
             case BubbleType.Disappear:
 
                 RemainedDisappearBubble--;
+                EventManager.instance.Fire(new BubbleNumSet(BubbleType.Disappear,RemainedDisappearBubble));
                 if (RemainedDisappearBubble == 0)
                 {
                     CheckAvailableBubble();
@@ -137,7 +142,8 @@ public class LevelManager : MonoBehaviour
             case BubbleType.Normal:
 
                 RemainedNormalBubble--;
-                if(RemainedNormalBubble == 0)
+                EventManager.instance.Fire(new BubbleNumSet(BubbleType.Normal,RemainedNormalBubble));
+                if (RemainedNormalBubble == 0)
                 {
                     CheckAvailableBubble();
                 }
@@ -417,16 +423,30 @@ public class LevelManager : MonoBehaviour
 
     private void OnPlace(Place P)
     {
-        Debug.Log("Place");
-        PlaceBubble(P.Pos, P.Type);
+        if (gameObject.activeSelf)
+        {
+            PlaceBubble(P.Pos, P.Type);
+        }
     }
 
     private void OnMotionFinish(MotionFinish M)
     {
-        Debug.Log("Complete");
-        Synchronize();
-        CheckLevelState();
+        if (gameObject.activeSelf)
+        {
+            Synchronize();
+            CheckLevelState();
+        }
     }
 
-    
+    private void OnLevelLoaded(LevelLoaded L)
+    {
+        if (L.Index == LevelIndex && gameObject.activeSelf)
+        {
+            RemainedDisappearBubble = DisappearBubbleInitNum;
+            RemainedNormalBubble = NormalBubbleInitNum;
+            EventManager.instance.Fire(new BubbleNumSet(BubbleType.Disappear,RemainedDisappearBubble));
+            EventManager.instance.Fire(new BubbleNumSet(BubbleType.Normal,RemainedNormalBubble));
+            CheckAvailableBubble();
+        }
+    }
 }

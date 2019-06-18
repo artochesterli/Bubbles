@@ -28,3 +28,24 @@ public class LevelFinish : Event
         Index = num;
     }
 }
+
+public class LevelLoaded : Event
+{
+    public int Index;
+    public LevelLoaded(int num)
+    {
+        Index = num;
+    }
+}
+
+public class BubbleNumSet : Event
+{
+    public BubbleType Type;
+    public int Num;
+    public BubbleNumSet(BubbleType type,int num)
+    {
+        Type = type;
+        Num = num;
+    }
+}
+

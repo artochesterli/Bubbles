@@ -41,6 +41,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: TargetSlot
+    uniqueID: 2530032483
+    locked: 0
   - name: Foremost
     uniqueID: 2937821139
     locked: 0
