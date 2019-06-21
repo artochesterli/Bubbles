@@ -14,5 +14,6 @@ public class BubbleMotionData : MonoBehaviour
     public float DeflateTime;
 
     public float BlockedDis;
+    public float ConflictBlockedDis;
     public float BlockedTime;
 }

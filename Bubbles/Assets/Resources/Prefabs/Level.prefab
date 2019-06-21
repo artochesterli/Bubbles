@@ -47,6 +47,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   LevelIndex: 0
+  DisappearBubbleInitNum: 0
+  NormalBubbleInitNum: 0
   AllSlot: {fileID: 8357767004902170851}
   AllBubble: {fileID: 5579169563043507166}
   MotionInterval: 0.5
@@ -70,6 +72,7 @@ MonoBehaviour:
   InflateTime: 0.2
   DeflateTime: 0.2
   BlockedDis: 0.2
+  ConflictBlockedDis: 0.5
   BlockedTime: 0.2
 --- !u!1 &5579169563043507166
 GameObject:

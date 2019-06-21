@@ -184,6 +184,8 @@ public class LevelManager : MonoBehaviour
         BubbleMotionTasks.Add(new MoveTask(Bubble, Start, (End - Start).normalized, (End - Start).magnitude, DropMoveTime));
     }
 
+    
+
     private void BubbleInflate(List<Vector2Int> PosList, bool Drop)
     {
         if (PosList.Count == 0)
@@ -222,6 +224,19 @@ public class LevelManager : MonoBehaviour
         List<Vector2Int> NewPosList = new List<Vector2Int>();
         ParallelTasks BubbleInflateMoveBlocked = new ParallelTasks();
 
+        List<List<int>> PosTarget = new List<List<int>>();
+
+        for(int i = 0; i < Map.Count; i++)
+        {
+            PosTarget.Add(new List<int>());
+            for(int j = 0; j < Map[i].Count; j++)
+            {
+                PosTarget[i].Add(0);
+            }
+        }
+
+        List<MoveInfo> Moves = new List<MoveInfo>();
+
         for(int i = 0; i < PosList.Count; i++)
         {
             Map[PosList[i].x][PosList[i].y].InsideBubbleState = BubbleState.Inflated;
@@ -237,66 +252,20 @@ public class LevelManager : MonoBehaviour
                 BubbleInflateMoveBlocked.Add(new InflateTask(Bubble, Data.OriScale * Vector3.one, Data.InflatedScale * Vector3.one, Data.InflateTime));
             }
             
-
-            if (PosList[i].x < Map.Count - 1)
+            if(PosList[i].x < Map.Count - 1)
             {
-                if(Map[PosList[i].x+1][PosList[i].y]!=null && Map[PosList[i].x + 1][PosList[i].y].InsideBubbleType!=BubbleType.Null && Map[PosList[i].x + 1][PosList[i].y].InsideBubbleState == BubbleState.Default)
+                if(Map[PosList[i].x + 1][PosList[i].y]!=null && Map[PosList[i].x + 1][PosList[i].y].InsideBubbleType!=BubbleType.Null && Map[PosList[i].x + 1][PosList[i].y].InsideBubbleState == BubbleState.Default)
                 {
-                    Bubble = Map[PosList[i].x + 1][PosList[i].y].ConnectedBubble;
-                    Data = GetComponent<BubbleMotionData>();
-                    if (PosList[i].x < Map.Count - 2)
-                    {
-                        if (Map[PosList[i].x + 2][PosList[i].y] != null && Map[PosList[i].x + 2][PosList[i].y].InsideBubbleType != BubbleType.Null)
-                        {
-                            NewPosList.Add(new Vector2Int(PosList[i].x + 1, PosList[i].y));
-                            BubbleInflateMoveBlocked.Add(new BlockedTask(Bubble, Bubble.transform.localPosition, Vector3.right,Data.BlockedDis, Data.BlockedTime));
-                        }
-                        else
-                        {
-                            NewPosList.Add(new Vector2Int(PosList[i].x + 2, PosList[i].y));
-                            BubbleInflateMoveBlocked.Add(new MoveTask(Bubble, Bubble.transform.localPosition, Vector3.right, Data.MoveDis, Data.MoveTime));
-                            Map[PosList[i].x + 2][PosList[i].y].ConnectedBubble = Bubble;
-                            Map[PosList[i].x + 2][PosList[i].y].InsideBubbleType = Bubble.GetComponent<Bubble>().Type;
-                            Map[PosList[i].x + 1][PosList[i].y].ConnectedBubble = null;
-                            Map[PosList[i].x + 1][PosList[i].y].InsideBubbleType = BubbleType.Null;
-                        }
-                    }
-                    else
-                    {
-                        NewPosList.Add(new Vector2Int(PosList[i].x + 1, PosList[i].y));
-                        BubbleInflateMoveBlocked.Add(new BlockedTask(Bubble, Bubble.transform.localPosition, Vector3.right, Data.BlockedDis, Data.BlockedTime));
-                    }
+                    Moves.Add(new MoveInfo(Direction.Right, new Vector2Int(PosList[i].x + 1, PosList[i].y)));
                 }
+                
             }
 
-            if (PosList[i].x > 0)
+            if(PosList[i].x > 0)
             {
                 if (Map[PosList[i].x - 1][PosList[i].y] != null && Map[PosList[i].x - 1][PosList[i].y].InsideBubbleType != BubbleType.Null && Map[PosList[i].x - 1][PosList[i].y].InsideBubbleState == BubbleState.Default)
                 {
-                    Bubble = Map[PosList[i].x - 1][PosList[i].y].ConnectedBubble;
-                    Data = GetComponent<BubbleMotionData>();
-                    if (PosList[i].x > 1)
-                    {
-                        if (Map[PosList[i].x - 2][PosList[i].y] != null && Map[PosList[i].x - 2][PosList[i].y].InsideBubbleType != BubbleType.Null)
-                        {
-                            NewPosList.Add(new Vector2Int(PosList[i].x - 1, PosList[i].y));
-                            BubbleInflateMoveBlocked.Add(new BlockedTask(Bubble, Bubble.transform.localPosition, Vector3.left, Data.BlockedDis, Data.BlockedTime));
-                        }
-                        else
-                        {
-                            NewPosList.Add(new Vector2Int(PosList[i].x - 2, PosList[i].y));
-                            BubbleInflateMoveBlocked.Add(new MoveTask(Bubble, Bubble.transform.localPosition, Vector3.left, Data.MoveDis, Data.MoveTime));
-                            Map[PosList[i].x - 2][PosList[i].y].ConnectedBubble = Bubble;
-                            Map[PosList[i].x - 2][PosList[i].y].InsideBubbleType = Bubble.GetComponent<Bubble>().Type;
-                            Map[PosList[i].x - 1][PosList[i].y].ConnectedBubble = null;
-                            Map[PosList[i].x - 1][PosList[i].y].InsideBubbleType = BubbleType.Null;
-                        }
-                    }
-                    else
-                    {
-                        NewPosList.Add(new Vector2Int(PosList[i].x - 1, PosList[i].y));
-                        BubbleInflateMoveBlocked.Add(new BlockedTask(Bubble, Bubble.transform.localPosition, Vector3.left, Data.BlockedDis, Data.BlockedTime));
-                    }
+                    Moves.Add(new MoveInfo(Direction.Left, new Vector2Int(PosList[i].x - 1, PosList[i].y)));
                 }
             }
 
@@ -304,30 +273,7 @@ public class LevelManager : MonoBehaviour
             {
                 if (Map[PosList[i].x][PosList[i].y + 1] != null && Map[PosList[i].x][PosList[i].y + 1].InsideBubbleType != BubbleType.Null && Map[PosList[i].x][PosList[i].y + 1].InsideBubbleState == BubbleState.Default)
                 {
-                    Bubble = Map[PosList[i].x][PosList[i].y + 1].ConnectedBubble;
-                    Data = GetComponent<BubbleMotionData>();
-                    if (PosList[i].y < Map[PosList[i].x].Count - 2)
-                    {
-                        if (Map[PosList[i].x][PosList[i].y + 2] != null && Map[PosList[i].x][PosList[i].y + 2].InsideBubbleType != BubbleType.Null)
-                        {
-                            NewPosList.Add(new Vector2Int(PosList[i].x, PosList[i].y + 1));
-                            BubbleInflateMoveBlocked.Add(new BlockedTask(Bubble, Bubble.transform.localPosition, Vector3.up, Data.BlockedDis, Data.BlockedTime));
-                        }
-                        else
-                        {
-                            NewPosList.Add(new Vector2Int(PosList[i].x, PosList[i].y + 2));
-                            BubbleInflateMoveBlocked.Add(new MoveTask(Bubble, Bubble.transform.localPosition, Vector3.up, Data.MoveDis, Data.MoveTime));
-                            Map[PosList[i].x][PosList[i].y + 2].ConnectedBubble = Bubble;
-                            Map[PosList[i].x][PosList[i].y + 2].InsideBubbleType = Bubble.GetComponent<Bubble>().Type;
-                            Map[PosList[i].x][PosList[i].y + 1].ConnectedBubble = null;
-                            Map[PosList[i].x][PosList[i].y + 1].InsideBubbleType = BubbleType.Null;
-                        }
-                    }
-                    else
-                    {
-                        NewPosList.Add(new Vector2Int(PosList[i].x, PosList[i].y + 1));
-                        BubbleInflateMoveBlocked.Add(new BlockedTask(Bubble, Bubble.transform.localPosition, Vector3.up, Data.BlockedDis, Data.BlockedTime));
-                    }
+                    Moves.Add(new MoveInfo(Direction.Up, new Vector2Int(PosList[i].x, PosList[i].y + 1)));
                 }
             }
 
@@ -335,34 +281,73 @@ public class LevelManager : MonoBehaviour
             {
                 if (Map[PosList[i].x][PosList[i].y - 1] != null && Map[PosList[i].x][PosList[i].y - 1].InsideBubbleType != BubbleType.Null && Map[PosList[i].x][PosList[i].y - 1].InsideBubbleState == BubbleState.Default)
                 {
-                    Bubble = Map[PosList[i].x][PosList[i].y - 1].ConnectedBubble;
-                    Data = GetComponent<BubbleMotionData>();
-                    if (PosList[i].y > 1)
-                    {
-                        if (Map[PosList[i].x][PosList[i].y - 2] != null && Map[PosList[i].x][PosList[i].y - 2].InsideBubbleType != BubbleType.Null)
-                        {
-                            NewPosList.Add(new Vector2Int(PosList[i].x, PosList[i].y - 1));
-                            BubbleInflateMoveBlocked.Add(new BlockedTask(Bubble, Bubble.transform.localPosition, Vector3.down, Data.BlockedDis, Data.BlockedTime));
-                        }
-                        else
-                        {
-                            NewPosList.Add(new Vector2Int(PosList[i].x, PosList[i].y - 2));
-                            BubbleInflateMoveBlocked.Add(new MoveTask(Bubble, Bubble.transform.localPosition, Vector3.down, Data.MoveDis, Data.MoveTime));
-                            Map[PosList[i].x][PosList[i].y - 2].ConnectedBubble = Bubble;
-                            Map[PosList[i].x][PosList[i].y - 2].InsideBubbleType = Bubble.GetComponent<Bubble>().Type;
-                            Map[PosList[i].x][PosList[i].y - 1].ConnectedBubble = null;
-                            Map[PosList[i].x][PosList[i].y - 1].InsideBubbleType = BubbleType.Null;
-                        }
-                    }
-                    else
-                    {
-                        NewPosList.Add(new Vector2Int(PosList[i].x, PosList[i].y - 1));
-                        BubbleInflateMoveBlocked.Add(new BlockedTask(Bubble, Bubble.transform.localPosition, Vector3.down, Data.BlockedDis, Data.BlockedTime));
-                    }
+                    Moves.Add(new MoveInfo(Direction.Down, new Vector2Int(PosList[i].x, PosList[i].y - 1)));
+                }
+            }
+        }
+
+        for (int k = 0; k < Moves.Count; k++)
+        {
+            int x = Moves[k].TargetPos.x;
+            int y = Moves[k].TargetPos.y;
+
+            if (!(x < 0 || y < 0 || x >= Map.Count || y >= Map[x].Count || Map[x][y] == null))
+            {
+                PosTarget[x][y]++;
+            }
+        }
+
+        for (int k = 0; k < Moves.Count; k++)
+        {
+            Vector2 dir;
+            switch (Moves[k].direction)
+            {
+                case Direction.Left:
+                    dir = Vector2.left;
+                    break;
+                case Direction.Right:
+                    dir = Vector2.right;
+                    break;
+                case Direction.Up:
+                    dir = Vector2.up;
+                    break;
+                case Direction.Down:
+                    dir = Vector2.down;
+                    break;
+                default:
+                    dir = Vector2.zero;
+                    break;
+            }
+
+            int x = Moves[k].TargetPos.x;
+            int y = Moves[k].TargetPos.y;
+
+            GameObject Bubble = Map[Moves[k].CurrentPos.x][Moves[k].CurrentPos.y].ConnectedBubble;
+            var Data = GetComponent<BubbleMotionData>();
+
+            if (x < 0 || y < 0 || x >= Map.Count || y >= Map[x].Count || Map[x][y] == null || Map[x][y].InsideBubbleType != BubbleType.Null)
+            {
+                NewPosList.Add(new Vector2Int(Moves[k].CurrentPos.x, Moves[k].CurrentPos.y));
+                BubbleInflateMoveBlocked.Add(new BlockedTask(Bubble, Bubble.transform.localPosition, dir, Data.BlockedDis, Data.BlockedTime));
+            }
+            else
+            {
+                if (PosTarget[x][y] > 1)
+                {
+                    NewPosList.Add(new Vector2Int(Moves[k].CurrentPos.x, Moves[k].CurrentPos.y));
+                    BubbleInflateMoveBlocked.Add(new BlockedTask(Bubble, Bubble.transform.localPosition, dir, Data.ConflictBlockedDis, Data.BlockedTime));
+                }
+                else
+                {
+                    NewPosList.Add(new Vector2Int(x, y));
+                    BubbleInflateMoveBlocked.Add(new MoveTask(Bubble, Bubble.transform.localPosition, dir, Data.MoveDis, Data.MoveTime));
+                    Map[x][y].ConnectedBubble = Bubble;
+                    Map[x][y].InsideBubbleType = Bubble.GetComponent<Bubble>().Type;
+                    Map[Moves[k].CurrentPos.x][Moves[k].CurrentPos.y].ConnectedBubble = null;
+                    Map[Moves[k].CurrentPos.x][Moves[k].CurrentPos.y].InsideBubbleType = BubbleType.Null;
                 }
             }
 
-            
         }
 
         BubbleMotionTasks.Add(BubbleInflateMoveBlocked);
