@@ -38,7 +38,7 @@ public class SlotObject : MonoBehaviour
 
     private void OnMouseOver()
     {
-        if (ConnectedSlotInfo.InsideBubbleType==BubbleType.Null && GameManager.HeldBubbleType!=BubbleType.Null && GameManager.State==GameState.Play && AvailablePos())
+        if (GameManager.State == GameState.Play && ConnectedSlotInfo.InsideBubbleType==BubbleType.Null && GameManager.HeldBubbleType!=BubbleType.Null && AvailablePos())
         {
             Selected = true;
             Color color = GetComponent<SpriteRenderer>().color;

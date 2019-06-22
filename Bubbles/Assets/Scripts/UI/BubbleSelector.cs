@@ -18,13 +18,11 @@ public class BubbleSelector : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        EventManager.instance.AddHandler<LevelLoaded>(OnLevelLoaded);
         EventManager.instance.AddHandler<BubbleNumSet>(OnBubbleNumSet);
     }
 
     private void OnDestroy()
     {
-        EventManager.instance.RemoveHandler<LevelLoaded>(OnLevelLoaded);
         EventManager.instance.RemoveHandler<BubbleNumSet>(OnBubbleNumSet);
     }
 
@@ -71,32 +69,15 @@ public class BubbleSelector : MonoBehaviour
             {
                 if (raycastResults[i].gameObject==gameObject)
                 {
+                    if (GameManager.HeldBubbleType != Type)
+                    {
+                        EventManager.instance.Fire(new BubbleSelected(Type));
+                    }
                     GameManager.HeldBubbleType = Type;
                     return;
                 }
             }
         }
-    }
-
-    /*private void SetText()
-    {
-        switch (Type)
-        {
-            case BubbleType.Disappear:
-                num = LevelManager.RemainedDisappearBubble;
-                break;
-            case BubbleType.Normal:
-                num = LevelManager.RemainedNormalBubble;
-                break;
-            default:
-                break;
-        }
-        transform.Find("RemainedNumber").GetComponent<Text>().text = num.ToString();
-    }*/
-
-    private void OnLevelLoaded(LevelLoaded L)
-    {
-        Remained = false;
     }
     
     private void OnBubbleNumSet(BubbleNumSet B)

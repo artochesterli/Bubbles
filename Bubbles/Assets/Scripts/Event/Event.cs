@@ -49,3 +49,12 @@ public class BubbleNumSet : Event
     }
 }
 
+public class BubbleSelected : Event
+{
+    public BubbleType Type;
+    public BubbleSelected (BubbleType type)
+    {
+        Type = type;
+    }
+}
+
