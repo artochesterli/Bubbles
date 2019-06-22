@@ -37,7 +37,21 @@ public class CursorManager : MonoBehaviour
     {
         if (!ColorChanging)
         {
-            switch (GameManager.State)
+            switch (GameManager.HeldBubbleType)
+            {
+                case BubbleType.Disappear:
+                    GetComponent<SpriteRenderer>().color = DisappearBubbleColor;
+                    CurrentColor = DisappearBubbleColor;
+                    break;
+                case BubbleType.Normal:
+                    GetComponent<SpriteRenderer>().color = NormalBubbleColor;
+                    CurrentColor = NormalBubbleColor;
+                    break;
+                default:
+                    break;
+            }
+
+            /*switch (GameManager.State)
             {
                 case GameState.Play:
                     switch (GameManager.HeldBubbleType)
@@ -60,7 +74,7 @@ public class CursorManager : MonoBehaviour
                     break;
                 default:
                     break;
-            }
+            }*/
         }
     }
 
