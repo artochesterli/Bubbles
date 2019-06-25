@@ -71,7 +71,7 @@ SpriteRenderer:
   m_SortingLayer: 1
   m_SortingOrder: 0
   m_Sprite: {fileID: 21300000, guid: 36a503c4b77dabf4ab2cf63a39cffd46, type: 3}
-  m_Color: {r: 0.5235849, g: 0.95272213, b: 1, a: 0.5019608}
+  m_Color: {r: 0.39017445, g: 0.5825902, b: 0.6037736, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -94,9 +94,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MapPivotOffset: {x: 0, y: 0}
-  SelectedAlpha: 1
-  DefaultAlpha: 0.5
+  SelectedColor: {r: 0.5254902, g: 0.9529412, b: 1, a: 1}
+  InfectedColor: {r: 0, g: 0, b: 0, a: 0}
+  DefaultColor: {r: 0.39215687, g: 0.58431375, b: 0.6039216, a: 1}
   Type: 1
+  State: 0
+  FadeWaitTime: 0.5
+  FadeTime: 2
+  FadeColor: {r: 0.39215687, g: 0.58431375, b: 0.6039216, a: 0}
+  LightingWaitTime: 0.5
+  LightingTime: 2
+  LightingColor: {r: 0.5254902, g: 0.9529412, b: 1, a: 1}
 --- !u!61 &4410845237518528396
 BoxCollider2D:
   m_ObjectHideFlags: 0

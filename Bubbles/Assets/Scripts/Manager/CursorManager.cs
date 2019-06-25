@@ -1,16 +1,24 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class CursorManager : MonoBehaviour
 {
+    public static bool InAvailableSlot;
+
     public Color DisappearBubbleColor;
     public Color NormalBubbleColor;
-    public Color NoBubbleColor;
+    public Color GreyDisappearBubbleColor;
+    public Color GreyNormalBubbleColor;
 
-    public float ChangeTime;
+    public float ColorChangeTime;
     public float Scale;
     public float InflatedScale;
+
+    public float InSlotScale;
+    public float InSlotScaleChangeTime;
+    
 
     private bool ColorChanging;
     private Color CurrentColor;
@@ -31,37 +39,44 @@ public class CursorManager : MonoBehaviour
     {
         SetPos();
         SetAppearance();
+        SetScale();
+    }
+
+    private void SetScale()
+    {
+        if (InAvailableSlot)
+        {
+            transform.localScale += Vector3.one * (InSlotScale - Scale) / InSlotScaleChangeTime * Time.deltaTime;
+            if (transform.localScale.x > InSlotScale)
+            {
+                transform.localScale = Vector3.one * InSlotScale;
+            }
+        }
+        else
+        {
+            transform.localScale -= Vector3.one * (InSlotScale - Scale) / InSlotScaleChangeTime * Time.deltaTime;
+            if (transform.localScale.x < Scale)
+            {
+                transform.localScale = Vector3.one * Scale;
+            }
+        }
     }
 
     private void SetAppearance()
     {
         if (!ColorChanging)
         {
-            switch (GameManager.HeldBubbleType)
-            {
-                case BubbleType.Disappear:
-                    GetComponent<SpriteRenderer>().color = DisappearBubbleColor;
-                    CurrentColor = DisappearBubbleColor;
-                    break;
-                case BubbleType.Normal:
-                    GetComponent<SpriteRenderer>().color = NormalBubbleColor;
-                    CurrentColor = NormalBubbleColor;
-                    break;
-                default:
-                    break;
-            }
-
-            /*switch (GameManager.State)
+            switch (GameManager.State)
             {
                 case GameState.Play:
                     switch (GameManager.HeldBubbleType)
                     {
                         case BubbleType.Disappear:
-                            GetComponent<SpriteRenderer>().color = DisappearBubbleColor;
+                            GetComponent<Image>().color = DisappearBubbleColor;
                             CurrentColor = DisappearBubbleColor;
                             break;
                         case BubbleType.Normal:
-                            GetComponent<SpriteRenderer>().color = NormalBubbleColor;
+                            GetComponent<Image>().color = NormalBubbleColor;
                             CurrentColor = NormalBubbleColor;
                             break;
                         default:
@@ -69,18 +84,30 @@ public class CursorManager : MonoBehaviour
                     }
                     break;
                 case GameState.Show:
-                    transform.localScale = Vector3.one * Scale;
-                    GetComponent<SpriteRenderer>().color = NoBubbleColor;
+                    switch (GameManager.HeldBubbleType)
+                    {
+                        case BubbleType.Disappear:
+                            GetComponent<Image>().color = GreyDisappearBubbleColor;
+                            CurrentColor = GreyDisappearBubbleColor;
+                            break;
+                        case BubbleType.Normal:
+                            GetComponent<Image>().color = GreyNormalBubbleColor;
+                            CurrentColor = GreyNormalBubbleColor;
+                            break;
+                        default:
+                            break;
+                    }
                     break;
                 default:
                     break;
-            }*/
+            }
+            
         }
     }
 
     private void SetPos()
     {
-        transform.position = Vector3.back * Camera.main.transform.position.z + Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        GetComponent<RectTransform>().position = Input.mousePosition;
     }
 
     private IEnumerator ChangeColor(Color Start, Color End)
@@ -88,19 +115,19 @@ public class CursorManager : MonoBehaviour
         ColorChanging = true;
         transform.localScale = Scale * Vector3.one;
         float TimeCount = 0;
-        while (TimeCount < ChangeTime / 2)
+        while (TimeCount < ColorChangeTime / 2)
         {
             TimeCount += Time.deltaTime;
-            transform.localScale = Vector3.Lerp(Scale*Vector3.one, InflatedScale*Vector3.one, 2 * TimeCount / ChangeTime);
-            GetComponent<SpriteRenderer>().color = Color.Lerp(Start, End, TimeCount / ChangeTime);
+            transform.localScale = Vector3.Lerp(Scale*Vector3.one, InflatedScale*Vector3.one, 2 * TimeCount / ColorChangeTime);
+            GetComponent<Image>().color = Color.Lerp(Start, End, TimeCount / ColorChangeTime);
             yield return null;
         }
 
-        while(TimeCount < ChangeTime)
+        while(TimeCount < ColorChangeTime)
         {
             TimeCount += Time.deltaTime;
-            transform.localScale = Vector3.Lerp(InflatedScale * Vector3.one, Scale * Vector3.one, (2 * TimeCount - ChangeTime) / ChangeTime);
-            GetComponent<SpriteRenderer>().color = Color.Lerp(Start, End, TimeCount / ChangeTime);
+            transform.localScale = Vector3.Lerp(InflatedScale * Vector3.one, Scale * Vector3.one, (2 * TimeCount - ColorChangeTime) / ColorChangeTime);
+            GetComponent<Image>().color = Color.Lerp(Start, End, TimeCount / ColorChangeTime);
             yield return null;
         }
         CurrentColor = End;
@@ -110,14 +137,31 @@ public class CursorManager : MonoBehaviour
     private void OnBubbleSelected(BubbleSelected B)
     {
         StopAllCoroutines();
-        switch (B.Type)
+        switch (GameManager.State)
         {
-            case BubbleType.Disappear:
-                StartCoroutine(ChangeColor(CurrentColor, DisappearBubbleColor));
+            case GameState.Play:
+                switch (B.Type)
+                {
+                    case BubbleType.Disappear:
+                        StartCoroutine(ChangeColor(CurrentColor, DisappearBubbleColor));
+                        break;
+                    case BubbleType.Normal:
+                        StartCoroutine(ChangeColor(CurrentColor, NormalBubbleColor));
+                        break;
+                }
                 break;
-            case BubbleType.Normal:
-                StartCoroutine(ChangeColor(CurrentColor, NormalBubbleColor));
+            case GameState.Show:
+                switch (B.Type)
+                {
+                    case BubbleType.Disappear:
+                        StartCoroutine(ChangeColor(CurrentColor, GreyDisappearBubbleColor));
+                        break;
+                    case BubbleType.Normal:
+                        StartCoroutine(ChangeColor(CurrentColor, GreyNormalBubbleColor));
+                        break;
+                }
                 break;
         }
+        
     }
 }

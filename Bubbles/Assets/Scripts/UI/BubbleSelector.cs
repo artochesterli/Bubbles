@@ -13,7 +13,14 @@ public class BubbleSelector : MonoBehaviour
 
     public float CurrentScale;
 
+    public Color AvailableColor;
+    public Color UsedUpColor;
+
+    public float Size;
+
     private bool Remained;
+
+
 
     // Start is called before the first frame update
     void Start()
@@ -30,6 +37,7 @@ public class BubbleSelector : MonoBehaviour
     void Update()
     {
         CheckSelected();
+        SetColor();
         SetScale();
     }
 
@@ -57,26 +65,10 @@ public class BubbleSelector : MonoBehaviour
 
     private void CheckSelected()
     {
-        if (EventSystem.current.IsPointerOverGameObject() && Remained && Input.GetMouseButtonDown(0))
+        if (GameManager.HeldBubbleType != Type && Remained && Input.GetMouseButtonDown(0) && Mathf.Abs(Input.mousePosition.x-GetComponent<RectTransform>().position.x)<= Size * CurrentScale && Mathf.Abs(Input.mousePosition.y - GetComponent<RectTransform>().position.y) <= Size * CurrentScale)
         {
-            PointerEventData pointerEventData = new PointerEventData(EventSystem.current);
-            pointerEventData.position = Input.mousePosition;
-
-            List<RaycastResult> raycastResults = new List<RaycastResult>();
-            EventSystem.current.RaycastAll(pointerEventData, raycastResults);
-
-            for(int i=0; i< raycastResults.Count; i++)
-            {
-                if (raycastResults[i].gameObject==gameObject)
-                {
-                    if (GameManager.HeldBubbleType != Type)
-                    {
-                        EventManager.instance.Fire(new BubbleSelected(Type));
-                    }
-                    GameManager.HeldBubbleType = Type;
-                    return;
-                }
-            }
+            EventManager.instance.Fire(new BubbleSelected(Type));
+            GameManager.HeldBubbleType = Type;
         }
     }
     
@@ -103,8 +95,18 @@ public class BubbleSelector : MonoBehaviour
                 Text.GetComponent<Text>().color = Color.white;
                 Remained = true;
             }
+        }
+    }
 
-
+    private void SetColor()
+    {
+        if (Remained)
+        {
+            GetComponent<Image>().color = new Color(AvailableColor.r, AvailableColor.g, AvailableColor.b, GetComponent<Image>().color.a);
+        }
+        else
+        {
+            GetComponent<Image>().color = new Color(UsedUpColor.r, UsedUpColor.g, UsedUpColor.b, GetComponent<Image>().color.a);
         }
     }
 

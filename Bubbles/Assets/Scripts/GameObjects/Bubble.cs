@@ -22,3 +22,5 @@ public class Bubble : MonoBehaviour
     public BubbleType Type;
     public BubbleState State;
 }
+
+

@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 5530652085487004502}
   - component: {fileID: 8577185507165395317}
   - component: {fileID: 1682296935907918011}
-  - component: {fileID: 818072460617089512}
   m_Layer: 0
   m_Name: DisappearBubble
   m_TagString: Untagged
@@ -67,15 +66,15 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: -1357146157
+  m_SortingLayer: 2
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 4d9ed7f39e8e62342a0f2de6b2cceff1, type: 3}
+  m_Sprite: {fileID: 21300000, guid: c392c4ffc7442084ba9e1f747ba1a301, type: 3}
   m_Color: {r: 0.9137255, g: 1, b: 0.42352942, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 5.12, y: 5.12}
+  m_Size: {x: 1.62, y: 1.62}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -95,16 +94,3 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Type: 1
   State: 0
---- !u!114 &818072460617089512
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6378149597109863786}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 48b51abbca21c164a9137c6708f18a2e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  color: {r: 0.9137255, g: 1, b: 0.42352942, a: 1}

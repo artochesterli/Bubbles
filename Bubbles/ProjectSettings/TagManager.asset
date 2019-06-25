@@ -41,9 +41,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: TargetSlot
+  - name: Slot
     uniqueID: 2530032483
     locked: 0
-  - name: Foremost
+  - name: Bubble
     uniqueID: 2937821139
     locked: 0

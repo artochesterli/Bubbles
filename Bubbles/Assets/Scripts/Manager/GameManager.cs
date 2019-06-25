@@ -21,6 +21,8 @@ public class GameManager : MonoBehaviour
 
     public GameObject Mask;
     public float MaskFadeTime;
+    public float LevelSuccessWaitTime;
+    public float LevelFailWaitTime;
 
     private GameObject AllLevel;
     private List<GameObject> SortedLevelList;
@@ -46,11 +48,11 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space))
+        /*if (Input.GetKeyDown(KeyCode.Space))
         {
             StartCoroutine(LoadLevel(CurrentLevel + 1));
             CurrentLevel++;
-        }
+        }*/
     }
 
     private void Init()
@@ -116,16 +118,25 @@ public class GameManager : MonoBehaviour
         State = GameState.Show;
         if (L.Success)
         {
-            StartCoroutine(LoadLevel(L.Index + 1));
+            StartCoroutine(LoadLevel(L.Index + 1, true));
         }
         else
         {
-            StartCoroutine(LoadLevel(L.Index));
+            StartCoroutine(LoadLevel(L.Index, false));
         }
     }
 
-    private IEnumerator LoadLevel(int index)
+    private IEnumerator LoadLevel(int index, bool win)
     {
+        if (win)
+        {
+            yield return new WaitForSeconds(LevelSuccessWaitTime);
+        }
+        else
+        {
+            yield return new WaitForSeconds(LevelFailWaitTime);
+        }
+
         if (index <= MaxLevelIndex)
         {
             yield return StartCoroutine(ScreenFade());

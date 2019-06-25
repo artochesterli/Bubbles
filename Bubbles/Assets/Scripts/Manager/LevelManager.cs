@@ -155,7 +155,7 @@ public class LevelManager : MonoBehaviour
         Map[Pos.x][Pos.y].InsideBubbleType = Type;
         Map[Pos.x][Pos.y].InsideBubbleState = BubbleState.Default;
         Map[Pos.x][Pos.y].ConnectedBubble.transform.parent = AllBubble.transform;
-        Map[Pos.x][Pos.y].ConnectedBubble.transform.localScale = Vector3.one * GetComponent<BubbleMotionData>().DropScale;
+        Map[Pos.x][Pos.y].ConnectedBubble.transform.localScale = Vector3.one * GetComponent<BubbleMotionData>().OriScale;
         AddDropMoveTask(Map[Pos.x][Pos.y].ConnectedBubble, Pos);
         BubbleInflate(PosList, true);
     }
@@ -244,8 +244,8 @@ public class LevelManager : MonoBehaviour
             var Data = GetComponent<BubbleMotionData>();
             if (Drop)
             {
-                BubbleMotionTasks.Add(new InflateTask(Bubble, Data.DropScale * Vector3.one, Data.OriScale * Vector3.one, Data.InflateTime * (Data.OriScale - Data.DropScale) / Data.InflatedScale));
-                BubbleInflateMoveBlocked.Add(new InflateTask(Bubble, Data.OriScale * Vector3.one, Data.InflatedScale * Vector3.one, Data.InflateTime * (Data.InflatedScale-Data.OriScale)/Data.InflatedScale));
+                //BubbleMotionTasks.Add(new InflateTask(Bubble, Data.DropScale * Vector3.one, Data.OriScale * Vector3.one, Data.InflateTime * (Data.OriScale - Data.DropScale) / Data.InflatedScale));
+                BubbleInflateMoveBlocked.Add(new InflateTask(Bubble, Data.OriScale * Vector3.one, Data.InflatedScale * Vector3.one, Data.InflateTime));
             }
             else
             {
