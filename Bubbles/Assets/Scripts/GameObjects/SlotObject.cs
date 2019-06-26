@@ -56,7 +56,7 @@ public class SlotObject : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(GameManager.State != GameState.Play)
+        if(GameManager.State == GameState.Show)
         {
             CursorManager.InAvailableSlot = false;
             State = SlotState.Default;

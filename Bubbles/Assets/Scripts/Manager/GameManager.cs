@@ -8,6 +8,7 @@ public enum GameState
     Play,
     Show,
     Pause,
+    Finish
 }
 
 public class GameManager : MonoBehaviour
@@ -34,25 +35,19 @@ public class GameManager : MonoBehaviour
         Init();
 
         EventManager.instance.AddHandler<Place>(OnPlace);
-        EventManager.instance.AddHandler<MotionFinish>(OnMotionFinish);
         EventManager.instance.AddHandler<LevelFinish>(OnLevelFinish);
     }
 
     private void OnDestroy()
     {
         EventManager.instance.RemoveHandler<Place>(OnPlace);
-        EventManager.instance.RemoveHandler<MotionFinish>(OnMotionFinish);
         EventManager.instance.RemoveHandler<LevelFinish>(OnLevelFinish);
     }
 
     // Update is called once per frame
     void Update()
     {
-        /*if (Input.GetKeyDown(KeyCode.Space))
-        {
-            StartCoroutine(LoadLevel(CurrentLevel + 1));
-            CurrentLevel++;
-        }*/
+
     }
 
     private void Init()
@@ -108,14 +103,11 @@ public class GameManager : MonoBehaviour
         State = GameState.Show;
     }
 
-    private void OnMotionFinish(MotionFinish M)
-    {
-        State = GameState.Play;
-    }
+    
 
     private void OnLevelFinish(LevelFinish L)
     {
-        State = GameState.Show;
+        State = GameState.Finish;
         if (L.Success)
         {
             StartCoroutine(LoadLevel(L.Index + 1, true));

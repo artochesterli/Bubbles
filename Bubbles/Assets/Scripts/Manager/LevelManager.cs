@@ -38,6 +38,13 @@ public class LevelManager : MonoBehaviour
         
     }
 
+    private void OnDisable()
+    {
+        EventManager.instance.RemoveHandler<Place>(OnPlace);
+        EventManager.instance.RemoveHandler<MotionFinish>(OnMotionFinish);
+        EventManager.instance.RemoveHandler<LevelLoaded>(OnLevelLoaded);
+    }
+
     private void OnDestroy()
     {
         EventManager.instance.RemoveHandler<Place>(OnPlace);
@@ -416,6 +423,7 @@ public class LevelManager : MonoBehaviour
 
     private void OnMotionFinish(MotionFinish M)
     {
+        GameManager.State = GameState.Play;
         if (gameObject.activeSelf)
         {
             Synchronize();
