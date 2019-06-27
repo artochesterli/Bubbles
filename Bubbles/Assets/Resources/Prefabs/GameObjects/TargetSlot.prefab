@@ -100,10 +100,10 @@ MonoBehaviour:
   Type: 1
   State: 0
   FadeWaitTime: 0.5
-  FadeTime: 2
+  FadeTime: 1.2
   FadeColor: {r: 0.39215687, g: 0.58431375, b: 0.6039216, a: 0}
   LightingWaitTime: 0.5
-  LightingTime: 2
+  LightingTime: 1.2
   LightingColor: {r: 0.5254902, g: 0.9529412, b: 1, a: 1}
 --- !u!61 &4410845237518528396
 BoxCollider2D:

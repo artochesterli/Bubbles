@@ -58,4 +58,12 @@ public class BubbleSelected : Event
     }
 }
 
+public class Back : Event
+{
+    public BubbleType Type;
+    public Back(BubbleType type)
+    {
+        Type = type;
+    }
+}
 

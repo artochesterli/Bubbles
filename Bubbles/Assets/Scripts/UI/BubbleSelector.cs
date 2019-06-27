@@ -20,8 +20,6 @@ public class BubbleSelector : MonoBehaviour
 
     private bool Remained;
 
-
-
     // Start is called before the first frame update
     void Start()
     {

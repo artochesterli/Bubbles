@@ -108,9 +108,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   LightingWaitTime: 0.5
-  LightingTime: 2
+  LightingTime: 1.2
   FadeWaitTime: 0.5
-  FadeTime: 2
+  FadeTime: 1.2
   OriScale: 1
   LightingScale: 2
   FadeScale: 0.5
