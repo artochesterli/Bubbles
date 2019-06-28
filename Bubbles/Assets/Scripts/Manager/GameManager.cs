@@ -127,19 +127,22 @@ public class GameManager : MonoBehaviour
         if (L.Success)
         {
             StartCoroutine(LoadLevel(L.Index + 1, true));
+
+            LevelFinishStat.Add(new GameStatistics(Mathf.RoundToInt(Timer), LevelManager.RemainedDisappearBubble, LevelManager.RemainedNormalBubble));
+            if (LoadStat() < LevelFinishStat.Count)
+            {
+                SaveStat();
+            }
+            
+
+            Timer = 0;
         }
         else
         {
             StartCoroutine(LoadLevel(L.Index, false));
         }
 
-        LevelFinishStat.Add(new GameStatistics(Mathf.RoundToInt(Timer), LevelManager.RemainedDisappearBubble, LevelManager.RemainedNormalBubble));
-
-        if (LoadStat() < LevelFinishStat.Count)
-        {
-            SaveStat();
-        }
-        Timer = 0;
+        
     }
 
     private IEnumerator LoadLevel(int index, bool win)
