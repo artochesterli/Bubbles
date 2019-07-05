@@ -5,7 +5,8 @@ using UnityEngine;
 public enum SlotType
 {
     Normal,
-    Target
+    Target,
+    Teleport
 }
 
 public enum SlotState
@@ -24,7 +25,7 @@ public class SlotObject : MonoBehaviour
     public Color SelectedColor;
     public Color InfectedColor;
     public Color DefaultColor;
-
+    
     public SlotType Type;
     public SlotState State;
 

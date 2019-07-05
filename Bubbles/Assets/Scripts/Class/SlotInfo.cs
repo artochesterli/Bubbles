@@ -9,14 +9,16 @@ public class SlotInfo
     public BubbleType InsideBubbleType;
     public BubbleState InsideBubbleState;
     public GameObject ConnectedBubble;
+    public Vector3 Location;
 
-    public SlotInfo(Vector2Int v, SlotType sType, BubbleType type, BubbleState state, GameObject g)
+    public SlotInfo(Vector2Int v, SlotType sType, BubbleType type, BubbleState state, GameObject g, Vector3 loc)
     {
         Pos = v;
         slotType = sType;
         InsideBubbleType = type;
         InsideBubbleState = state;
         ConnectedBubble = g;
+        Location = loc;
     }
 
 }

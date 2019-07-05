@@ -9,22 +9,28 @@ public class BlockedTask : Task
     private readonly Vector3 Direction;
     private readonly float BlockedDis;
     private readonly float BlockedTime;
+    private readonly List<List<SlotInfo>> Map;
+    private readonly Vector2Int V;
 
     private float TimeCount;
     private bool forward;
 
-    public BlockedTask(GameObject obj, Vector3 pos, Vector3 dir, float dis, float time)
+    public BlockedTask(GameObject obj, Vector3 pos, Vector3 dir, float dis, float time, Vector2Int v, List<List<SlotInfo>> map)
     {
         Obj = obj;
         Pos = pos;
         Direction = dir;
         BlockedDis = dis;
         BlockedTime = time;
+        V = v;
+        Map = map;
+
+        SetMapInfo();
     }
 
     protected override void Init()
     {
-        Obj.GetComponent<Bubble>().State = BubbleState.Blocked;
+        Obj.GetComponent<Bubble>().State = BubbleState.Activated;
         Obj.transform.localPosition = Pos;
         TimeCount = 0;
         forward = true;
@@ -52,5 +58,10 @@ public class BlockedTask : Task
         {
             SetState(TaskState.Success);
         }
+    }
+
+    private void SetMapInfo()
+    {
+        Map[V.x][V.y].InsideBubbleState = BubbleState.Activated;
     }
 }

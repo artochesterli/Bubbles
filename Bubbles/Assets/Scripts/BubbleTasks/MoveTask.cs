@@ -2,13 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public enum MoveTaskMode
-{
-    Visual,
-    Immediate,
-    Delay
-}
-
 public class MoveTask : Task
 {
     private readonly GameObject Obj;
@@ -20,11 +13,11 @@ public class MoveTask : Task
     private readonly Vector2Int End;
     private readonly BubbleType Type;
     private readonly List<List<SlotInfo>> Map;
-    private readonly MoveTaskMode Mode;
+    private readonly BubbleTaskMode Mode;
 
     private float TimeCount;
 
-    public MoveTask(GameObject obj, Vector3 pos, Vector3 dir ,float dis, float time , Vector2Int start, Vector2Int end , BubbleType type = BubbleType.Null, List<List<SlotInfo>> map=null , MoveTaskMode mode = MoveTaskMode.Visual)
+    public MoveTask(GameObject obj, Vector3 pos, Vector3 dir ,float dis, float time , Vector2Int start, Vector2Int end , BubbleType type = BubbleType.Null, List<List<SlotInfo>> map=null , BubbleTaskMode mode = BubbleTaskMode.Visual)
     {
         Obj = obj;
         Pos = pos;
@@ -37,7 +30,7 @@ public class MoveTask : Task
         Map = map;
         Mode = mode;
 
-        if (Mode == MoveTaskMode.Immediate)
+        if (Mode == BubbleTaskMode.Immediate)
         {
             SetMapInfo();
         }
@@ -46,14 +39,27 @@ public class MoveTask : Task
 
     protected override void Init()
     {
-        Obj.GetComponent<Bubble>().State = BubbleState.Moving;
+        if (Mode == BubbleTaskMode.Immediate)
+        {
+            Obj.GetComponent<Bubble>().State = BubbleState.Activated;
+        }
+        else
+        {
+            Obj.GetComponent<Bubble>().State = BubbleState.Stable;
+        }
+
         Obj.transform.localPosition = Pos;
 
-        if(Mode == MoveTaskMode.Delay)
+        if(Mode == BubbleTaskMode.Delay)
         {
             SetMapInfo();
         }
-        
+
+        if (MoveTime == 0)
+        {
+            Obj.transform.localPosition = Pos + Dir * MoveDis;
+            SetState(TaskState.Success);
+        }
     }
 
     internal override void Update()
@@ -63,17 +69,24 @@ public class MoveTask : Task
 
         if (TimeCount >= MoveTime)
         {
-            Obj.GetComponent<Bubble>().State = BubbleState.Default;
             SetState(TaskState.Success);
         }
     }
 
     private void SetMapInfo()
     {
-        Map[Start.x][Start.y].InsideBubbleState = BubbleState.Default;
+        Map[Start.x][Start.y].InsideBubbleState = BubbleState.Stable;
         Map[Start.x][Start.y].InsideBubbleType = BubbleType.Null;
         Map[Start.x][Start.y].ConnectedBubble = null;
-        Map[End.x][End.y].InsideBubbleState = BubbleState.Default;
+        if (Mode == BubbleTaskMode.Immediate)
+        {
+            Map[End.x][End.y].InsideBubbleState = BubbleState.Activated;
+        }
+        else
+        {
+            Map[End.x][End.y].InsideBubbleState = BubbleState.Stable;
+        }
+        
         Map[End.x][End.y].InsideBubbleType= Type;
         Map[End.x][End.y].ConnectedBubble = Obj;
     }

@@ -11,10 +11,9 @@ public enum BubbleType
 
 public enum BubbleState
 {
-    Default,
-    Blocked,
-    Moving,
-    Inflated
+    Stable,
+    Activated,
+    Exhausted
 }
 
 public class Bubble : MonoBehaviour
