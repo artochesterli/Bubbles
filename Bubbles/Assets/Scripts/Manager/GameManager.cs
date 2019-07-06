@@ -29,7 +29,7 @@ public class GameStatistics
 public class GameManager : MonoBehaviour
 {
     public static GameState State;
-    public static BubbleType HeldBubbleType;
+    public static BubbleType HeldBubbleType = BubbleType.Disappear;
     public static int CurrentLevel;
 
     public int MinLevelIndex;

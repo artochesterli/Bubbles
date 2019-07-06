@@ -7,6 +7,7 @@ public class CursorManager : MonoBehaviour
 {
     public static bool InAvailableSlot;
 
+    public Color NullColor;
     public Color DisappearBubbleColor;
     public Color NormalBubbleColor;
     public Color GreyDisappearBubbleColor;
@@ -80,6 +81,8 @@ public class CursorManager : MonoBehaviour
                             CurrentColor = NormalBubbleColor;
                             break;
                         default:
+                            GetComponent<Image>().color = NullColor;
+                            CurrentColor = NullColor;
                             break;
                     }
                     break;
@@ -95,6 +98,8 @@ public class CursorManager : MonoBehaviour
                             CurrentColor = GreyNormalBubbleColor;
                             break;
                         default:
+                            GetComponent<Image>().color = NullColor;
+                            CurrentColor = NullColor;
                             break;
                     }
                     break;
