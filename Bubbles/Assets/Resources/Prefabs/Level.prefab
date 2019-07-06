@@ -52,6 +52,7 @@ MonoBehaviour:
   AllSlot: {fileID: 8357767004902170851}
   AllBubble: {fileID: 5579169563043507166}
   MotionInterval: 0.3
+  TeleportWait: 0.1
 --- !u!114 &4449895371926025500
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -66,7 +67,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MoveDis: 1
   MoveTime: 0.2
-  DropScale: 0.5
+  TeleportScale: 0
   OriScale: 1
   InflatedScale: 1.4
   InflateTime: 0.2
