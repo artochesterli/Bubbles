@@ -113,7 +113,7 @@ public class SlotObject : MonoBehaviour
         }
         else
         {
-            StartCoroutine(Fade());
+            //StartCoroutine(Fade());
         }
     }
 

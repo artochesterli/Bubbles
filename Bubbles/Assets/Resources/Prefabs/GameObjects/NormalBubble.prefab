@@ -95,6 +95,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Type: 2
   State: 0
+  StableColor: {r: 0.3254902, g: 0.49019608, b: 0.50980395, a: 1}
+  ActivatedColor: {r: 0.5254902, g: 0.9529412, b: 1, a: 1}
+  ExhaustedColor: {r: 0.3254902, g: 0.49019608, b: 0.50980395, a: 1}
+  ColorChangeTime: 0.2
 --- !u!114 &-8584477907151657602
 MonoBehaviour:
   m_ObjectHideFlags: 0

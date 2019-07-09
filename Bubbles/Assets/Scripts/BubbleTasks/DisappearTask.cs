@@ -20,7 +20,7 @@ public class DisappearTask : Task
         Pos = pos;
         Map = map;
         Type = type;
-        color = Obj.GetComponent<SpriteRenderer>().color;
+        color = Obj.GetComponent<Bubble>().StableColor;
 
     }
 

@@ -61,7 +61,7 @@ public class NormalBubble : MonoBehaviour
         }
         else
         {
-            StartCoroutine(Fade());
+            //StartCoroutine(Fade());
         }
     }
 }

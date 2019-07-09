@@ -123,9 +123,10 @@ public class GameManager : MonoBehaviour
 
     private void OnLevelFinish(LevelFinish L)
     {
-        State = GameState.Finish;
+        
         if (L.Success)
         {
+            State = GameState.Finish;
             StartCoroutine(LoadLevel(L.Index + 1, true));
 
             LevelFinishStat.Add(new GameStatistics(Mathf.RoundToInt(Timer), LevelManager.RemainedDisappearBubble, LevelManager.RemainedNormalBubble));
@@ -139,7 +140,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            StartCoroutine(LoadLevel(L.Index, false));
+            //StartCoroutine(LoadLevel(L.Index, false));
         }
 
         
