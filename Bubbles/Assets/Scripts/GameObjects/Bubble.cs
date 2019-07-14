@@ -38,7 +38,7 @@ public class Bubble : MonoBehaviour
 
     private void Update()
     {
-        SetAppeaance();
+        //SetAppeaance();
     }
 
     private void SetAppeaance()
@@ -55,10 +55,6 @@ public class Bubble : MonoBehaviour
                     Timer = 0;
                 }
                 GetComponent<SpriteRenderer>().color = Color.Lerp(Buffer, StableColor, Timer / ColorChangeTime);
-                /*if (Timer > ColorChangeTime)
-                {
-                    Buffer = StableColor;
-                }*/
                 break;
             case BubbleState.Activated:
                 if (CurrentColor != ActivatedColor)
@@ -68,10 +64,6 @@ public class Bubble : MonoBehaviour
                     Timer = 0;
                 }
                 GetComponent<SpriteRenderer>().color = Color.Lerp(Buffer, ActivatedColor, Timer / ColorChangeTime);
-                /*if(Timer> ColorChangeTime)
-                {
-                    Buffer = ActivatedColor;
-                }*/
                 break;
             case BubbleState.Exhausted:
                 if (CurrentColor != ExhaustedColor)
@@ -81,10 +73,6 @@ public class Bubble : MonoBehaviour
                     Timer = 0;
                 }
                 GetComponent<SpriteRenderer>().color = Color.Lerp(Buffer, ExhaustedColor, Timer / ColorChangeTime);
-                /*if(Timer > ColorChangeTime)
-                {
-                    Buffer = ExhaustedColor;
-                }*/
                 break;
         }
     }

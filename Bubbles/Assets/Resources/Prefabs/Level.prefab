@@ -51,8 +51,8 @@ MonoBehaviour:
   NormalBubbleInitNum: 0
   AllSlot: {fileID: 8357767004902170851}
   AllBubble: {fileID: 5579169563043507166}
-  MotionInterval: 0.3
-  TeleportWait: 0.1
+  MotionInterval: 0.4
+  RoundEndInterval: 0.8
 --- !u!114 &4449895371926025500
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -11,7 +11,7 @@ public class LevelManager : MonoBehaviour
     public GameObject AllSlot;
     public GameObject AllBubble;
     public float MotionInterval;
-    public float TeleportWait;
+    public float RoundEndInterval;
 
     private List<List<SlotInfo>> Map;
     private Vector2 PivotOffset;
@@ -29,13 +29,11 @@ public class LevelManager : MonoBehaviour
 
     private Vector3 SlotScale = Vector3.one;
     private const float DropMoveTime = 0.1f;
-    private const float RollBackTime = 0.15f;
+    private const float RollBackTime = 0.1f;
     
 
     private void OnEnable()
     {
-
-
         Map = new List<List<SlotInfo>>();
         GetMapInfo();
 
@@ -276,7 +274,6 @@ public class LevelManager : MonoBehaviour
     {
         if (PosList.Count == 0)
         {
-            BubbleMotionTasks.Add(new WaitTask(MotionInterval));
             ParallelTasks BubbleDeflateTasks = new ParallelTasks();
             for(int i = 0; i < Map.Count; i++)
             {
@@ -312,12 +309,19 @@ public class LevelManager : MonoBehaviour
 
 
         SetBubbleMovement(PosList, InflateDic,false);
-
-        BubbleMotionTasks.Add(new WaitTask(MotionInterval));
         
         foreach(KeyValuePair<GameObject,Vector2Int> entry in InflateDic)
         {
             NewPosList.Add(entry.Value);
+        }
+
+        if (NewPosList.Count > 0)
+        {
+            BubbleMotionTasks.Add(new WaitTask(MotionInterval));
+        }
+        else
+        {
+            BubbleMotionTasks.Add(new WaitTask(RoundEndInterval));
         }
 
         BubbleInflate(NewPosList, false);
@@ -550,7 +554,6 @@ public class LevelManager : MonoBehaviour
     private void Teleport(GameObject Obj, SlotInfo Target)
     {
         var Data = GetComponent<BubbleMotionData>();
-        BubbleMotionTasks.Add(new WaitTask(TeleportWait));
 
         if (Target == TeleportSlot1)
         {
