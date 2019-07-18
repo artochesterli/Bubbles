@@ -30,9 +30,10 @@ public class BlockedTask : Task
 
     protected override void Init()
     {
-        Obj.GetComponent<Bubble>().State = BubbleState.Activated;
+        Activate();
+
         Obj.transform.localPosition = Pos;
-        TimeCount = 0;
+
         forward = true;
     }
 
@@ -63,5 +64,12 @@ public class BlockedTask : Task
     private void SetMapInfo()
     {
         Map[V.x][V.y].InsideBubbleState = BubbleState.Activated;
+    }
+
+    private void Activate()
+    {
+        Obj.GetComponent<Bubble>().State = BubbleState.Activated;
+        Obj.transform.Find("StableEffect").GetComponent<ParticleSystem>().Stop();
+        Obj.transform.Find("ActivateEffect").GetComponent<ParticleSystem>().Play();
     }
 }

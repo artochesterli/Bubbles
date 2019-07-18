@@ -51,7 +51,7 @@ MonoBehaviour:
   NormalBubbleInitNum: 0
   AllSlot: {fileID: 8357767004902170851}
   AllBubble: {fileID: 5579169563043507166}
-  MotionInterval: 0.4
+  MotionInterval: 1
   RoundEndInterval: 0.8
 --- !u!114 &4449895371926025500
 MonoBehaviour:
@@ -65,16 +65,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35cadfd079d3d2c42b695aa41ec5bce3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  MotionTime: 0.5
+  RecoverTime: 0.2
   MoveDis: 1
-  MoveTime: 0.2
+  NormalScale: 1
+  ExhaustScale: 0.8
   TeleportScale: 0
-  OriScale: 1
-  InflatedScale: 1.4
-  InflateTime: 0.2
   DeflateTime: 0.2
   BlockedDis: 0.2
-  ConflictBlockedDis: 0.5
-  BlockedTime: 0.2
+  ConflictBlockedDis: 0.2
   DisappearTime: 0.2
 --- !u!1 &5579169563043507166
 GameObject:

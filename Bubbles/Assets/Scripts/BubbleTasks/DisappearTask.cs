@@ -9,33 +9,36 @@ public class DisappearTask : Task
     private readonly Vector2Int Pos;
     private readonly List<List<SlotInfo>> Map;
     private readonly BubbleType Type;
+    private readonly bool RollBack;
 
     private float TimeCount;
     private Color color;
 
-    public DisappearTask(GameObject obj, float time, Vector2Int pos, List<List<SlotInfo>> map, BubbleType type)
+    public DisappearTask(GameObject obj, float time, Vector2Int pos, List<List<SlotInfo>> map, BubbleType type,bool rollback)
     {
         Obj = obj;
         DisappearTime = time;
         Pos = pos;
         Map = map;
         Type = type;
-        color = Obj.GetComponent<Bubble>().StableColor;
-
+        RollBack = rollback;
     }
 
     protected override void Init()
     {
-        switch (Type)
+        if (RollBack)
         {
-            case BubbleType.Disappear:
-                LevelManager.RemainedDisappearBubble++;
-                EventManager.instance.Fire(new BubbleNumSet(BubbleType.Disappear, LevelManager.RemainedDisappearBubble));
-                break;
-            case BubbleType.Normal:
-                LevelManager.RemainedNormalBubble++;
-                EventManager.instance.Fire(new BubbleNumSet(BubbleType.Normal, LevelManager.RemainedNormalBubble));
-                break;
+            switch (Type)
+            {
+                case BubbleType.Disappear:
+                    LevelManager.RemainedDisappearBubble++;
+                    EventManager.instance.Fire(new BubbleNumSet(BubbleType.Disappear, LevelManager.RemainedDisappearBubble));
+                    break;
+                case BubbleType.Normal:
+                    LevelManager.RemainedNormalBubble++;
+                    EventManager.instance.Fire(new BubbleNumSet(BubbleType.Normal, LevelManager.RemainedNormalBubble));
+                    break;
+            }
         }
 
         Map[Pos.x][Pos.y].InsideBubbleType = BubbleType.Null;
@@ -44,18 +47,14 @@ public class DisappearTask : Task
 
     internal override void Update()
     {
-        if (Type != BubbleType.Disappear)
+        TimeCount += Time.deltaTime;
+        Obj.GetComponent<SpriteRenderer>().color = Color.Lerp(color, new Color(color.r, color.g, color.b, 0), TimeCount / DisappearTime);
+        if (TimeCount >= DisappearTime)
         {
-            TimeCount += Time.deltaTime;
-            Obj.GetComponent<SpriteRenderer>().color = Color.Lerp(color, new Color(color.r, color.g, color.b, 0), TimeCount / DisappearTime);
-            if (TimeCount >= DisappearTime)
+            if (Type == BubbleType.Disappear)
             {
                 GameObject.Destroy(Obj);
-                SetState(TaskState.Success);
             }
-        }
-        else
-        {
             SetState(TaskState.Success);
         }
     }

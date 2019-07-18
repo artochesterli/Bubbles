@@ -13,11 +13,11 @@ public class MoveTask : Task
     private readonly Vector2Int End;
     private readonly BubbleType Type;
     private readonly List<List<SlotInfo>> Map;
-    private readonly BubbleTaskMode Mode;
 
     private float TimeCount;
+    private float Speed;
 
-    public MoveTask(GameObject obj, Vector3 pos, Vector3 dir ,float dis, float time , Vector2Int start, Vector2Int end , BubbleType type = BubbleType.Null, List<List<SlotInfo>> map=null , BubbleTaskMode mode = BubbleTaskMode.Visual)
+    public MoveTask(GameObject obj, Vector3 pos, Vector3 dir ,float dis, float time , Vector2Int start, Vector2Int end , BubbleType type = BubbleType.Null, List<List<SlotInfo>> map=null)
     {
         Obj = obj;
         Pos = pos;
@@ -28,32 +28,17 @@ public class MoveTask : Task
         End = end;
         Type = type;
         Map = map;
-        Mode = mode;
 
-        if (Mode == BubbleTaskMode.Immediate)
-        {
-            SetMapInfo();
-        }
+        SetMapInfo();
+
 
     }
 
     protected override void Init()
     {
-        if (Mode == BubbleTaskMode.Immediate)
-        {
-            Obj.GetComponent<Bubble>().State = BubbleState.Activated;
-        }
-        else
-        {
-            Obj.GetComponent<Bubble>().State = BubbleState.Stable;
-        }
+        Activate();
 
         Obj.transform.localPosition = Pos;
-
-        if(Mode == BubbleTaskMode.Delay)
-        {
-            SetMapInfo();
-        }
 
         if (MoveTime == 0)
         {
@@ -65,29 +50,42 @@ public class MoveTask : Task
     internal override void Update()
     {
         TimeCount += Time.deltaTime;
-        Obj.transform.localPosition = Vector3.Lerp(Pos, Pos + Dir * MoveDis, TimeCount / MoveTime);
+
+        //Obj.transform.localPosition = Vector3.Lerp(Pos, Pos + Dir * MoveDis, TimeCount / MoveTime);
 
         if (TimeCount >= MoveTime)
         {
+            Obj.transform.localPosition = Pos + Dir * MoveDis;
             SetState(TaskState.Success);
+        }
+        else if(TimeCount >= MoveTime / 2)
+        {
+            Speed = 2 * MoveDis / MoveTime * ((MoveTime - TimeCount) / (MoveTime / 2));
+            Obj.transform.localPosition += Speed * Dir * Time.deltaTime;
+        }
+        else
+        {
+            Speed = 2 * MoveDis / MoveTime * TimeCount / (MoveTime / 2);
+            Obj.transform.localPosition += Speed * Dir * Time.deltaTime;
         }
     }
 
     private void SetMapInfo()
     {
+        
         Map[Start.x][Start.y].InsideBubbleState = BubbleState.Stable;
         Map[Start.x][Start.y].InsideBubbleType = BubbleType.Null;
         Map[Start.x][Start.y].ConnectedBubble = null;
-        if (Mode == BubbleTaskMode.Immediate)
-        {
-            Map[End.x][End.y].InsideBubbleState = BubbleState.Activated;
-        }
-        else
-        {
-            Map[End.x][End.y].InsideBubbleState = BubbleState.Stable;
-        }
-        
+
+        Map[End.x][End.y].InsideBubbleState = BubbleState.Activated;
         Map[End.x][End.y].InsideBubbleType= Type;
         Map[End.x][End.y].ConnectedBubble = Obj;
+    }
+
+    private void Activate()
+    {
+        Obj.GetComponent<Bubble>().State = BubbleState.Activated;
+        Obj.transform.Find("StableEffect").GetComponent<ParticleSystem>().Stop();
+        Obj.transform.Find("ActivateEffect").GetComponent<ParticleSystem>().Play();
     }
 }

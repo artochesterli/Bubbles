@@ -4,18 +4,19 @@ using UnityEngine;
 
 public class BubbleMotionData : MonoBehaviour
 {
-    public float MoveDis;
-    public float MoveTime;
+    public float MotionTime;
+    public float RecoverTime;
 
+    public float MoveDis;
+
+    public float NormalScale;
+    public float ExhaustScale;
     public float TeleportScale;
-    public float OriScale;
-    public float InflatedScale;
-    public float InflateTime;
+
     public float DeflateTime;
 
     public float BlockedDis;
     public float ConflictBlockedDis;
-    public float BlockedTime;
 
     public float DisappearTime;
 }

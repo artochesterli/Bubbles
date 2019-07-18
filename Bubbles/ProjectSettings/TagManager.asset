@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Shootable
   layers:
   - Default
   - TransparentFX
@@ -13,9 +14,9 @@ TagManager:
   - UI
   - 
   - 
-  - 
-  - 
-  - 
+  - Lighting
+  - Ground
+  - Postprocessing
   - 
   - 
   - 
@@ -41,9 +42,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
-  - name: Slot
-    uniqueID: 2530032483
+  - name: Circle
+    uniqueID: 3288384775
     locked: 0
-  - name: Bubble
-    uniqueID: 2937821139
+  - name: Effect
+    uniqueID: 1983873369
     locked: 0
