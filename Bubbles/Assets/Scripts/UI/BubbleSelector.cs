@@ -63,7 +63,13 @@ public class BubbleSelector : MonoBehaviour
 
     private void CheckSelected()
     {
-        if (GameManager.HeldBubbleType != Type && Remained && Input.GetMouseButtonDown(0) && Mathf.Abs(Input.mousePosition.x-GetComponent<RectTransform>().position.x)<= Size * CurrentScale && Mathf.Abs(Input.mousePosition.y - GetComponent<RectTransform>().position.y) <= Size * CurrentScale)
+        float halfheight = transform.parent.GetComponent<CanvasScaler>().referenceResolution.y / 2;
+        float halfwidth = transform.parent.GetComponent<CanvasScaler>().referenceResolution.x / 2;
+
+        Vector3 CanvasPos = GetComponent<RectTransform>().position * halfheight / Camera.main.orthographicSize;
+        CanvasPos += new Vector3(halfwidth, halfheight, -CanvasPos.z);
+
+        if (GameManager.HeldBubbleType != Type && Remained && Input.GetMouseButtonDown(0) && Mathf.Abs(Input.mousePosition.x-CanvasPos.x)<= Size * CurrentScale && Mathf.Abs(Input.mousePosition.y - CanvasPos.y) <= Size * CurrentScale)
         {
             EventManager.instance.Fire(new BubbleSelected(Type));
             GameManager.HeldBubbleType = Type;

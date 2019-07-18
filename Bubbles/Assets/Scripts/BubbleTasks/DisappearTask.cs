@@ -22,10 +22,14 @@ public class DisappearTask : Task
         Map = map;
         Type = type;
         RollBack = rollback;
+        
     }
 
     protected override void Init()
     {
+        Map[Pos.x][Pos.y].InsideBubbleType = BubbleType.Null;
+        Map[Pos.x][Pos.y].ConnectedBubble = null;
+
         if (RollBack)
         {
             switch (Type)
@@ -41,17 +45,18 @@ public class DisappearTask : Task
             }
         }
 
-        Map[Pos.x][Pos.y].InsideBubbleType = BubbleType.Null;
-        Map[Pos.x][Pos.y].ConnectedBubble = null;
+        color = Obj.GetComponent<SpriteRenderer>().color;
+
+        
     }
 
     internal override void Update()
     {
         TimeCount += Time.deltaTime;
-        Obj.GetComponent<SpriteRenderer>().color = Color.Lerp(color, new Color(color.r, color.g, color.b, 0), TimeCount / DisappearTime);
+        Obj.GetComponent<SpriteRenderer>().color = Color.Lerp(new Color(color.r, color.g, color.b, 1), new Color(color.r, color.g, color.b, 0), TimeCount / DisappearTime);
         if (TimeCount >= DisappearTime)
         {
-            if (Type == BubbleType.Disappear)
+            if (Type == BubbleType.Disappear || RollBack)
             {
                 GameObject.Destroy(Obj);
             }

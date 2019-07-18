@@ -35,7 +35,7 @@ public class Bubble : MonoBehaviour
 
     private void Update()
     {
-        
+
     }
 
 

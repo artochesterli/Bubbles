@@ -5,28 +5,27 @@ using UnityEngine;
 public class TransformTask : Task
 {
     private readonly GameObject Obj;
-    private readonly Vector3 Pos;
-    private readonly Vector3 Dir;
+    private readonly Vector3 BeginPos;
+    private readonly Vector3 TargetPos;
     private readonly float TransformDis;
     private readonly float TransformTime;
 
     private float TimeCount;
 
-    public TransformTask(GameObject obj,Vector3 pos, Vector3 dir,float transformDis,float transformTime)
+    public TransformTask(GameObject obj,Vector3 begin, Vector3 target,float transformTime)
     {
         Obj = obj;
-        Pos = pos;
-        Dir = dir;
-        TransformDis = transformDis;
+        BeginPos = begin;
+        TargetPos = target;
         TransformTime = transformTime;
     }
 
     protected override void Init()
     {
-        Obj.transform.localPosition = Pos;
+        Obj.transform.localPosition = BeginPos;
         if (TransformTime == 0)
         {
-            Obj.transform.localPosition = Pos + Dir * TransformDis;
+            Obj.transform.localPosition = TargetPos;
             SetState(TaskState.Success);
         }
     }
@@ -34,7 +33,7 @@ public class TransformTask : Task
     internal override void Update()
     {
         TimeCount += Time.deltaTime;
-        Obj.transform.localPosition = Vector3.Lerp(Pos, Pos + Dir * TransformDis, TimeCount / TransformTime);
+        Obj.transform.localPosition = Vector3.Lerp(BeginPos, TargetPos, TimeCount / TransformTime);
 
         if (TimeCount >= TransformTime)
         {

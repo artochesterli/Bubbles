@@ -53,6 +53,7 @@ MonoBehaviour:
   AllBubble: {fileID: 5579169563043507166}
   MotionInterval: 1
   RoundEndInterval: 0.8
+  RollBackTime: 0.2
 --- !u!114 &4449895371926025500
 MonoBehaviour:
   m_ObjectHideFlags: 0

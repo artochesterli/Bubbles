@@ -5,9 +5,8 @@ using UnityEngine;
 public class MoveTask : Task
 {
     private readonly GameObject Obj;
-    private readonly Vector3 Pos;
-    private readonly Vector3 Dir;
-    private readonly float MoveDis;
+    private readonly Vector3 BeginPos;
+    private readonly Vector3 TargetPos;
     private readonly float MoveTime;
     private readonly Vector2Int Start;
     private readonly Vector2Int End;
@@ -17,12 +16,11 @@ public class MoveTask : Task
     private float TimeCount;
     private float Speed;
 
-    public MoveTask(GameObject obj, Vector3 pos, Vector3 dir ,float dis, float time , Vector2Int start, Vector2Int end , BubbleType type = BubbleType.Null, List<List<SlotInfo>> map=null)
+    public MoveTask(GameObject obj, Vector3 begin, Vector3 target , float time , Vector2Int start, Vector2Int end , BubbleType type = BubbleType.Null, List<List<SlotInfo>> map=null)
     {
         Obj = obj;
-        Pos = pos;
-        Dir = dir;
-        MoveDis = dis;
+        BeginPos = begin;
+        TargetPos = target;
         MoveTime = time;
         Start = start;
         End = end;
@@ -38,11 +36,11 @@ public class MoveTask : Task
     {
         Activate();
 
-        Obj.transform.localPosition = Pos;
+        Obj.transform.localPosition = BeginPos;
 
         if (MoveTime == 0)
         {
-            Obj.transform.localPosition = Pos + Dir * MoveDis;
+            Obj.transform.localPosition = TargetPos;
             SetState(TaskState.Success);
         }
     }
@@ -51,22 +49,20 @@ public class MoveTask : Task
     {
         TimeCount += Time.deltaTime;
 
-        //Obj.transform.localPosition = Vector3.Lerp(Pos, Pos + Dir * MoveDis, TimeCount / MoveTime);
-
         if (TimeCount >= MoveTime)
         {
-            Obj.transform.localPosition = Pos + Dir * MoveDis;
+            Obj.transform.localPosition = TargetPos;
             SetState(TaskState.Success);
         }
         else if(TimeCount >= MoveTime / 2)
         {
-            Speed = 2 * MoveDis / MoveTime * ((MoveTime - TimeCount) / (MoveTime / 2));
-            Obj.transform.localPosition += Speed * Dir * Time.deltaTime;
+            Speed = 2 * (TargetPos-BeginPos).magnitude / MoveTime * ((MoveTime - TimeCount) / (MoveTime / 2));
+            Obj.transform.localPosition += Speed * (TargetPos - BeginPos).normalized * Time.deltaTime;
         }
         else
         {
-            Speed = 2 * MoveDis / MoveTime * TimeCount / (MoveTime / 2);
-            Obj.transform.localPosition += Speed * Dir * Time.deltaTime;
+            Speed = 2 * (TargetPos - BeginPos).magnitude / MoveTime * TimeCount / (MoveTime / 2);
+            Obj.transform.localPosition += Speed * (TargetPos - BeginPos).normalized * Time.deltaTime;
         }
     }
 

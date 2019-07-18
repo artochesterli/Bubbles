@@ -10,8 +10,8 @@ public class CursorManager : MonoBehaviour
     public Color NullColor;
     public Color DisappearBubbleColor;
     public Color NormalBubbleColor;
-    public Color GreyDisappearBubbleColor;
-    public Color GreyNormalBubbleColor;
+    public Color ExhaustDisappearBubbleColor;
+    public Color ExhaustNormalBubbleColor;
 
     public float ColorChangeTime;
     public float Scale;
@@ -65,6 +65,8 @@ public class CursorManager : MonoBehaviour
 
     private void SetAppearance()
     {
+        GameObject ActivateEffect = transform.Find("ActivateEffect").gameObject;
+
         if (!ColorChanging)
         {
             switch (GameManager.State)
@@ -85,23 +87,30 @@ public class CursorManager : MonoBehaviour
                             CurrentColor = NullColor;
                             break;
                     }
+
+                    if (!ActivateEffect.GetComponent<ParticleSystem>().isPlaying)
+                    {
+                        ActivateEffect.GetComponent<ParticleSystem>().Play();
+                    }
                     break;
                 case GameState.Show:
                     switch (GameManager.HeldBubbleType)
                     {
                         case BubbleType.Disappear:
-                            GetComponent<Image>().color = GreyDisappearBubbleColor;
-                            CurrentColor = GreyDisappearBubbleColor;
+                            GetComponent<Image>().color = ExhaustDisappearBubbleColor;
+                            CurrentColor = ExhaustDisappearBubbleColor;
                             break;
                         case BubbleType.Normal:
-                            GetComponent<Image>().color = GreyNormalBubbleColor;
-                            CurrentColor = GreyNormalBubbleColor;
+                            GetComponent<Image>().color = ExhaustNormalBubbleColor;
+                            CurrentColor = ExhaustNormalBubbleColor;
                             break;
                         default:
                             GetComponent<Image>().color = NullColor;
                             CurrentColor = NullColor;
                             break;
                     }
+
+                    ActivateEffect.GetComponent<ParticleSystem>().Stop();
                     break;
                 default:
                     break;
@@ -112,7 +121,9 @@ public class CursorManager : MonoBehaviour
 
     private void SetPos()
     {
-        GetComponent<RectTransform>().position = Input.mousePosition;
+
+        GetComponent<RectTransform>().position = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        GetComponent<RectTransform>().position -= GetComponent<RectTransform>().position.z * Vector3.forward;
     }
 
     private IEnumerator ChangeColor(Color Start, Color End)
@@ -159,10 +170,10 @@ public class CursorManager : MonoBehaviour
                 switch (B.Type)
                 {
                     case BubbleType.Disappear:
-                        StartCoroutine(ChangeColor(CurrentColor, GreyDisappearBubbleColor));
+                        StartCoroutine(ChangeColor(CurrentColor, ExhaustDisappearBubbleColor));
                         break;
                     case BubbleType.Normal:
-                        StartCoroutine(ChangeColor(CurrentColor, GreyNormalBubbleColor));
+                        StartCoroutine(ChangeColor(CurrentColor, ExhaustNormalBubbleColor));
                         break;
                 }
                 break;
