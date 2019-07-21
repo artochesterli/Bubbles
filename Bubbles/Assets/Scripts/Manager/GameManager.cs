@@ -37,8 +37,7 @@ public class GameManager : MonoBehaviour
 
     public GameObject Mask;
     public float MaskFadeTime;
-    public float LevelSuccessWaitTime;
-    public float LevelFailWaitTime;
+    public float LevelFinishWaitTime;
 
     private GameObject AllLevel;
     private List<GameObject> SortedLevelList;
@@ -123,39 +122,23 @@ public class GameManager : MonoBehaviour
 
     private void OnLevelFinish(LevelFinish L)
     {
-        
-        if (L.Success)
-        {
-            State = GameState.Finish;
-            StartCoroutine(LoadLevel(L.Index + 1, true));
+        State = GameState.Finish;
+        StartCoroutine(LoadLevel(L.Index + 1));
 
-            LevelFinishStat.Add(new GameStatistics(Mathf.RoundToInt(Timer), LevelManager.RemainedDisappearBubble, LevelManager.RemainedNormalBubble));
-            if (LoadStat() < LevelFinishStat.Count)
-            {
-                SaveStat();
-            }
-            
-
-            Timer = 0;
-        }
-        else
+        LevelFinishStat.Add(new GameStatistics(Mathf.RoundToInt(Timer), LevelManager.RemainedDisappearBubble, LevelManager.RemainedNormalBubble));
+        if (LoadStat() < LevelFinishStat.Count)
         {
-            //StartCoroutine(LoadLevel(L.Index, false));
+            SaveStat();
         }
+
+        Timer = 0;
 
         
     }
 
-    private IEnumerator LoadLevel(int index, bool win)
+    private IEnumerator LoadLevel(int index)
     {
-        if (win)
-        {
-            yield return new WaitForSeconds(LevelSuccessWaitTime);
-        }
-        else
-        {
-            yield return new WaitForSeconds(LevelFailWaitTime);
-        }
+        yield return new WaitForSeconds(LevelFinishWaitTime);
 
         if (index <= MaxLevelIndex)
         {

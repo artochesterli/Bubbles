@@ -21,10 +21,8 @@ public class MotionFinish : Event { }
 public class LevelFinish : Event
 {
     public int Index;
-    public bool Success;
-    public LevelFinish(int num, bool b)
+    public LevelFinish(int num)
     {
-        Success = b;
         Index = num;
     }
 }

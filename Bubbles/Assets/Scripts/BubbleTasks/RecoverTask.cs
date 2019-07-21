@@ -34,6 +34,7 @@ public class RecoverTask : Task
         Obj.GetComponent<Bubble>().State = BubbleState.Stable;
         Obj.transform.localScale = InitScale * Vector3.one;
         Obj.GetComponent<SpriteRenderer>().color = InitColor;
+        Obj.GetComponent<CircleCollider2D>().enabled = true;
 
         StableEffect = Obj.transform.Find("StableEffect").gameObject;
         StableEffect.GetComponent<ParticleSystem>().Play();
@@ -49,6 +50,7 @@ public class RecoverTask : Task
 
         if (TimeCount >= RecoverTime)
         {
+            Obj.GetComponent<SpriteRenderer>().sortingLayerName = "Circle";
             SetState(TaskState.Success);
         }
     }

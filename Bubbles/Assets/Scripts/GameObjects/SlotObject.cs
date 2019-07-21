@@ -23,19 +23,19 @@ public class SlotObject : MonoBehaviour
     public Vector2 MapPivotOffset;
 
     public Color SelectedColor;
-    public Color InfectedColor;
     public Color DefaultColor;
     
     public SlotType Type;
-    public SlotState State;
+    public bool Selected;
 
-    public float FadeWaitTime;
-    public float FadeTime;
-    public Color FadeColor;
+    public float FinishWaitTime;
+    public float FinishTime;
+    public Color FinishColor;
 
-    public float LightingWaitTime;
-    public float LightingTime;
-    public Color LightingColor;
+    public float FinishRotationSpeed;
+
+
+    private bool finish;
 
     private void OnEnable()
     {
@@ -50,27 +50,33 @@ public class SlotObject : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        State = SlotState.Default;
         GetComponent<SpriteRenderer>().color = DefaultColor;
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(GameManager.State == GameState.Show)
+        /*if(GameManager.State == GameState.Show)
         {
             CursorManager.InAvailableSlot = false;
             State = SlotState.Default;
             GetComponent<SpriteRenderer>().color = DefaultColor;
+        }*/
+        if (finish)
+        {
+            transform.Rotate(Vector3.forward, FinishRotationSpeed * Time.deltaTime);
         }
+
     }
+
+    
 
     private void OnMouseOver()
     {
         if (GameManager.State == GameState.Play && ConnectedSlotInfo.InsideBubbleType==BubbleType.Null && GameManager.HeldBubbleType!=BubbleType.Null && AvailablePos())
         {
             CursorManager.InAvailableSlot = true;
-            State = SlotState.Selected;
+            Selected = true;
             GetComponent<SpriteRenderer>().color = SelectedColor;
         }
     }
@@ -80,17 +86,17 @@ public class SlotObject : MonoBehaviour
         if (GameManager.State == GameState.Play)
         {
             CursorManager.InAvailableSlot = false;
-            State = SlotState.Default;
+            Selected = false;
             GetComponent<SpriteRenderer>().color = DefaultColor;
         }
     }
 
     private void OnMouseDown()
     {
-        if (State==SlotState.Selected)
+        if (Selected)
         {
             CursorManager.InAvailableSlot = false;
-            State = SlotState.Default;
+            Selected = false;
             GetComponent<SpriteRenderer>().color = DefaultColor;
             EventManager.instance.Fire(new Place(ConnectedSlotInfo.Pos, GameManager.HeldBubbleType));
         }
@@ -107,40 +113,21 @@ public class SlotObject : MonoBehaviour
 
     private void OnLevelFinish(LevelFinish L)
     {
-        if (L.Success)
-        {
-            StartCoroutine(Lighting());
-        }
-        else
-        {
-            //StartCoroutine(Fade());
-        }
+        StartCoroutine(FinishEffect());
     }
 
-    private IEnumerator Fade()
+    private IEnumerator FinishEffect()
     {
-        yield return new WaitForSeconds(FadeWaitTime);
+        yield return new WaitForSeconds(FinishWaitTime);
+
+        finish = true;
 
         float TimeCount = 0;
-        Color CurrentColor = GetComponent<SpriteRenderer>().color;
-        while (TimeCount < FadeTime)
-        {
-            TimeCount += Time.deltaTime;
-            GetComponent<SpriteRenderer>().color = Color.Lerp(CurrentColor, FadeColor, TimeCount / FadeTime);
-            yield return null;
-        }
-    }
-
-    private IEnumerator Lighting()
-    {
-        yield return new WaitForSeconds(LightingWaitTime);
-
-        float TimeCount = 0;
-        while (TimeCount < LightingTime)
+        while (TimeCount < FinishTime)
         {
             TimeCount += Time.deltaTime;
             Color CurrentColor = GetComponent<SpriteRenderer>().color;
-            GetComponent<SpriteRenderer>().color = Color.Lerp(CurrentColor, LightingColor, TimeCount / LightingTime);
+            GetComponent<SpriteRenderer>().color = Color.Lerp(DefaultColor, FinishColor, TimeCount / FinishTime);
             yield return null;
         }
     }

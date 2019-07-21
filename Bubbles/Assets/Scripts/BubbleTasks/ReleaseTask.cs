@@ -36,6 +36,8 @@ public class ReleaseTask : Task
         Obj.transform.localScale = InitScale * Vector3.one;
         Obj.GetComponent<SpriteRenderer>().color = InitColor;
 
+        Obj.GetComponent<CircleCollider2D>().enabled = false;
+
         ActivateEffect = Obj.transform.Find("ActivateEffect").gameObject;
         ReleaseEffect = Obj.transform.Find("ReleaseEffect").gameObject;
 

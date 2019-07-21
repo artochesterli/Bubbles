@@ -10,8 +10,9 @@ public class SlotInfo
     public BubbleState InsideBubbleState;
     public GameObject ConnectedBubble;
     public Vector3 Location;
+    public GameObject Entity;
 
-    public SlotInfo(Vector2Int v, SlotType sType, BubbleType type, BubbleState state, GameObject g, Vector3 loc)
+    public SlotInfo(Vector2Int v, SlotType sType, BubbleType type, BubbleState state, GameObject g, Vector3 loc, GameObject entity)
     {
         Pos = v;
         slotType = sType;
@@ -19,6 +20,7 @@ public class SlotInfo
         InsideBubbleState = state;
         ConnectedBubble = g;
         Location = loc;
+        Entity = entity;
     }
 
 }
