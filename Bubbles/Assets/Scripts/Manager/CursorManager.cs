@@ -72,6 +72,11 @@ public class CursorManager : MonoBehaviour
             switch (GameManager.State)
             {
                 case GameState.Play:
+                    if (!ActivateEffect.GetComponent<ParticleSystem>().isPlaying)
+                    {
+                        ActivateEffect.GetComponent<ParticleSystem>().Play();
+                    }
+
                     switch (GameManager.HeldBubbleType)
                     {
                         case BubbleType.Disappear:
@@ -85,13 +90,11 @@ public class CursorManager : MonoBehaviour
                         default:
                             GetComponent<Image>().color = NullColor;
                             CurrentColor = NullColor;
+                            ActivateEffect.GetComponent<ParticleSystem>().Stop();
                             break;
                     }
 
-                    if (!ActivateEffect.GetComponent<ParticleSystem>().isPlaying)
-                    {
-                        ActivateEffect.GetComponent<ParticleSystem>().Play();
-                    }
+                    
                     break;
                 case GameState.Show:
                     switch (GameManager.HeldBubbleType)

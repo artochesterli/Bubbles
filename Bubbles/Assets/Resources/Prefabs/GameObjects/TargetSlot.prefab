@@ -102,8 +102,6 @@ MonoBehaviour:
   FinishTime: 1.5
   FinishColor: {r: 0.5254902, g: 0.9529412, b: 1, a: 1}
   FinishRotationSpeed: 180
-  MatchRotationSpeed: 90
-  RotationRectifyTime: 0.2
 --- !u!61 &4410845237518528396
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -128,5 +126,5 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 1, y: 1}
+  m_Size: {x: 0.95, y: 0.95}
   m_EdgeRadius: 0

@@ -76,6 +76,9 @@ MonoBehaviour:
   ExhaustScale: 0.8
   BlockedDis: 0.2
   ConflictBlockedDis: 0.5
+  TeleportSlotShakeDis: 0.05
+  TeleportSlotShakeTime: 0.4
+  TeleportSlotShakeCycle: 2
 --- !u!1 &5579169563043507166
 GameObject:
   m_ObjectHideFlags: 0

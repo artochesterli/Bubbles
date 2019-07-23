@@ -219,7 +219,10 @@ public class LevelManager : MonoBehaviour
                 GameObject Bubble = Map[Pos.x][Pos.y].ConnectedBubble;
                 Teleport(Bubble, TeleportSlot2,null);
                 Pos = TeleportSlot2.Pos;
-                
+            }
+            else
+            {
+                TeleportSlotShake();
             }
         }
         else if (Map[Pos.x][Pos.y] == TeleportSlot2)
@@ -229,6 +232,10 @@ public class LevelManager : MonoBehaviour
                 GameObject Bubble = Map[Pos.x][Pos.y].ConnectedBubble;
                 Teleport(Bubble, TeleportSlot1,null);
                 Pos = TeleportSlot1.Pos;
+            }
+            else
+            {
+                TeleportSlotShake();
             }
         }
 
@@ -508,41 +515,81 @@ public class LevelManager : MonoBehaviour
 
         if (Slot1Active && !Slot2Active || !Slot1Active && Slot2Active)
         {
-            if(Slot1Active && TeleportSlot2.InsideBubbleType == BubbleType.Null)
+            if(Slot1Active)
             {
-                GameObject Bubble = TeleportSlot1.ConnectedBubble;
-
-                if (InflateDic.ContainsKey(Bubble))
+                if (TeleportSlot2.InsideBubbleType == BubbleType.Null)
                 {
-                    InflateDic.Remove(Bubble);
+                    GameObject Bubble = TeleportSlot1.ConnectedBubble;
+
+                    if (InflateDic.ContainsKey(Bubble))
+                    {
+                        InflateDic.Remove(Bubble);
+                    }
+
+                    ChangedBubblePosDic[Bubble] = TeleportSlot2.Pos;
+
+                    TeleportPos.Add(TeleportSlot2.Pos);
+                    Teleport(TeleportSlot1.ConnectedBubble, TeleportSlot2, BubbleInflateMoveBlocked);
                 }
-
-                ChangedBubblePosDic[Bubble] = TeleportSlot2.Pos;
-
-                TeleportPos.Add(TeleportSlot2.Pos);
-                Teleport(TeleportSlot1.ConnectedBubble, TeleportSlot2, BubbleInflateMoveBlocked);
+                else
+                {
+                    TeleportSlotShake();
+                }
             }
-            else if(Slot2Active && TeleportSlot1.InsideBubbleType == BubbleType.Null)
+            else if(Slot2Active)
             {
-                GameObject Bubble = TeleportSlot2.ConnectedBubble;
-
-                if (InflateDic.ContainsKey(Bubble))
+                if (TeleportSlot1.InsideBubbleType == BubbleType.Null)
                 {
-                    InflateDic.Remove(Bubble);
+
+                    GameObject Bubble = TeleportSlot2.ConnectedBubble;
+
+                    if (InflateDic.ContainsKey(Bubble))
+                    {
+                        InflateDic.Remove(Bubble);
+                    }
+
+                    ChangedBubblePosDic[Bubble] = TeleportSlot1.Pos;
+
+                    TeleportPos.Add(TeleportSlot1.Pos);
+                    Teleport(TeleportSlot2.ConnectedBubble, TeleportSlot1, BubbleInflateMoveBlocked);
                 }
-
-                ChangedBubblePosDic[Bubble] = TeleportSlot1.Pos;
-
-                TeleportPos.Add(TeleportSlot1.Pos);
-                Teleport(TeleportSlot2.ConnectedBubble, TeleportSlot1, BubbleInflateMoveBlocked);
+                else
+                {
+                    TeleportSlotShake();
+                }
             }
         }
+        else if (Slot1Active && Slot2Active)
+        {
+            TeleportSlotShake();
+        }
+        
 
         if (TeleportPos.Count == 1)
         {
             SetBubbleMovement(TeleportPos, InflateDic, true);
         }
         
+    }
+
+    private void TeleportSlotShake()
+    {
+        var Data = GetComponent<BubbleMotionData>();
+
+        ParallelTasks ShakeTasks = new ParallelTasks();
+        ShakeTasks.Add(new ShakeTask(TeleportSlot1.Entity, Data.TeleportSlotShakeDis, Data.TeleportSlotShakeTime, Data.TeleportSlotShakeCycle));
+        SerialTasks Slot1ColorChange = new SerialTasks();
+        Slot1ColorChange.Add(new ColorChangeTask(TeleportSlot1.Entity, TeleportSlot1.Entity.GetComponent<SlotObject>().DefaultColor, TeleportSlot1.Entity.GetComponent<SlotObject>().SelectedColor, Data.TeleportSlotShakeTime / 2));
+        Slot1ColorChange.Add(new ColorChangeTask(TeleportSlot1.Entity, TeleportSlot1.Entity.GetComponent<SlotObject>().SelectedColor, TeleportSlot1.Entity.GetComponent<SlotObject>().DefaultColor, Data.TeleportSlotShakeTime / 2));
+        ShakeTasks.Add(Slot1ColorChange);
+
+        ShakeTasks.Add(new ShakeTask(TeleportSlot2.Entity, Data.TeleportSlotShakeDis, Data.TeleportSlotShakeTime, Data.TeleportSlotShakeCycle));
+        SerialTasks Slot2ColorChange = new SerialTasks();
+        Slot2ColorChange.Add(new ColorChangeTask(TeleportSlot2.Entity, TeleportSlot2.Entity.GetComponent<SlotObject>().DefaultColor, TeleportSlot2.Entity.GetComponent<SlotObject>().SelectedColor, Data.TeleportSlotShakeTime / 2));
+        Slot2ColorChange.Add(new ColorChangeTask(TeleportSlot2.Entity, TeleportSlot2.Entity.GetComponent<SlotObject>().SelectedColor, TeleportSlot2.Entity.GetComponent<SlotObject>().DefaultColor, Data.TeleportSlotShakeTime / 2));
+        ShakeTasks.Add(Slot1ColorChange);
+
+        BubbleMotionTasks.Add(ShakeTasks);
     }
 
     private void Teleport(GameObject Obj, SlotInfo Target, ParallelTasks BubbleMovementTask)
@@ -578,6 +625,10 @@ public class LevelManager : MonoBehaviour
 
         TeleportTask.Add(BubbleTeleportTask);
 
+        
+
+
+
         TeleportTask.Add(GetTeleportSlotTask(TeleportSlot1.Entity, DuringBubbleMovement));
         TeleportTask.Add(GetTeleportSlotTask(TeleportSlot2.Entity, DuringBubbleMovement));
 
@@ -603,10 +654,13 @@ public class LevelManager : MonoBehaviour
 
         ParallelTasks ScaleRotationChangeFirstHalf = new ParallelTasks();
         ScaleRotationChangeFirstHalf.Add(new RotationTask(Obj, 90, Data.TeleportTime / 2));
+        ScaleRotationChangeFirstHalf.Add(new ColorChangeTask(Obj, Obj.GetComponent<SlotObject>().DefaultColor, Obj.GetComponent<SlotObject>().SelectedColor, 0));
+        
         TeleportSlotTask.Add(ScaleRotationChangeFirstHalf);
 
         ParallelTasks ScaleRotationChangeSecondHalf = new ParallelTasks();
         ScaleRotationChangeSecondHalf.Add(new RotationTask(Obj, 90, Data.TeleportTime / 2));
+        ScaleRotationChangeSecondHalf.Add(new ColorChangeTask(Obj, Obj.GetComponent<SlotObject>().SelectedColor, Obj.GetComponent<SlotObject>().DefaultColor, 0));
         TeleportSlotTask.Add(ScaleRotationChangeSecondHalf);
 
         return TeleportSlotTask;

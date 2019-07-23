@@ -17,4 +17,9 @@ public class BubbleMotionData : MonoBehaviour
 
     public float BlockedDis;
     public float ConflictBlockedDis;
+
+    public float TeleportSlotShakeDis;
+    public float TeleportSlotShakeTime;
+    public int TeleportSlotShakeCycle;
+    
 }

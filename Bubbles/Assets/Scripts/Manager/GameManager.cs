@@ -69,14 +69,51 @@ public class GameManager : MonoBehaviour
 
     private void Init()
     {
+
         State = GameState.Play;
         SortedLevelList = new List<GameObject>();
         GetLevelInfo();
         CopiedLevel = Instantiate(SortedLevelList[CurrentLevel-MinLevelIndex]);
         CopiedLevel.transform.parent = AllLevel.transform;
         CopiedLevel.SetActive(false);
-        EventManager.instance.Fire(new LevelLoaded(CurrentLevel));
-        StartCoroutine(ScreenAppear());
+
+        State = GameState.Finish;
+        int num = LoadStat();
+        if (num > 0)
+        {
+            if (num + 1 == CurrentLevel)
+            {
+                Destroy(SortedLevelList[num + 1 - MinLevelIndex]);
+                SortedLevelList[num + 1 - MinLevelIndex] = CopiedLevel;
+                CopiedLevel.SetActive(true);
+                CopiedLevel = Instantiate(CopiedLevel);
+                CopiedLevel.transform.parent = AllLevel.transform;
+                CopiedLevel.SetActive(false);
+            }
+            else
+            {
+                Destroy(SortedLevelList[CurrentLevel - MinLevelIndex]);
+                SortedLevelList[CurrentLevel - MinLevelIndex] = CopiedLevel;
+                CopiedLevel = Instantiate(SortedLevelList[num + 1 - MinLevelIndex]);
+                CopiedLevel.transform.parent = AllLevel.transform;
+                CopiedLevel.SetActive(false);
+                SortedLevelList[num + 1 - MinLevelIndex].SetActive(true);
+            }
+
+            CurrentLevel = num + 1;
+            State = GameState.Play;
+            EventManager.instance.Fire(new LevelLoaded(CurrentLevel));
+            StartCoroutine(ScreenAppear());
+        }
+        else
+        {
+            State = GameState.Play;
+            EventManager.instance.Fire(new LevelLoaded(CurrentLevel));
+            StartCoroutine(ScreenAppear());
+        }
+
+        //EventManager.instance.Fire(new LevelLoaded(CurrentLevel));
+        //StartCoroutine(ScreenAppear());
     }
 
     private void GetLevelInfo()
@@ -125,15 +162,49 @@ public class GameManager : MonoBehaviour
         State = GameState.Finish;
         StartCoroutine(LoadLevel(L.Index + 1));
 
-        LevelFinishStat.Add(new GameStatistics(Mathf.RoundToInt(Timer), LevelManager.RemainedDisappearBubble, LevelManager.RemainedNormalBubble));
-        if (LoadStat() < LevelFinishStat.Count)
+        //LevelFinishStat.Add(new GameStatistics(Mathf.RoundToInt(Timer), LevelManager.RemainedDisappearBubble, LevelManager.RemainedNormalBubble));
+        if (LoadStat() < CurrentLevel)
         {
-            SaveStat();
+            SaveStat(new GameStatistics(Mathf.RoundToInt(Timer), LevelManager.RemainedDisappearBubble, LevelManager.RemainedNormalBubble));
         }
 
         Timer = 0;
 
         
+    }
+
+    private IEnumerator QuickLoadLevel(int index)
+    {
+
+        if (index <= MaxLevelIndex)
+        {
+            yield return StartCoroutine(ScreenFade());
+
+            if (index == CurrentLevel)
+            {
+                Destroy(SortedLevelList[index - MinLevelIndex]);
+                SortedLevelList[index - MinLevelIndex] = CopiedLevel;
+                CopiedLevel.SetActive(true);
+                CopiedLevel = Instantiate(CopiedLevel);
+                CopiedLevel.transform.parent = AllLevel.transform;
+                CopiedLevel.SetActive(false);
+            }
+            else
+            {
+                Destroy(SortedLevelList[CurrentLevel - MinLevelIndex]);
+                SortedLevelList[CurrentLevel - MinLevelIndex] = CopiedLevel;
+                CopiedLevel = Instantiate(SortedLevelList[index - MinLevelIndex]);
+                CopiedLevel.transform.parent = AllLevel.transform;
+                CopiedLevel.SetActive(false);
+                SortedLevelList[index - MinLevelIndex].SetActive(true);
+            }
+
+            CurrentLevel = index;
+            State = GameState.Play;
+            EventManager.instance.Fire(new LevelLoaded(CurrentLevel));
+
+            yield return StartCoroutine(ScreenAppear());
+        }
     }
 
     private IEnumerator LoadLevel(int index)
@@ -193,7 +264,7 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void SaveStat()
+    private void SaveStat(GameStatistics S)
     {
         if(!Directory.Exists(Application.dataPath + "/Data"))
         {
@@ -208,8 +279,7 @@ public class GameManager : MonoBehaviour
 
         StreamWriter file = new StreamWriter(Application.dataPath + "/Data/Data.txt", true);
 
-        GameStatistics Last = LevelFinishStat[LevelFinishStat.Count - 1];
-        file.WriteLine(Last.time.ToString() + " " + Last.RemainedDisappearBubble.ToString() + " " + Last.RemainedNormalBubble);
+        file.WriteLine(CurrentLevel.ToString()+" "+ S.time.ToString() + " " + S.RemainedDisappearBubble.ToString() + " " + S.RemainedNormalBubble);
         file.Close();
     }
 
