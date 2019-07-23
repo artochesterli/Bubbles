@@ -34,8 +34,8 @@ public class SlotObject : MonoBehaviour
 
     public float FinishRotationSpeed;
 
-
     private bool finish;
+    private bool NormalBubbleMatch;
 
     private void OnEnable()
     {
@@ -56,20 +56,13 @@ public class SlotObject : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        /*if(GameManager.State == GameState.Show)
-        {
-            CursorManager.InAvailableSlot = false;
-            State = SlotState.Default;
-            GetComponent<SpriteRenderer>().color = DefaultColor;
-        }*/
         if (finish)
         {
             transform.Rotate(Vector3.forward, FinishRotationSpeed * Time.deltaTime);
         }
-
     }
 
-    
+
 
     private void OnMouseOver()
     {
@@ -131,5 +124,7 @@ public class SlotObject : MonoBehaviour
             yield return null;
         }
     }
+
+
 
 }

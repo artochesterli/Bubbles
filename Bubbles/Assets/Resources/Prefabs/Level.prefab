@@ -68,14 +68,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MotionTime: 0.5
   RecoverTime: 0.2
-  TeleportTime: 0.4
+  TeleportTime: 0.2
   TeleportWaitTime: 0.1
+  BlinkTime: 0.25
   MoveDis: 1
   NormalScale: 1
   ExhaustScale: 0.8
   BlockedDis: 0.2
-  ConflictBlockedDis: 0.2
-  DisappearTime: 0.2
+  ConflictBlockedDis: 0.5
 --- !u!1 &5579169563043507166
 GameObject:
   m_ObjectHideFlags: 0

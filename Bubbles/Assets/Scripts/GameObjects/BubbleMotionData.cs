@@ -8,6 +8,7 @@ public class BubbleMotionData : MonoBehaviour
     public float RecoverTime;
     public float TeleportTime;
     public float TeleportWaitTime;
+    public float BlinkTime;
 
     public float MoveDis;
 
@@ -16,6 +17,4 @@ public class BubbleMotionData : MonoBehaviour
 
     public float BlockedDis;
     public float ConflictBlockedDis;
-
-    public float DisappearTime;
 }

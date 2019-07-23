@@ -25,6 +25,9 @@ public class NormalBubble : MonoBehaviour
     private IEnumerator FinishEffect()
     {
         yield return new WaitForSeconds(FinishWaitTime);
+        transform.Find("StableEffect").GetComponent<ParticleSystem>().Stop();
+        transform.Find("StableEffect").GetComponent<ParticleSystem>().Clear();
+
         transform.Find("FinishEffect").GetComponent<ParticleSystem>().Play();
     }
 }
