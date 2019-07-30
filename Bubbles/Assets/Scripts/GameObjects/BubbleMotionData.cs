@@ -21,5 +21,8 @@ public class BubbleMotionData : MonoBehaviour
     public float TeleportSlotShakeDis;
     public float TeleportSlotShakeTime;
     public int TeleportSlotShakeCycle;
+
+    public Color DefaultEnergyColor;
+    public Color AffectedEnergyColor;
     
 }

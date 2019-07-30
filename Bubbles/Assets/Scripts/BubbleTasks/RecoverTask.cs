@@ -12,11 +12,14 @@ public class RecoverTask : Task
     private readonly Color FinishColor;
     private readonly List<List<SlotInfo>> Map;
     private readonly Vector2Int Pos;
+    private readonly Color EnergyColor;
 
     private float TimeCount;
     private GameObject StableEffect;
+    private GameObject ActivateEffect;
+    private GameObject ReleaseEffect;
 
-    public RecoverTask(GameObject obj,float time,float initScale,float finishScale,Color initColor,Color finishColor, List<List<SlotInfo>> map,Vector2Int pos)
+    public RecoverTask(GameObject obj,float time,float initScale,float finishScale,Color initColor,Color finishColor, List<List<SlotInfo>> map,Vector2Int pos,Color energyColor)
     {
         Obj = obj;
         RecoverTime = time;
@@ -26,6 +29,7 @@ public class RecoverTask : Task
         FinishColor = finishColor;
         Map = map;
         Pos = pos;
+        EnergyColor = energyColor;
         SetMapInfo();
     }
 
@@ -39,6 +43,14 @@ public class RecoverTask : Task
         StableEffect = Obj.transform.Find("StableEffect").gameObject;
         StableEffect.GetComponent<ParticleSystem>().Play();
 
+        ActivateEffect= Obj.transform.Find("ActivateEffect").gameObject;
+        ReleaseEffect= Obj.transform.Find("ReleaseEffect").gameObject;
+
+        ActivateEffect.GetComponent<ParticleSystem>().startColor = EnergyColor;
+        foreach(Transform child in ReleaseEffect.transform)
+        {
+            child.GetComponent<ParticleSystem>().startColor = EnergyColor;
+        }
     }
 
     internal override void Update()

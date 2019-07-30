@@ -19113,7 +19113,7 @@ GameObject:
   - component: {fileID: 7843362484422401765}
   - component: {fileID: 1164343400794887795}
   - component: {fileID: 8752518894792150412}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: NormalBubble
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -19153,6 +19153,7 @@ MonoBehaviour:
   Type: 2
   State: 0
   NormalColor: {r: 0.5254902, g: 0.9529412, b: 1, a: 1}
+  ActivateColor: {r: 0.7607843, g: 0.9372549, b: 1, a: 1}
   ExhaustColor: {r: 0.3047348, g: 0.57386976, b: 0.6037736, a: 1}
 --- !u!114 &7843362484422401765
 MonoBehaviour:

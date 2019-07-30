@@ -22,23 +22,8 @@ public class Bubble : MonoBehaviour
     public BubbleState State;
 
     public Color NormalColor;
+    public Color ActivateColor;
     public Color ExhaustColor;
-
-    private GameObject StableEffect;
-    private GameObject ActivateEffect;
-
-    private void Start()
-    {
-        StableEffect = transform.Find("StableEffect").gameObject;
-        ActivateEffect = transform.Find("ActivateEffect").gameObject;
-    }
-
-    private void Update()
-    {
-
-    }
-
-
 
 }
 

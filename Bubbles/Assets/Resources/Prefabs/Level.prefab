@@ -79,6 +79,8 @@ MonoBehaviour:
   TeleportSlotShakeDis: 0.05
   TeleportSlotShakeTime: 0.4
   TeleportSlotShakeCycle: 2
+  DefaultEnergyColor: {r: 1, g: 1, b: 1, a: 1}
+  AffectedEnergyColor: {r: 0.94509804, g: 0.7882353, b: 1, a: 1}
 --- !u!1 &5579169563043507166
 GameObject:
   m_ObjectHideFlags: 0

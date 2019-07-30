@@ -14360,7 +14360,7 @@ GameObject:
   - component: {fileID: 6554458108197572209}
   - component: {fileID: 7962594522415558197}
   - component: {fileID: 671103162832164280}
-  m_Layer: 0
+  m_Layer: 2
   m_Name: DisappearBubble
   m_TagString: Untagged
   m_Icon: {fileID: 0}

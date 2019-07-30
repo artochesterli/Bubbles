@@ -37,6 +37,8 @@ public class SlotObject : MonoBehaviour
     private bool finish;
     private bool NormalBubbleMatch;
 
+    private const float size = 0.95f;
+
     private void OnEnable()
     {
         EventManager.instance.AddHandler<LevelFinish>(OnLevelFinish);
@@ -63,14 +65,22 @@ public class SlotObject : MonoBehaviour
     }
 
 
-
     private void OnMouseOver()
     {
-        if (GameManager.State == GameState.Play && ConnectedSlotInfo.InsideBubbleType==BubbleType.Null && GameManager.HeldBubbleType!=BubbleType.Null && AvailablePos())
+        if (GameManager.State == GameState.Play)
         {
-            CursorManager.InAvailableSlot = true;
-            Selected = true;
-            GetComponent<SpriteRenderer>().color = SelectedColor;
+            if (ConnectedSlotInfo.InsideBubbleType == BubbleType.Null && GameManager.HeldBubbleType != BubbleType.Null && AvailablePos())
+            {
+                CursorManager.InAvailableSlot = true;
+                Selected = true;
+                GetComponent<SpriteRenderer>().color = SelectedColor;
+            }
+            else
+            {
+                CursorManager.InAvailableSlot = false;
+                Selected = false;
+                GetComponent<SpriteRenderer>().color = DefaultColor;
+            }
         }
     }
 
@@ -97,12 +107,14 @@ public class SlotObject : MonoBehaviour
 
     public bool AvailablePos()
     {
-        Vector2Int Coordinate = new Vector2Int(Mathf.RoundToInt(transform.localPosition.x - MapPivotOffset.x), Mathf.RoundToInt(transform.localPosition.y - MapPivotOffset.y));
+        Vector2Int Coordinate = ConnectedSlotInfo.Pos;
         return Coordinate.x < ConnectedMap.Count - 1 && ConnectedMap[Coordinate.x + 1][Coordinate.y] != null && ConnectedMap[Coordinate.x + 1][Coordinate.y].InsideBubbleType != BubbleType.Null ||
             Coordinate.x > 0 && ConnectedMap[Coordinate.x - 1][Coordinate.y] != null && ConnectedMap[Coordinate.x - 1][Coordinate.y].InsideBubbleType != BubbleType.Null ||
             Coordinate.y < ConnectedMap[Coordinate.x].Count - 1 && ConnectedMap[Coordinate.x][Coordinate.y + 1] != null && ConnectedMap[Coordinate.x][Coordinate.y + 1].InsideBubbleType != BubbleType.Null ||
             Coordinate.y > 0 && ConnectedMap[Coordinate.x][Coordinate.y - 1] != null && ConnectedMap[Coordinate.x][Coordinate.y - 1].InsideBubbleType != BubbleType.Null;
     }
+
+    
 
     private void OnLevelFinish(LevelFinish L)
     {
