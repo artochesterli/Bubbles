@@ -11,8 +11,12 @@ public class LevelManager : MonoBehaviour
     public GameObject AllSlot;
     public GameObject AllBubble;
     public float MotionInterval;
+    public float TeleportMotionInterval;
     public float RoundEndInterval;
     public float RollBackTime;
+
+    public float TeleportAuraGenerationTime;
+    public float TeleportAuraDisappearTime;
 
     private List<List<SlotInfo>> Map;
     private Vector2 PivotOffset;
@@ -20,6 +24,7 @@ public class LevelManager : MonoBehaviour
 
     public static int RemainedDisappearBubble;
     public static int RemainedNormalBubble;
+    public static GameObject TeleportAura;
 
     private SerialTasks BubbleMotionTasks = new SerialTasks();
 
@@ -342,7 +347,17 @@ public class LevelManager : MonoBehaviour
     {
         if (PosList.Count == 0)
         {
+            if (TeleportAffected)
+            {
+                BubbleMotionTasks.Add(new WaitTask(0.2f));
+                BubbleMotionTasks.Add(new TeleportAuraDisappearTask(TeleportAuraDisappearTime, 1.8f));
+            }
             return;
+        }
+
+        if (TeleportAffected)
+        {
+            BubbleMotionTasks.Add(new WaitTask(TeleportMotionInterval));
         }
 
         ParallelTasks BackMovementSet = new ParallelTasks();
@@ -564,6 +579,8 @@ public class LevelManager : MonoBehaviour
 
         BubbleMotionTasks.Add(BubbleInflateMoveBlocked);
 
+        bool HaveTeleport=TeleportAffected;
+
         if (Slot1Active && !Slot2Active || !Slot1Active && Slot2Active)
         {
             if(Slot1Active)
@@ -583,6 +600,8 @@ public class LevelManager : MonoBehaviour
                     ChangedBubblePosDic[Bubble] = TeleportSlot2.Pos;
 
                     Teleport(TeleportSlot1.ConnectedBubble, TeleportSlot2, BubbleInflateMoveBlocked);
+
+                    HaveTeleport = true;
                 }
                 else
                 {
@@ -607,6 +626,8 @@ public class LevelManager : MonoBehaviour
                     ChangedBubblePosDic[Bubble] = TeleportSlot1.Pos;
 
                     Teleport(TeleportSlot2.ConnectedBubble, TeleportSlot1, BubbleInflateMoveBlocked);
+
+                    HaveTeleport = true;
                 }
                 else
                 {
@@ -625,10 +646,12 @@ public class LevelManager : MonoBehaviour
             {
                 PosList.Add(entry.Value);
             }
+            
         }
 
-        SetBubbleMovement(PosList, InflateDic, true);
-        
+        SetBubbleMovement(PosList, InflateDic, HaveTeleport);
+
+
     }
 
     private void TeleportSlotShake()
@@ -658,44 +681,59 @@ public class LevelManager : MonoBehaviour
 
         ParallelTasks TeleportTask = new ParallelTasks();
         SerialTasks BubbleTeleportTask = new SerialTasks();
+        SerialTasks TeleportAuraTask = new SerialTasks();
 
         if (Target == TeleportSlot1)
         {
             if (BubbleMovementTask != null)
             {
-                BubbleTeleportTask.Add(new WaitTask(Data.MotionTime - Data.TeleportTime / 2));
+                BubbleTeleportTask.Add(new WaitTask(Data.MotionTime));
+                TeleportAuraTask.Add(new WaitTask(Data.MotionTime));
             }
             BubbleTeleportTask.Add(new AffectTask(Obj, Data.AffectedEnergyColor));
             BubbleTeleportTask.Add(new ScaleChangeTask(Obj, Data.NormalScale, 0, Data.TeleportTime/2));
             BubbleTeleportTask.Add(new MoveTask(Obj, TeleportSlot2.Location, TeleportSlot1.Location, 0, TeleportSlot2.Pos, TeleportSlot1.Pos, TeleportSlot2.InsideBubbleType, Map));
             BubbleTeleportTask.Add(new ScaleChangeTask(Obj, 0, Data.NormalScale, Data.TeleportTime/2));
+
+            TeleportAuraTask.Add(new WaitTask(Data.TeleportTime));
+            TeleportAuraTask.Add(new TeleportAuraGenerationTask(TeleportSlot1.Location, TeleportAuraGenerationTime));
         }
         else
         {
             if (BubbleMovementTask != null)
             {
-                BubbleTeleportTask.Add(new WaitTask(Data.MotionTime - Data.TeleportTime / 2));
+                BubbleTeleportTask.Add(new WaitTask(Data.MotionTime));
+                TeleportAuraTask.Add(new WaitTask(Data.MotionTime));
             }
             BubbleTeleportTask.Add(new AffectTask(Obj, Data.AffectedEnergyColor));
             BubbleTeleportTask.Add(new ScaleChangeTask(Obj, Data.NormalScale, 0, Data.TeleportTime/2));
             BubbleTeleportTask.Add(new MoveTask(Obj, TeleportSlot1.Location, TeleportSlot2.Location, 0, TeleportSlot1.Pos, TeleportSlot2.Pos, TeleportSlot1.InsideBubbleType, Map));
             BubbleTeleportTask.Add(new ScaleChangeTask(Obj, 0, Data.NormalScale, Data.TeleportTime/2));
+
+
+            TeleportAuraTask.Add(new WaitTask(Data.TeleportTime));
+            TeleportAuraTask.Add(new TeleportAuraGenerationTask(TeleportSlot2.Location, TeleportAuraGenerationTime));
         }
 
         bool DuringBubbleMovement = BubbleMovementTask != null;
 
         TeleportTask.Add(BubbleTeleportTask);
+        TeleportTask.Add(TeleportAuraTask);
 
         TeleportTask.Add(GetTeleportSlotTask(TeleportSlot1.Entity, DuringBubbleMovement));
         TeleportTask.Add(GetTeleportSlotTask(TeleportSlot2.Entity, DuringBubbleMovement));
 
+
+
         if (BubbleMovementTask == null)
         {
             BubbleMotionTasks.Add(TeleportTask);
+            BubbleMotionTasks.Add(new WaitTask(0.5f));
         }
         else
         {
             BubbleMovementTask.Add(TeleportTask);
+            BubbleMotionTasks.Add(new WaitTask(0.5f));
         }
     }
 
@@ -706,7 +744,7 @@ public class LevelManager : MonoBehaviour
 
         if (DuringBubbleMovement)
         {
-            TeleportSlotTask.Add(new WaitTask(Data.MotionTime - Data.TeleportTime / 2));
+            TeleportSlotTask.Add(new WaitTask(Data.MotionTime));
         }
 
         ParallelTasks ScaleRotationChangeFirstHalf = new ParallelTasks();

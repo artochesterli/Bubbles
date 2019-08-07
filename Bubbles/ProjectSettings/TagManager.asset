@@ -42,6 +42,9 @@ TagManager:
   - name: Default
     uniqueID: 0
     locked: 0
+  - name: Slot
+    uniqueID: 3820927943
+    locked: 0
   - name: Circle
     uniqueID: 3288384775
     locked: 0
@@ -53,4 +56,7 @@ TagManager:
     locked: 0
   - name: Cursor
     uniqueID: 3352117327
+    locked: 0
+  - name: Mask
+    uniqueID: 2187028343
     locked: 0
