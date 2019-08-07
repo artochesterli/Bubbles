@@ -52,6 +52,7 @@ MonoBehaviour:
   AllSlot: {fileID: 8357767004902170851}
   AllBubble: {fileID: 5579169563043507166}
   MotionInterval: 0.5
+  TeleportWaitTime: 0.5
   TeleportMotionInterval: 0
   RoundEndInterval: 0.8
   RollBackTime: 0.2

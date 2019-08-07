@@ -11,6 +11,7 @@ public class LevelManager : MonoBehaviour
     public GameObject AllSlot;
     public GameObject AllBubble;
     public float MotionInterval;
+    public float TeleportWaitTime;
     public float TeleportMotionInterval;
     public float RoundEndInterval;
     public float RollBackTime;
@@ -728,12 +729,12 @@ public class LevelManager : MonoBehaviour
         if (BubbleMovementTask == null)
         {
             BubbleMotionTasks.Add(TeleportTask);
-            BubbleMotionTasks.Add(new WaitTask(0.5f));
+            BubbleMotionTasks.Add(new WaitTask(TeleportWaitTime));
         }
         else
         {
             BubbleMovementTask.Add(TeleportTask);
-            BubbleMotionTasks.Add(new WaitTask(0.5f));
+            BubbleMotionTasks.Add(new WaitTask(TeleportWaitTime));
         }
     }
 

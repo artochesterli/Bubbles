@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
+using UnityEngine.SceneManagement;
 
 public enum GameState
 {
@@ -34,9 +35,11 @@ public class GameManager : MonoBehaviour
 
     public int MinLevelIndex;
     public int MaxLevelIndex;
+    public string NextLevelScene;
 
     public GameObject Mask;
-    public float MaskFadeTime;
+    public float ScreenAppearTime;
+    public float ScreenFadeTime;
     public float LevelFinishWaitTime;
 
     private GameObject AllLevel;
@@ -69,7 +72,6 @@ public class GameManager : MonoBehaviour
 
     private void Init()
     {
-
         State = GameState.Play;
         SortedLevelList = new List<GameObject>();
         GetLevelInfo();
@@ -77,7 +79,12 @@ public class GameManager : MonoBehaviour
         CopiedLevel.transform.parent = AllLevel.transform;
         CopiedLevel.SetActive(false);
 
-        State = GameState.Finish;
+        State = GameState.Play;
+        EventManager.instance.Fire(new LevelLoaded(CurrentLevel));
+        StartCoroutine(ScreenAppear());
+
+
+        /*State = GameState.Finish;
         int num = LoadStat();
         if (num > 0)
         {
@@ -110,10 +117,8 @@ public class GameManager : MonoBehaviour
             State = GameState.Play;
             EventManager.instance.Fire(new LevelLoaded(CurrentLevel));
             StartCoroutine(ScreenAppear());
-        }
+        }*/
 
-        //EventManager.instance.Fire(new LevelLoaded(CurrentLevel));
-        //StartCoroutine(ScreenAppear());
     }
 
     private void GetLevelInfo()
@@ -162,15 +167,17 @@ public class GameManager : MonoBehaviour
         State = GameState.Finish;
         StartCoroutine(LoadLevel(L.Index + 1));
 
-        //LevelFinishStat.Add(new GameStatistics(Mathf.RoundToInt(Timer), LevelManager.RemainedDisappearBubble, LevelManager.RemainedNormalBubble));
+        SavePlayerData();
+    }
+
+    private void SavePlayerData()
+    {
         if (LoadStat() < CurrentLevel)
         {
             SaveStat(new GameStatistics(Mathf.RoundToInt(Timer), LevelManager.RemainedDisappearBubble, LevelManager.RemainedNormalBubble));
         }
 
         Timer = 0;
-
-        
     }
 
     private IEnumerator QuickLoadLevel(int index)
@@ -210,11 +217,9 @@ public class GameManager : MonoBehaviour
     private IEnumerator LoadLevel(int index)
     {
         yield return new WaitForSeconds(LevelFinishWaitTime);
-
         if (index <= MaxLevelIndex)
         {
             yield return StartCoroutine(ScreenFade());
-
             if (index == CurrentLevel)
             {
                 Destroy(SortedLevelList[index - MinLevelIndex]);
@@ -240,15 +245,19 @@ public class GameManager : MonoBehaviour
 
             yield return StartCoroutine(ScreenAppear());
         }
+        else
+        {
+            SceneManager.LoadScene(NextLevelScene);
+        }
     }
 
     private IEnumerator ScreenFade()
     {
         float TimeCount = 0;
-        while (TimeCount < MaskFadeTime)
+        while (TimeCount < ScreenFadeTime)
         {
             TimeCount += Time.deltaTime;
-            Mask.GetComponent<Image>().color = Color.Lerp(new Color(0, 0, 0, 0), Color.black, TimeCount / MaskFadeTime);
+            Mask.GetComponent<Image>().color = Color.Lerp(new Color(0, 0, 0, 0), Color.black, TimeCount / ScreenFadeTime);
             yield return null;
         }
     }
@@ -256,10 +265,10 @@ public class GameManager : MonoBehaviour
     private IEnumerator ScreenAppear()
     {
         float TimeCount = 0;
-        while (TimeCount < MaskFadeTime)
+        while (TimeCount < ScreenAppearTime)
         {
             TimeCount += Time.deltaTime;
-            Mask.GetComponent<Image>().color = Color.Lerp(Color.black, new Color(0, 0, 0, 0), TimeCount / MaskFadeTime);
+            Mask.GetComponent<Image>().color = Color.Lerp(Color.black, new Color(0, 0, 0, 0), TimeCount / ScreenAppearTime);
             yield return null;
         }
     }
