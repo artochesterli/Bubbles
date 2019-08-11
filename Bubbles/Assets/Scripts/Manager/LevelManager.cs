@@ -58,7 +58,6 @@ public class LevelManager : MonoBehaviour
         EventManager.instance.AddHandler<MotionFinish>(OnMotionFinish);
         EventManager.instance.AddHandler<LevelLoaded>(OnLevelLoaded);
 
-        Debug.Log(Time.time);
     }
 
     private void OnDisable()
@@ -82,7 +81,6 @@ public class LevelManager : MonoBehaviour
             MapAppearTask.Update();
             if (MapAppearTask.State == Task.TaskState.Success)
             {
-                Debug.Log(Time.time);
                 GameManager.State = GameState.Play;
             }
         }
