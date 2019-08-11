@@ -15,7 +15,10 @@ public class WaitTask : Task
 
     protected override void Init()
     {
-        TimeCount = 0;
+        if (WaitTime == 0)
+        {
+            SetState(TaskState.Success);
+        }
     }
 
     internal override void Update()

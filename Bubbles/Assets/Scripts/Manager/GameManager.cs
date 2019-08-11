@@ -4,12 +4,13 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.IO;
 using UnityEngine.SceneManagement;
+using System.Runtime.Serialization.Formatters.Binary;
 
 public enum GameState
 {
     Play,
     Show,
-    Pause,
+    Init,
     Finish
 }
 
@@ -44,10 +45,17 @@ public class GameManager : MonoBehaviour
 
     private GameObject AllLevel;
     private List<GameObject> SortedLevelList;
-    private GameObject CopiedLevel;
+    //private GameObject CopiedLevel;
 
     private List<GameStatistics> LevelFinishStat=new List<GameStatistics>();
     private float Timer;
+
+    private const string SaveFolderName = "PlayerSave";
+    private const string SaveFileName = "PlayerSave";
+    private const string SaveFileExtension = ".dat";
+    private const string DataFolderName = "PlayerData";
+    private const string DataFileName = "PlayerData";
+    private const string DataFileExtension = ".txt";
 
     // Start is called before the first frame update
     void Start()
@@ -72,52 +80,26 @@ public class GameManager : MonoBehaviour
 
     private void Init()
     {
-        State = GameState.Play;
         SortedLevelList = new List<GameObject>();
         GetLevelInfo();
-        CopiedLevel = Instantiate(SortedLevelList[CurrentLevel-MinLevelIndex]);
-        CopiedLevel.transform.parent = AllLevel.transform;
-        CopiedLevel.SetActive(false);
 
-        State = GameState.Play;
+        SortedLevelList[CurrentLevel - MinLevelIndex].SetActive(false);
+
+        /*if (!LoadProgress())
+        {
+            //CurrentLevel = MinLevelIndex;
+            SaveProgress();
+        }*/
+
+        SortedLevelList[CurrentLevel - MinLevelIndex].SetActive(true);
+
+        /*CopiedLevel = Instantiate(SortedLevelList[CurrentLevel-MinLevelIndex]);
+        CopiedLevel.transform.parent = AllLevel.transform;
+        CopiedLevel.SetActive(false);*/
+
+        //State = GameState.Play;
         EventManager.instance.Fire(new LevelLoaded(CurrentLevel));
         StartCoroutine(ScreenAppear());
-
-
-        /*State = GameState.Finish;
-        int num = LoadStat();
-        if (num > 0)
-        {
-            if (num + 1 == CurrentLevel)
-            {
-                Destroy(SortedLevelList[num + 1 - MinLevelIndex]);
-                SortedLevelList[num + 1 - MinLevelIndex] = CopiedLevel;
-                CopiedLevel.SetActive(true);
-                CopiedLevel = Instantiate(CopiedLevel);
-                CopiedLevel.transform.parent = AllLevel.transform;
-                CopiedLevel.SetActive(false);
-            }
-            else
-            {
-                Destroy(SortedLevelList[CurrentLevel - MinLevelIndex]);
-                SortedLevelList[CurrentLevel - MinLevelIndex] = CopiedLevel;
-                CopiedLevel = Instantiate(SortedLevelList[num + 1 - MinLevelIndex]);
-                CopiedLevel.transform.parent = AllLevel.transform;
-                CopiedLevel.SetActive(false);
-                SortedLevelList[num + 1 - MinLevelIndex].SetActive(true);
-            }
-
-            CurrentLevel = num + 1;
-            State = GameState.Play;
-            EventManager.instance.Fire(new LevelLoaded(CurrentLevel));
-            StartCoroutine(ScreenAppear());
-        }
-        else
-        {
-            State = GameState.Play;
-            EventManager.instance.Fire(new LevelLoaded(CurrentLevel));
-            StartCoroutine(ScreenAppear());
-        }*/
 
     }
 
@@ -167,51 +149,15 @@ public class GameManager : MonoBehaviour
         State = GameState.Finish;
         StartCoroutine(LoadLevel(L.Index + 1));
 
+
         SavePlayerData();
     }
 
     private void SavePlayerData()
     {
-        if (LoadStat() < CurrentLevel)
-        {
-            SaveStat(new GameStatistics(Mathf.RoundToInt(Timer), LevelManager.RemainedDisappearBubble, LevelManager.RemainedNormalBubble));
-        }
+        SaveStat(new GameStatistics(Mathf.RoundToInt(Timer), LevelManager.RemainedDisappearBubble, LevelManager.RemainedNormalBubble));
 
         Timer = 0;
-    }
-
-    private IEnumerator QuickLoadLevel(int index)
-    {
-
-        if (index <= MaxLevelIndex)
-        {
-            yield return StartCoroutine(ScreenFade());
-
-            if (index == CurrentLevel)
-            {
-                Destroy(SortedLevelList[index - MinLevelIndex]);
-                SortedLevelList[index - MinLevelIndex] = CopiedLevel;
-                CopiedLevel.SetActive(true);
-                CopiedLevel = Instantiate(CopiedLevel);
-                CopiedLevel.transform.parent = AllLevel.transform;
-                CopiedLevel.SetActive(false);
-            }
-            else
-            {
-                Destroy(SortedLevelList[CurrentLevel - MinLevelIndex]);
-                SortedLevelList[CurrentLevel - MinLevelIndex] = CopiedLevel;
-                CopiedLevel = Instantiate(SortedLevelList[index - MinLevelIndex]);
-                CopiedLevel.transform.parent = AllLevel.transform;
-                CopiedLevel.SetActive(false);
-                SortedLevelList[index - MinLevelIndex].SetActive(true);
-            }
-
-            CurrentLevel = index;
-            State = GameState.Play;
-            EventManager.instance.Fire(new LevelLoaded(CurrentLevel));
-
-            yield return StartCoroutine(ScreenAppear());
-        }
     }
 
     private IEnumerator LoadLevel(int index)
@@ -220,33 +166,27 @@ public class GameManager : MonoBehaviour
         if (index <= MaxLevelIndex)
         {
             yield return StartCoroutine(ScreenFade());
-            if (index == CurrentLevel)
-            {
-                Destroy(SortedLevelList[index - MinLevelIndex]);
-                SortedLevelList[index - MinLevelIndex] = CopiedLevel;
-                CopiedLevel.SetActive(true);
-                CopiedLevel = Instantiate(CopiedLevel);
-                CopiedLevel.transform.parent = AllLevel.transform;
-                CopiedLevel.SetActive(false);
-            }
-            else
-            {
-                Destroy(SortedLevelList[CurrentLevel - MinLevelIndex]);
-                SortedLevelList[CurrentLevel- MinLevelIndex] = CopiedLevel;
-                CopiedLevel = Instantiate(SortedLevelList[index - MinLevelIndex]);
-                CopiedLevel.transform.parent = AllLevel.transform;
-                CopiedLevel.SetActive(false);
-                SortedLevelList[index - MinLevelIndex].SetActive(true);
-            }
+
+            SortedLevelList[CurrentLevel - MinLevelIndex].SetActive(false);
+            //Destroy(SortedLevelList[CurrentLevel - MinLevelIndex]);
+            /*SortedLevelList[CurrentLevel - MinLevelIndex] = CopiedLevel;
+            CopiedLevel = Instantiate(SortedLevelList[index - MinLevelIndex]);
+            CopiedLevel.transform.parent = AllLevel.transform;
+            CopiedLevel.SetActive(false);*/
+            SortedLevelList[index - MinLevelIndex].SetActive(true);
             
             CurrentLevel = index;
-            State = GameState.Play;
+            SaveProgress();
+            //State = GameState.Play;
             EventManager.instance.Fire(new LevelLoaded(CurrentLevel));
 
-            yield return StartCoroutine(ScreenAppear());
+            StartCoroutine(ScreenAppear());
         }
         else
         {
+            yield return StartCoroutine(ScreenFade());
+            CurrentLevel = index;
+            SaveProgress();
             SceneManager.LoadScene(NextLevelScene);
         }
     }
@@ -273,41 +213,89 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    private void SaveStat(GameStatistics S)
+    private void SaveProgress()
     {
-        if(!Directory.Exists(Application.dataPath + "/Data"))
+        string Dic = Path.Combine(Application.dataPath, SaveFolderName);
+
+        if (!Directory.Exists(Dic))
         {
-            Directory.CreateDirectory(Application.dataPath + "/Data");
+            Directory.CreateDirectory(Dic);
         }
 
-        if (!File.Exists(Application.dataPath + "/Data/Data.txt"))
+        string file = Path.Combine(Application.dataPath, SaveFolderName, SaveFileName + SaveFileExtension);
+
+        FileStream stream;
+
+        if (!File.Exists(file))
         {
-            StreamWriter f=File.CreateText(Application.dataPath + "/Data/Data.txt");
+            stream = File.Open(file, FileMode.Create);
+        }
+        else
+        {
+            stream = File.Open(file, FileMode.Open);
+        }
+
+        BinaryFormatter binaryFormatter = new BinaryFormatter();
+        binaryFormatter.Serialize(stream, CurrentLevel);
+        stream.Close();
+    }
+
+    private bool LoadProgress()
+    {
+        string file = Path.Combine(Application.dataPath, SaveFolderName, SaveFileName + SaveFileExtension);
+        if (!File.Exists(file))
+        {
+            return false;
+        }
+        FileStream stream = File.Open(file, FileMode.Open);
+        BinaryFormatter binaryFormatter = new BinaryFormatter();
+        CurrentLevel = (int)binaryFormatter.Deserialize(stream);
+        stream.Close();
+        return true;
+    }
+
+    private void SaveStat(GameStatistics S)
+    {
+        string Dic = Path.Combine(Application.dataPath, DataFolderName);
+
+        if (!Directory.Exists(Dic))
+        {
+            Directory.CreateDirectory(Dic);
+        }
+
+        string file = Path.Combine(Application.dataPath, DataFolderName, DataFileName + DataFileExtension);
+
+        if (!File.Exists(file))
+        {
+            StreamWriter f=File.CreateText(file);
             f.Close();
         }
 
-        StreamWriter file = new StreamWriter(Application.dataPath + "/Data/Data.txt", true);
+        StreamWriter stream = new StreamWriter(file, true);
 
-        file.WriteLine(CurrentLevel.ToString()+" "+ S.time.ToString() + " " + S.RemainedDisappearBubble.ToString() + " " + S.RemainedNormalBubble);
-        file.Close();
+        stream.WriteLine(CurrentLevel.ToString()+" "+ S.time.ToString() + " " + S.RemainedDisappearBubble.ToString() + " " + S.RemainedNormalBubble);
+        stream.Close();
     }
 
     private int LoadStat()
     {
         int num = 0;
-        if(!File.Exists(Application.dataPath + "/Data/Data.txt"))
+
+        string file = Path.Combine(Application.dataPath, DataFolderName, DataFileName + DataFileExtension);
+
+        if (!File.Exists(file))
         {
             return num;
         }
 
-        StreamReader file = new StreamReader(Application.dataPath + "/Data/Data.txt", true);
-        while (!file.EndOfStream)
+        StreamReader stream = new StreamReader(file, true);
+        while (!stream.EndOfStream)
         {
-            file.ReadLine();
+            stream.ReadLine();
             num++;
         }
 
-        file.Close();
+        stream.Close();
         return num;
     }
 }

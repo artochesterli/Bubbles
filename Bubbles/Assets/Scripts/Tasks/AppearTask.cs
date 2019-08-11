@@ -9,25 +9,30 @@ public class AppearTask : Task
     private readonly Vector2Int Pos;
     private readonly List<List<SlotInfo>> Map;
     private readonly BubbleType Type;
+    private readonly bool LogicChange;
 
     private float TimeCount;
     private Color color;
 
-    public AppearTask(GameObject obj,float time,Vector2Int pos, List<List<SlotInfo>> map, BubbleType type)
+    public AppearTask(GameObject obj,float time, bool logicChange, Vector2Int pos, List<List<SlotInfo>> map=null, BubbleType type=BubbleType.Null)
     {
         Obj = obj;
         AppearTime = time;
         Pos = pos;
         Map = map;
         Type = type;
+        LogicChange = logicChange;
     }
 
     protected override void Init()
     {
         color = Obj.GetComponent<SpriteRenderer>().color;
 
-        Map[Pos.x][Pos.y].InsideBubbleType = Type;
-        Map[Pos.x][Pos.y].ConnectedBubble = Obj;
+        if (LogicChange)
+        {
+            Map[Pos.x][Pos.y].InsideBubbleType = Type;
+            Map[Pos.x][Pos.y].ConnectedBubble = Obj;
+        }
     }
 
     internal override void Update()
