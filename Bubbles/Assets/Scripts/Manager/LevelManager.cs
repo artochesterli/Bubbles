@@ -23,8 +23,12 @@ public class LevelManager : MonoBehaviour
     public float MapAppearTime;
     public float MapUnitAppearTime;
 
+
     public float TeleportAuraGenerationTime;
     public float TeleportAuraDisappearTime;
+    public float BeforeAuraDisappearWaitTime;
+    public float AfterAuraDisappearWaitTime;
+    public float AuraSize;
 
     private List<List<SlotInfo>> Map;
     private Vector2 PivotOffset;
@@ -417,8 +421,13 @@ public class LevelManager : MonoBehaviour
         {
             if (TeleportAffected)
             {
-                BubbleMotionTasks.Add(new WaitTask(0.2f));
-                BubbleMotionTasks.Add(new TeleportAuraDisappearTask(TeleportAuraDisappearTime, 1.8f));
+                BubbleMotionTasks.Add(new WaitTask(BeforeAuraDisappearWaitTime));
+                BubbleMotionTasks.Add(new TeleportAuraDisappearTask(TeleportAuraDisappearTime, AuraSize));
+
+                if (ActivateDic.Count > 0)
+                {
+                    BubbleMotionTasks.Add(new WaitTask(AfterAuraDisappearWaitTime));
+                }
             }
             return;
         }

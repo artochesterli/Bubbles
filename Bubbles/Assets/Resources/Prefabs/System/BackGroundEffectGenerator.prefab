@@ -43,13 +43,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d8f17e6d1fe5a5e4aa08caf0b0b56bbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MapZoneX: {x: -3, y: 3}
-  MapZoneY: {x: -3, y: 3}
+  MapZoneX: {x: -2.5, y: 2.5}
+  MapZoneY: {x: -2.5, y: 2.5}
   StableTimeMinMax: {x: 1, y: 3}
   AppearFadeTimeMinMax: {x: 0.5, y: 1.5}
   MaxAlphaMinMax: {x: 0.3, y: 0.6}
   NumberMinMax: {x: 1, y: 4}
-  SizeMinMax: {x: 0.1, y: 0.2}
-  SpeedMinMax: {x: 0.1, y: 0.25}
+  SizeMinMax: {x: 0.05, y: 0.2}
+  SpeedMinMax: {x: 0.1, y: 0.2}
   IntervalMinMax: {x: 0.5, y: 2}
   Maxunit: 12

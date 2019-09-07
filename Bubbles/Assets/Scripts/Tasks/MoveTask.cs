@@ -58,6 +58,10 @@ public class MoveTask : Task
         {
             Speed = 2 * (TargetPos-BeginPos).magnitude / MoveTime * ((MoveTime - TimeCount) / (MoveTime / 2));
             Obj.transform.localPosition += Speed * (TargetPos - BeginPos).normalized * Time.deltaTime;
+            if (Vector3.Dot(Obj.transform.localPosition - TargetPos, TargetPos - BeginPos) > 0)
+            {
+                Obj.transform.localPosition = TargetPos;
+            }
         }
         else
         {

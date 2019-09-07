@@ -51,7 +51,7 @@ MonoBehaviour:
   NormalBubbleInitNum: 0
   AllSlot: {fileID: 8357767004902170851}
   AllBubble: {fileID: 5579169563043507166}
-  MotionInterval: 0.5
+  MotionInterval: 0.2
   TeleportWaitTime: 0.5
   TeleportMotionInterval: 0
   RoundEndInterval: 0.8
@@ -61,6 +61,9 @@ MonoBehaviour:
   MapUnitAppearTime: 0.3
   TeleportAuraGenerationTime: 0.3
   TeleportAuraDisappearTime: 0.2
+  BeforeAuraDisappearWaitTime: 0.2
+  AfterAuraDisappearWaitTime: 0.3
+  AuraSize: 1.8
 --- !u!114 &4449895371926025500
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -87,7 +90,7 @@ MonoBehaviour:
   TeleportSlotShakeTime: 0.4
   TeleportSlotShakeCycle: 2
   DefaultEnergyColor: {r: 1, g: 1, b: 1, a: 1}
-  AffectedEnergyColor: {r: 0.94509804, g: 0.7882353, b: 1, a: 1}
+  AffectedEnergyColor: {r: 1, g: 0.8745098, b: 0.57254905, a: 1}
 --- !u!1 &5579169563043507166
 GameObject:
   m_ObjectHideFlags: 0
