@@ -22,6 +22,7 @@ public class SlotObject : MonoBehaviour
     public SlotInfo ConnectedSlotInfo;
     public Vector2 MapPivotOffset;
 
+    public float Size;
     public Color SelectedColor;
     public Color DefaultColor;
     
@@ -44,9 +45,7 @@ public class SlotObject : MonoBehaviour
     private Vector3 LastShakeTarget;
     private float ShakeTimeCount;
     private float ShakeTime;
-    
 
-    private const float size = 0.95f;
 
     private void OnEnable()
     {
@@ -67,14 +66,32 @@ public class SlotObject : MonoBehaviour
     }
 
     // Update is called once per frame
-    void Update()
+    void LateUpdate()
     {
         if (finish)
         {
             transform.Rotate(Vector3.forward, FinishRotationSpeed * Time.deltaTime);
         }
 
+        SetAppearance();
+        SetShake();
+        
+    }
 
+    private void SetAppearance()
+    {
+        if (Selected)
+        {
+            GetComponent<SpriteRenderer>().color = SelectedColor;
+        }
+        else
+        {
+            GetComponent<SpriteRenderer>().color = DefaultColor;
+        }
+    }
+
+    private void SetShake()
+    {
         if (Selected)
         {
             if (ShakeTimeCount >= ShakeTime)
@@ -87,60 +104,22 @@ public class SlotObject : MonoBehaviour
 
             ShakeTimeCount += Time.deltaTime;
             transform.position = Vector3.Lerp(LastShakeTarget, ShakeTarget, ShakeTimeCount / ShakeTime);
-
         }
-    }
-
-    private void ResetShake()
-    {
-        transform.position = OriPos;
-        ShakeTime = 0;
-        ShakeTimeCount = 0;
-        LastShakeTarget = OriPos;
-        ShakeTarget = OriPos;
-    }
-
-    private void OnMouseOver()
-    {
-        if (GameManager.State == GameState.Play)
+        else
         {
-            if (AvailablePos())
-            {
-                CursorManager.InAvailableSlot = true;
-                Selected = true;
-                GetComponent<SpriteRenderer>().color = SelectedColor;
-            }
-            else
-            {
-                CursorManager.InAvailableSlot = false;
-                Selected = false;
-                GetComponent<SpriteRenderer>().color = DefaultColor;
-                ResetShake();
-            }
+            transform.position = OriPos;
+            ShakeTime = 0;
+            ShakeTimeCount = 0;
+            LastShakeTarget = OriPos;
+            ShakeTarget = OriPos;
         }
     }
 
-    private void OnMouseExit()
+    public bool CursorInside()
     {
-        if (GameManager.State == GameState.Play)
-        {
-            CursorManager.InAvailableSlot = false;
-            Selected = false;
-            GetComponent<SpriteRenderer>().color = DefaultColor;
-            ResetShake();
-        }
-    }
-
-    private void OnMouseDown()
-    {
-        if (Selected)
-        {
-            CursorManager.InAvailableSlot = false;
-            Selected = false;
-            GetComponent<SpriteRenderer>().color = DefaultColor;
-            EventManager.instance.Fire(new Place(ConnectedSlotInfo.Pos, GameManager.HeldBubbleType));
-            ResetShake();
-        }
+        
+        Vector3 MousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        return MousePos.x >= transform.position.x - Size / 2 && MousePos.x <= transform.position.x + Size / 2 && MousePos.y >= transform.position.y - Size / 2 && MousePos.y <= transform.position.y + Size / 2;
     }
 
     public bool AvailablePos()

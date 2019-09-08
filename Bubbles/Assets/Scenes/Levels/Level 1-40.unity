@@ -7678,7 +7678,7 @@ PrefabInstance:
     - target: {fileID: 5329439176264175710, guid: 2df7172b5cd422a42b4faea314877495,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8861388191067944460, guid: 2df7172b5cd422a42b4faea314877495,
         type: 3}
@@ -34571,7 +34571,7 @@ PrefabInstance:
     - target: {fileID: 5329439176264175710, guid: 2df7172b5cd422a42b4faea314877495,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8861388191067944460, guid: 2df7172b5cd422a42b4faea314877495,
         type: 3}
@@ -45992,6 +45992,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: CursorCanvas
+      objectReference: {fileID: 0}
+    - target: {fileID: 7555737702695876230, guid: 5950a1a47b63745449f078d8cd221516,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7555737702695876234, guid: 5950a1a47b63745449f078d8cd221516,
         type: 3}

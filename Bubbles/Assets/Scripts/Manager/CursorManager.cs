@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class CursorManager : MonoBehaviour
 {
-    public static bool InAvailableSlot;
+    public static GameObject AllSlot;
 
     public Color NullColor;
     public Color DisappearBubbleColor;
@@ -19,7 +19,9 @@ public class CursorManager : MonoBehaviour
 
     public float InSlotScale;
     public float InSlotScaleChangeTime;
-    
+
+
+    private GameObject SelectedSlot;
 
     private bool ColorChanging;
     private Color CurrentColor;
@@ -32,6 +34,7 @@ public class CursorManager : MonoBehaviour
 
     private void OnDestroy()
     {
+        AllSlot = null;
         EventManager.instance.RemoveHandler<BubbleSelected>(OnBubbleSelected);
     }
 
@@ -39,13 +42,54 @@ public class CursorManager : MonoBehaviour
     void Update()
     {
         SetPos();
+        CheckSlotSelection();
         SetAppearance();
         SetScale();
+        CheckInput();
+    }
+
+    private void CheckSlotSelection()
+    {
+        if(GameManager.State == GameState.Play)
+        {
+            foreach (Transform child in AllSlot.transform)
+            {
+                if (child.GetComponent<SlotObject>().CursorInside() && child.GetComponent<SlotObject>().AvailablePos())
+                {
+                    if (child.gameObject != SelectedSlot)
+                    {
+                        if (SelectedSlot != null)
+                        {
+                            SelectedSlot.GetComponent<SlotObject>().Selected = false;
+                        }
+                        child.GetComponent<SlotObject>().Selected = true;
+                        SelectedSlot = child.gameObject;
+                    }
+                    return;
+                }
+            }
+        }
+
+        if (SelectedSlot != null)
+        {
+            SelectedSlot.GetComponent<SlotObject>().Selected = false;
+            SelectedSlot = null;
+        }
+
+    }
+
+    private void CheckInput()
+    {
+        if (Input.GetMouseButtonDown(0) && SelectedSlot != null)
+        {
+            SelectedSlot.GetComponent<SlotObject>().Selected = false;
+            EventManager.instance.Fire(new Place(SelectedSlot.GetComponent<SlotObject>().ConnectedSlotInfo.Pos, GameManager.HeldBubbleType));
+        }
     }
 
     private void SetScale()
     {
-        if (InAvailableSlot)
+        if (SelectedSlot)
         {
             transform.localScale += Vector3.one * (InSlotScale - Scale) / InSlotScaleChangeTime * Time.deltaTime;
             if (transform.localScale.x > InSlotScale)

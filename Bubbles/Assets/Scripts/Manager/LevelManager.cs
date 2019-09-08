@@ -50,6 +50,7 @@ public class LevelManager : MonoBehaviour
 
     private void OnEnable()
     {
+        CursorManager.AllSlot = AllSlot;
         if (Map == null)
         {
             Map = new List<List<SlotInfo>>();
