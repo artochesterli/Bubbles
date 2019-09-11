@@ -8,10 +8,10 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 public enum GameState
 {
+    SetUp,
     Play,
-    Show,
-    Init,
-    Finish
+    Run,
+    Clear
 }
 
 public class GameStatistics
@@ -141,12 +141,12 @@ public class GameManager : MonoBehaviour
 
     private void OnPlace(Place P)
     {
-        State = GameState.Show;
+        State = GameState.Run;
     }
 
     private void OnLevelFinish(LevelFinish L)
     {
-        State = GameState.Finish;
+        State = GameState.Clear;
         StartCoroutine(LoadLevel(L.Index + 1));
 
 

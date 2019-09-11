@@ -25,6 +25,8 @@ public class SlotObject : MonoBehaviour
     public float Size;
     public Color SelectedColor;
     public Color DefaultColor;
+    public Sprite SelectedSprite;
+    public Sprite DefaultSprite;
     
     public SlotType Type;
     public bool Selected;
@@ -80,13 +82,18 @@ public class SlotObject : MonoBehaviour
 
     private void SetAppearance()
     {
-        if (Selected)
+        if (GameManager.State !=GameState.SetUp && GameManager.State!=GameState.Clear)
         {
-            GetComponent<SpriteRenderer>().color = SelectedColor;
-        }
-        else
-        {
-            GetComponent<SpriteRenderer>().color = DefaultColor;
+            if (Selected)
+            {
+                GetComponent<SpriteRenderer>().color = SelectedColor;
+                GetComponent<SpriteRenderer>().sprite = SelectedSprite;
+            }
+            else
+            {
+                GetComponent<SpriteRenderer>().color = DefaultColor;
+                GetComponent<SpriteRenderer>().sprite = DefaultSprite;
+            }
         }
     }
 
@@ -119,7 +126,7 @@ public class SlotObject : MonoBehaviour
     {
         
         Vector3 MousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        return MousePos.x >= transform.position.x - Size / 2 && MousePos.x <= transform.position.x + Size / 2 && MousePos.y >= transform.position.y - Size / 2 && MousePos.y <= transform.position.y + Size / 2;
+        return MousePos.x >= OriPos.x - Size / 2 && MousePos.x <= OriPos.x + Size / 2 && MousePos.y >= OriPos.y - Size / 2 && MousePos.y <= OriPos.y + Size / 2;
     }
 
     public bool AvailablePos()

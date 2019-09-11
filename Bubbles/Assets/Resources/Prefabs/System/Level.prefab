@@ -53,8 +53,8 @@ MonoBehaviour:
   AllBubble: {fileID: 5579169563043507166}
   MotionInterval: 0.2
   TeleportWaitTime: 0.5
-  TeleportMotionInterval: 0
-  RoundEndInterval: 0.8
+  TeleportMotionInterval: 0.2
+  RoundEndInterval: 0.5
   RollBackTime: 0.2
   MapAppearWaitTime: 0
   MapAppearTime: 0.5

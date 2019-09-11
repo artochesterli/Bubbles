@@ -47,6 +47,11 @@ public class ReleaseTask : Task
         {
             child.GetComponent<ParticleSystem>().Play();
         }
+
+        if (Obj.GetComponent<Bubble>().Type == BubbleType.Normal)
+        {
+            Obj.transform.Find("InTargetEffect").GetComponent<ParticleSystem>().Stop();
+        }
     }
 
     internal override void Update()

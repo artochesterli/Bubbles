@@ -81,7 +81,7 @@ public class LevelManager : MonoBehaviour
 
     void Update()
     {
-        if (GameManager.State == GameState.Init)
+        if (GameManager.State == GameState.SetUp)
         {
             MapAppearTask.Update();
             if (MapAppearTask.State == Task.TaskState.Success)
@@ -90,7 +90,10 @@ public class LevelManager : MonoBehaviour
             }
         }
 
-        BubbleMotionTasks.Update();
+        if (GameManager.State == GameState.Run)
+        {
+            BubbleMotionTasks.Update();
+        }
 
         if(GameManager.State==GameState.Play && Input.GetMouseButtonDown(1) && ChangeInfoList.Count > 0)
         {
@@ -205,7 +208,7 @@ public class LevelManager : MonoBehaviour
 
     private void SetMapAppearTask()
     {
-        GameManager.State = GameState.Init;
+        GameManager.State = GameState.SetUp;
 
         ParallelTasks MapUnitAppearTask = new ParallelTasks();
 
@@ -908,7 +911,7 @@ public class LevelManager : MonoBehaviour
     private IEnumerator RollBack()
     {
 
-        GameManager.State = GameState.Show;
+        GameManager.State = GameState.Run;
 
         List<BubbleChangeInfo> list = ChangeInfoList[ChangeInfoList.Count - 1];
 

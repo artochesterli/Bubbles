@@ -140,7 +140,7 @@ public class CursorManager : MonoBehaviour
 
                     
                     break;
-                case GameState.Show:
+                case GameState.Run:
                     switch (GameManager.HeldBubbleType)
                     {
                         case BubbleType.Disappear:
@@ -213,7 +213,7 @@ public class CursorManager : MonoBehaviour
                         break;
                 }
                 break;
-            case GameState.Show:
+            case GameState.Run:
                 switch (B.Type)
                 {
                     case BubbleType.Disappear:

@@ -29,7 +29,6 @@ public class MoveTask : Task
 
         SetMapInfo();
 
-
     }
 
     protected override void Init()

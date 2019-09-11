@@ -27,6 +27,7 @@ public class AppearTask : Task
     protected override void Init()
     {
         color = Obj.GetComponent<SpriteRenderer>().color;
+        Obj.GetComponent<SpriteRenderer>().color = new Color(color.r, color.g, color.b, 0);
 
         if (LogicChange)
         {
@@ -41,6 +42,18 @@ public class AppearTask : Task
         Obj.GetComponent<SpriteRenderer>().color = Color.Lerp( new Color(color.r, color.g, color.b, 0), new Color(color.r, color.g, color.b, 1), TimeCount / AppearTime);
         if (TimeCount >= AppearTime)
         {
+            
+            if (LogicChange&&Obj.GetComponent<Bubble>().Type == BubbleType.Normal)
+            {
+                if (Map[Pos.x][Pos.y].slotType == SlotType.Target)
+                {
+                    Obj.transform.Find("InTargetEffect").GetComponent<ParticleSystem>().Play();
+                }
+                else
+                {
+                    Obj.transform.Find("InTargetEffect").GetComponent<ParticleSystem>().Stop();
+                }
+            }
             SetState(TaskState.Success);
         }
     }
