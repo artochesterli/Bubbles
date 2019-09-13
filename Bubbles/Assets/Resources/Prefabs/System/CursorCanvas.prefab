@@ -187,6 +187,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e3359881228d65044b3a5decb401845a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  PressingTime: 0
   NullColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   DisappearBubbleColor: {r: 1, g: 1, b: 1, a: 1}
   NormalBubbleColor: {r: 0.5254902, g: 0.9529412, b: 1, a: 1}

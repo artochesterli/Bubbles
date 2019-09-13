@@ -19,8 +19,14 @@ public class LevelManager : MonoBehaviour
     public float TeleportMotionInterval;
     public float RoundEndInterval;
     public float RollBackTime;
-    public float MapAppearWaitTime;
-    public float MapAppearTime;
+
+    public float MapAppearUnitGapProbability;
+    public Vector2 MapAppearUnitGapMinMax;
+    public float MapAppearLayerInterval;
+    public float MapAppearBubbleWaitTime;
+    public float MapSlotInitPosOffsetFactor;
+
+
     public float MapUnitAppearTime;
 
 
@@ -29,6 +35,9 @@ public class LevelManager : MonoBehaviour
     public float BeforeAuraDisappearWaitTime;
     public float AfterAuraDisappearWaitTime;
     public float AuraSize;
+
+    public float FinishWaitTime;
+
 
     private List<List<SlotInfo>> Map;
     private Vector2 PivotOffset;
@@ -55,8 +64,7 @@ public class LevelManager : MonoBehaviour
         {
             Map = new List<List<SlotInfo>>();
             GetMapInfo();
-            SetMapAppearSequence();
-            SetMapAppearTask();
+            SetMapAppear();
         }
 
         EventManager.instance.AddHandler<Place>(OnPlace);
@@ -171,65 +179,161 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    private void SetMapAppearSequence()
+    private void SetMapAppear()
     {
         List<SlotInfo> AllSlotInfo = new List<SlotInfo>();
+        List<int> AllSlotLayer = new List<int>();
+        List<SlotInfo> AllSlotWithBubble = new List<SlotInfo>();
+
+        Vector2 MapCenter = new Vector2((Map.Count-1) / 2.0f, (Map[0].Count-1) / 2.0f);
+
         for(int i = 0; i < Map.Count; i++)
         {
             for(int j = 0; j < Map[i].Count; j++)
             {
+                
+
                 if (Map[i][j] != null)
                 {
+                    Color SlotColor = Map[i][j].Entity.GetComponent<SpriteRenderer>().color;
+                    Map[i][j].Entity.GetComponent<SpriteRenderer>().color = new Color(SlotColor.r, SlotColor.g, SlotColor.b, 0);
+                    Map[i][j].Entity.transform.localPosition = Map[i][j].Location * MapSlotInitPosOffsetFactor;
+                    if (Map[i][j].InsideBubbleType != BubbleType.Null)
+                    {
+                        AllSlotWithBubble.Add(Map[i][j]);
+                        Color BubbleColor = Map[i][j].ConnectedBubble.GetComponent<SpriteRenderer>().color;
+                        Map[i][j].ConnectedBubble.GetComponent<SpriteRenderer>().color = new Color(BubbleColor.r, BubbleColor.g, BubbleColor.b, 0);
+                    }
+
                     AllSlotInfo.Add(Map[i][j]);
+
+                    int XLayer;
+                    int YLayer;
+
+                    if (Map.Count % 2 == 1)
+                    {
+                        XLayer = Mathf.RoundToInt(Mathf.Abs(i - MapCenter.x));
+                    }
+                    else
+                    {
+                        XLayer = Mathf.RoundToInt(Mathf.Abs(i  - MapCenter.x)+0.5f);
+                        
+                    }
+
+                    if (Map[i].Count%2 == 1)
+                    {
+                        YLayer = Mathf.RoundToInt(Mathf.Abs(j - MapCenter.y));
+                    }
+                    else
+                    {
+                        YLayer = Mathf.RoundToInt(Mathf.Abs(j  - MapCenter.y) + 0.5f);
+                    }
+
+                    AllSlotLayer.Add(Mathf.Max(XLayer, YLayer));
                 }
             }
         }
 
-        int num = AllSlotInfo.Count;
-        for(int i = 0; i < num; i++)
+        List<List<SlotInfo>> SortedSlotInfo = new List<List<SlotInfo>>();
+        List<List<int>> SortedSlotLayer = new List<List<int>>();
+
+        for (int i = 0; i < AllSlotLayer.Count; i++)
         {
-            List<GameObject> AppearUnit = new List<GameObject>();
-            int index = Random.Range(0, AllSlotInfo.Count);
-            if (AllSlotInfo[index].ConnectedBubble != null)
+            for(int j = 0; j < AllSlotLayer.Count - i - 1; j++)
             {
-                AppearUnit.Add(AllSlotInfo[index].ConnectedBubble);
-                Color BubbleColor = AllSlotInfo[index].ConnectedBubble.GetComponent<SpriteRenderer>().color;
-                AllSlotInfo[index].ConnectedBubble.GetComponent<SpriteRenderer>().color = new Color(BubbleColor.r, BubbleColor.g, BubbleColor.b, 0);
-            }
-            AppearUnit.Add(AllSlotInfo[index].Entity);
-            Color SlotColor = AllSlotInfo[index].Entity.GetComponent<SpriteRenderer>().color;
-            AllSlotInfo[index].Entity.GetComponent<SpriteRenderer>().color = new Color(SlotColor.r, SlotColor.g, SlotColor.b, 0);
+                if (AllSlotLayer[j] < AllSlotLayer[j + 1])
+                {
+                    int temp = AllSlotLayer[j];
+                    AllSlotLayer[j] = AllSlotLayer[j + 1];
+                    AllSlotLayer[j + 1] = temp;
 
-            AllSlotInfo.RemoveAt(index);
-            MapAppearSequence.Add(AppearUnit);
-        }
-
-    }
-
-    private void SetMapAppearTask()
-    {
-        GameManager.State = GameState.SetUp;
-
-        ParallelTasks MapUnitAppearTask = new ParallelTasks();
-
-        float TimeUnit = MapAppearTime / MapAppearSequence.Count;
-
-        for(int i = 0; i < MapAppearSequence.Count; i++)
-        {
-            SerialTasks UnitAppear = new SerialTasks();
-            UnitAppear.Add(new WaitTask(i * TimeUnit));
-
-            ParallelTasks UnitActualAppear = new ParallelTasks();
-            for(int j = 0; j < MapAppearSequence[i].Count; j++)
-            {
-                UnitActualAppear.Add(new AppearTask(MapAppearSequence[i][j], MapUnitAppearTime, false, Vector2Int.zero));
+                    SlotInfo S = AllSlotInfo[j];
+                    AllSlotInfo[j] = AllSlotInfo[j + 1];
+                    AllSlotInfo[j + 1] = S;
+                }
             }
 
-            UnitAppear.Add(UnitActualAppear);
-            MapUnitAppearTask.Add(UnitAppear);
+            if(SortedSlotLayer.Count==0 || SortedSlotLayer[SortedSlotLayer.Count-1][SortedSlotLayer[SortedSlotLayer.Count - 1].Count - 1] < AllSlotLayer[AllSlotLayer.Count - i - 1])
+            {
+                SortedSlotLayer.Add(new List<int>());
+                SortedSlotLayer[SortedSlotLayer.Count - 1].Add(AllSlotLayer[AllSlotLayer.Count - i - 1]);
+                SortedSlotInfo.Add(new List<SlotInfo>());
+                SortedSlotInfo[SortedSlotInfo.Count - 1].Add(AllSlotInfo[AllSlotInfo.Count - i- 1]);
+            }
+            else
+            {
+                SortedSlotLayer[SortedSlotLayer.Count - 1].Add(AllSlotLayer[AllSlotLayer.Count - i - 1]);
+                SortedSlotInfo[SortedSlotInfo.Count - 1].Add(AllSlotInfo[AllSlotInfo.Count -i - 1]);
+            }
+
         }
 
-        MapAppearTask.Add(MapUnitAppearTask);
+        float Delay = 0;
+        ParallelTasks AllSlotAppear = new ParallelTasks();
+
+        for (int i = 0; i < SortedSlotInfo.Count; i++)
+        {
+            int num = SortedSlotInfo[i].Count;
+
+            List<SlotInfo> RearrangedSlotInfo = new List<SlotInfo>();
+            List<int> RearrangedLayer = new List<int>();
+
+            for (int j = 0; j < num; j++)
+            {
+                int index = Random.Range(0, SortedSlotInfo[i].Count);
+                RearrangedSlotInfo.Add(SortedSlotInfo[i][index]);
+                RearrangedLayer.Add(SortedSlotLayer[i][index]);
+                SortedSlotInfo[i].RemoveAt(index);
+                SortedSlotLayer[i].RemoveAt(index);
+            }
+
+            SortedSlotInfo[i].Clear();
+            SortedSlotLayer[i].Clear();
+
+            SortedSlotInfo[i] = RearrangedSlotInfo;
+            SortedSlotLayer[i] = RearrangedLayer;
+
+            ParallelTasks LayerSlotTasks = new ParallelTasks();
+
+
+            for (int j = 0; j < SortedSlotInfo[i].Count; j++)
+            {
+
+                ParallelTasks SlotTask = new ParallelTasks();
+                SlotTask.Add(new AppearTask(SortedSlotInfo[i][j].Entity, MapUnitAppearTime, false, SortedSlotInfo[i][j].Pos));
+                SlotTask.Add(new TransformTask(SortedSlotInfo[i][j].Entity, SortedSlotInfo[i][j].Location * MapSlotInitPosOffsetFactor, SortedSlotInfo[i][j].Location, MapUnitAppearTime));
+
+                if (j > 0)
+                {
+                    if (Random.Range(0.0f, 1.0f)<MapAppearUnitGapProbability)
+                    {
+                        Delay += Random.Range(MapAppearUnitGapMinMax.x, MapAppearUnitGapMinMax.y);
+                    }
+                }
+
+                SerialTasks temp = new SerialTasks();
+                temp.Add(new WaitTask(Delay));
+                temp.Add(SlotTask);
+
+                LayerSlotTasks.Add(temp);
+            }
+
+            AllSlotAppear.Add(LayerSlotTasks);
+
+        }
+
+
+        ParallelTasks AllBubbleAppear = new ParallelTasks();
+
+        for(int i = 0; i < AllSlotWithBubble.Count; i++)
+        {
+            AllBubbleAppear.Add(new AppearTask(AllSlotWithBubble[i].ConnectedBubble, MapUnitAppearTime, false, AllSlotWithBubble[i].Pos));
+        }
+
+        MapAppearTask.Add(AllSlotAppear);
+        MapAppearTask.Add(AllBubbleAppear);
+        
+
 
     }
 
@@ -306,7 +410,8 @@ public class LevelManager : MonoBehaviour
             }
             else
             {
-                TeleportSlotShake();
+                TeleportSlotBlocked();
+                BubbleMotionTasks.Add(new WaitTask(MotionInterval));
             }
         }
         else if (Map[Pos.x][Pos.y] == TeleportSlot2)
@@ -320,7 +425,8 @@ public class LevelManager : MonoBehaviour
             }
             else
             {
-                TeleportSlotShake();
+                TeleportSlotBlocked();
+                BubbleMotionTasks.Add(new WaitTask(MotionInterval));
             }
         }
 
@@ -686,7 +792,7 @@ public class LevelManager : MonoBehaviour
                 }
                 else
                 {
-                    TeleportSlotShake();
+                    TeleportSlotBlocked();
                 }
             }
             else if(Slot2Active)
@@ -712,13 +818,13 @@ public class LevelManager : MonoBehaviour
                 }
                 else
                 {
-                    TeleportSlotShake();
+                    TeleportSlotBlocked();
                 }
             }
         }
         else if (Slot1Active && Slot2Active)
         {
-            TeleportSlotShake();
+            TeleportSlotBlocked();
         }
 
         if (TeleportAffected)
@@ -735,30 +841,40 @@ public class LevelManager : MonoBehaviour
 
     }
 
-    private void TeleportSlotShake()
+    private void TeleportSlotBlocked()
     {
         var Data = GetComponent<BubbleMotionData>();
 
-        ParallelTasks ShakeTasks = new ParallelTasks();
-        ShakeTasks.Add(new ShakeTask(TeleportSlot1.Entity, Data.TeleportSlotShakeDis, Data.TeleportSlotShakeTime, Data.TeleportSlotShakeCycle));
+        ParallelTasks TeleportBlockedTasks = new ParallelTasks();
+
+        SerialTasks Slot1RotateBackTasks = new SerialTasks();
+        Slot1RotateBackTasks.Add(new RotationTask(TeleportSlot1.Entity, Data.TeleportSlotBlockedRotationAngle, Data.TeleportSlotBlockedRotationTime / 2));
+        Slot1RotateBackTasks.Add(new RotationTask(TeleportSlot1.Entity, -Data.TeleportSlotBlockedRotationAngle, Data.TeleportSlotBlockedRotationTime / 2));
+
+
         SerialTasks Slot1ColorChange = new SerialTasks();
-        Slot1ColorChange.Add(new ColorChangeTask(TeleportSlot1.Entity, TeleportSlot1.Entity.GetComponent<SlotObject>().DefaultColor, TeleportSlot1.Entity.GetComponent<SlotObject>().SelectedColor, Data.TeleportSlotShakeTime / 2));
-        Slot1ColorChange.Add(new ColorChangeTask(TeleportSlot1.Entity, TeleportSlot1.Entity.GetComponent<SlotObject>().SelectedColor, TeleportSlot1.Entity.GetComponent<SlotObject>().DefaultColor, Data.TeleportSlotShakeTime / 2));
-        ShakeTasks.Add(Slot1ColorChange);
+        Slot1ColorChange.Add(new ColorChangeTask(TeleportSlot1.Entity, TeleportSlot1.Entity.GetComponent<SlotObject>().DefaultColor, TeleportSlot1.Entity.GetComponent<SlotObject>().SelectedColor, Data.TeleportSlotBlockedRotationTime / 2));
+        Slot1ColorChange.Add(new ColorChangeTask(TeleportSlot1.Entity, TeleportSlot1.Entity.GetComponent<SlotObject>().SelectedColor, TeleportSlot1.Entity.GetComponent<SlotObject>().DefaultColor, Data.TeleportSlotBlockedRotationTime / 2));
 
-        ShakeTasks.Add(new ShakeTask(TeleportSlot2.Entity, Data.TeleportSlotShakeDis, Data.TeleportSlotShakeTime, Data.TeleportSlotShakeCycle));
+        SerialTasks Slot2RotateBackTasks = new SerialTasks();
+        Slot2RotateBackTasks.Add(new RotationTask(TeleportSlot2.Entity, Data.TeleportSlotBlockedRotationAngle, Data.TeleportSlotBlockedRotationTime / 2));
+        Slot2RotateBackTasks.Add(new RotationTask(TeleportSlot2.Entity, -Data.TeleportSlotBlockedRotationAngle, Data.TeleportSlotBlockedRotationTime / 2));
+
         SerialTasks Slot2ColorChange = new SerialTasks();
-        Slot2ColorChange.Add(new ColorChangeTask(TeleportSlot2.Entity, TeleportSlot2.Entity.GetComponent<SlotObject>().DefaultColor, TeleportSlot2.Entity.GetComponent<SlotObject>().SelectedColor, Data.TeleportSlotShakeTime / 2));
-        Slot2ColorChange.Add(new ColorChangeTask(TeleportSlot2.Entity, TeleportSlot2.Entity.GetComponent<SlotObject>().SelectedColor, TeleportSlot2.Entity.GetComponent<SlotObject>().DefaultColor, Data.TeleportSlotShakeTime / 2));
-        ShakeTasks.Add(Slot1ColorChange);
+        Slot2ColorChange.Add(new ColorChangeTask(TeleportSlot2.Entity, TeleportSlot2.Entity.GetComponent<SlotObject>().DefaultColor, TeleportSlot2.Entity.GetComponent<SlotObject>().SelectedColor, Data.TeleportSlotBlockedRotationTime / 2));
+        Slot2ColorChange.Add(new ColorChangeTask(TeleportSlot2.Entity, TeleportSlot2.Entity.GetComponent<SlotObject>().SelectedColor, TeleportSlot2.Entity.GetComponent<SlotObject>().DefaultColor, Data.TeleportSlotBlockedRotationTime / 2));
 
-        BubbleMotionTasks.Add(ShakeTasks);
+        TeleportBlockedTasks.Add(Slot1RotateBackTasks);
+        TeleportBlockedTasks.Add(Slot2RotateBackTasks);
+        TeleportBlockedTasks.Add(Slot1ColorChange);
+        TeleportBlockedTasks.Add(Slot2ColorChange);
+
+        BubbleMotionTasks.Add(TeleportBlockedTasks);
     }
 
     private void Teleport(GameObject Obj, SlotInfo Target, ParallelTasks BubbleMovementTask)
     {
         var Data = GetComponent<BubbleMotionData>();
-
 
         ParallelTasks TeleportTask = new ParallelTasks();
         SerialTasks BubbleTeleportTask = new SerialTasks();
@@ -957,4 +1073,13 @@ public class LevelManager : MonoBehaviour
         ChangeInfoList.Remove(list);
         GameManager.State = GameState.Play;
     }
+
+    private void LevelFinishEffectTask()
+    {
+        SerialTasks FinishEffect = new SerialTasks();
+        ParallelTasks BubbleShockWave = new ParallelTasks();
+        ParallelTasks BubbleMoveOut = new ParallelTasks();
+        ParallelTasks SlotDisappear = new ParallelTasks();
+    }
+
 }

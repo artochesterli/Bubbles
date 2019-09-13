@@ -11,6 +11,8 @@ public class RotationTask : Task
     private float Angle;
     private float TimeCount;
 
+    private float OriAngle;
+
     public RotationTask(GameObject obj,float rotationangle,float rotationtime)
     {
         Obj = obj;
@@ -20,18 +22,20 @@ public class RotationTask : Task
 
     protected override void Init()
     {
-        Angle = Obj.transform.rotation.z;
+        OriAngle = Obj.transform.eulerAngles.z;
     }
 
     internal override void Update()
     {
         TimeCount += Time.deltaTime;
         Angle = RotationAngle * TimeCount / RotationTime;
-        if (Angle > RotationAngle)
+        if (Mathf.Abs(Angle) > Mathf.Abs(RotationAngle))
         {
             Angle = RotationAngle;
         }
-        Obj.transform.rotation = Quaternion.Euler(0, 0, Angle);
+
+        Obj.transform.rotation = Quaternion.Euler(0, 0, OriAngle - Angle);
+
         if (TimeCount >= RotationTime)
         {
             SetState(TaskState.Success);

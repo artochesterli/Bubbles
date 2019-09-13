@@ -5,6 +5,7 @@ using UnityEngine;
 public class NormalBubble : MonoBehaviour
 {
     public float FinishWaitTime;
+    public float SlotDisAppearTime;
     public float PowerUpShockWaveGap;
     public float ShockWaveTime;
     public float ShockWaveInitSize;
@@ -13,7 +14,11 @@ public class NormalBubble : MonoBehaviour
     public float MoveBackTime;
     public float MoveBackDis;
     public float MoveBackPause;
+    public float MoveOutAcTimePercentage;
+    public float MoveOutMaxTimeScale;
     public Vector2 MoveOutTimeMinMax;
+    public float MoveOutMinDis;
+    
 
     public Vector2 MoveOutMidPointHorizontalPercentageMinMax;
     public Vector2 MoveOutMidPointVerticalOffsetMinMax;
@@ -55,12 +60,28 @@ public class NormalBubble : MonoBehaviour
         }
     }
 
-    private IEnumerator MoveOut()
+    public IEnumerator MoveOut()
     {
         float HalfWidth = Camera.main.pixelWidth / Camera.main.pixelHeight * Camera.main.orthographicSize / 2;
         float HalfHeight = Camera.main.orthographicSize / 2;
 
-        MoveOutBasicDirection = Quaternion.Euler(0, 0, Random.Range(0.0f, 360.0f)) * Vector2.right;
+
+
+        List<Vector2> IntersectionList = new List<Vector2>();
+        List<float> IntersectionAngle = new List<float>();
+
+        float halfheight = Camera.main.orthographicSize;
+        float halfwidth = Camera.main.orthographicSize * Camera.main.pixelWidth / Camera.main.pixelHeight;
+
+        bool cut = transform.position.x + MoveOutMinDis > halfwidth;
+
+        Utility.CircleGetIntersection(IntersectionList, transform.position, MoveOutMinDis, true, -halfwidth, -halfheight, halfheight);
+        Utility.CircleGetIntersection(IntersectionList, transform.position, MoveOutMinDis, true, halfwidth, -halfheight, halfheight);
+        Utility.CircleGetIntersection(IntersectionList, transform.position, MoveOutMinDis, false, -halfheight, -halfwidth, halfwidth);
+        Utility.CircleGetIntersection(IntersectionList, transform.position, MoveOutMinDis, false, halfheight, -halfwidth, halfwidth);
+
+        MoveOutBasicDirection = Utility.GetRandomDirectionOfCuttedCircle(IntersectionList, transform.position, cut);
+
 
         float TimeCount = 0;
 
@@ -84,7 +105,7 @@ public class NormalBubble : MonoBehaviour
             yield return null;
         }
 
-        while(TimeCount < MoveBackTime)
+        while (TimeCount < MoveBackTime)
         {
             TimeCount += Time.deltaTime;
             BackSpeed = MaxBackSpeed * 2 * (MoveBackTime - TimeCount) / MoveBackTime;
@@ -96,9 +117,7 @@ public class NormalBubble : MonoBehaviour
             yield return null;
         }
 
-        yield return new WaitForSeconds(MoveBackPause);
-
-        int layermask = 1 << LayerMask.NameToLayer("Border"); 
+        int layermask = 1 << LayerMask.NameToLayer("Border");
 
         RaycastHit2D Hit = Physics2D.Raycast(transform.position, MoveOutBasicDirection,RayDis,layermask);
 
@@ -164,14 +183,23 @@ public class NormalBubble : MonoBehaviour
         TimeCount = 0;
 
         float MoveOutTime = Random.Range(MoveOutTimeMinMax.x, MoveOutTimeMinMax.y);
+
         Color color = GetComponent<SpriteRenderer>().color;
 
         float TimeScale=0;
 
+
         while (TimeCount < MoveOutTime)
         {
             TimeCount += Time.deltaTime * TimeScale;
-            TimeScale += Time.deltaTime * 2 / MoveOutTime;
+            if (TimeCount < MoveOutTime * MoveOutAcTimePercentage)
+            {
+                TimeScale += MoveOutMaxTimeScale / (MoveOutAcTimePercentage * MoveOutTime) * Time.deltaTime;
+            }
+            else
+            {
+                TimeScale -= (2 * MoveOutMaxTimeScale - (2 - MoveOutMaxTimeScale * MoveOutAcTimePercentage) / (1 - MoveOutAcTimePercentage)) / ((1 - MoveOutAcTimePercentage) * MoveOutTime) * Time.deltaTime;
+            }
             Vector2 v1 = Vector2.Lerp(StartPoint, MidPoint, TimeCount / MoveOutTime);
             Vector2 v2 = Vector2.Lerp(MidPoint, EndPoint, TimeCount / MoveOutTime);
             transform.position = Vector2.Lerp(v1, v2, TimeCount / MoveOutTime);
@@ -180,18 +208,14 @@ public class NormalBubble : MonoBehaviour
         }
 
 
-
     }
 
     private IEnumerator PerformShockWave()
     {
-        yield return new WaitForSeconds(FinishWaitTime);
         GameObject StableEfffect = transform.Find("StableEffect").gameObject;
 
         StableEfffect.GetComponent<ParticleSystem>().Stop();
         StableEfffect.GetComponent<ParticleSystem>().Clear();
-
-        GameObject FinishEffect = transform.Find("FinishEffect").gameObject;
 
         GameObject PowerUpEffect = transform.Find("PowerUp").gameObject;
         GameObject ShockWave= transform.Find("ShockWave").gameObject;
@@ -230,9 +254,15 @@ public class NormalBubble : MonoBehaviour
     private IEnumerator FinishEffect()
     {
         yield return new WaitForSeconds(FinishWaitTime);
-        transform.Find("StableEffect").GetComponent<ParticleSystem>().Stop();
-        transform.Find("StableEffect").GetComponent<ParticleSystem>().Clear();
 
-        transform.Find("FinishEffect").GetComponent<ParticleSystem>().Play();
+        GameObject InTargetEffect = transform.Find("InTargetEffect").gameObject;
+        InTargetEffect.GetComponent<ParticleSystem>().Stop();
+        InTargetEffect.GetComponent<ParticleSystem>().Clear();
+
+        yield return StartCoroutine(PerformShockWave());
+        yield return new WaitForSeconds(SlotDisAppearTime);
+        yield return StartCoroutine(MoveOut());
+
+
     }
 }

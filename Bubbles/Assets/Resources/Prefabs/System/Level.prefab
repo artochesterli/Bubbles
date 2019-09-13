@@ -56,14 +56,18 @@ MonoBehaviour:
   TeleportMotionInterval: 0.2
   RoundEndInterval: 0.5
   RollBackTime: 0.2
-  MapAppearWaitTime: 0
-  MapAppearTime: 0.5
+  MapAppearUnitGapProbability: 0.3
+  MapAppearUnitGapMinMax: {x: 0.05, y: 0.1}
+  MapAppearLayerInterval: 0.08
+  MapAppearBubbleWaitTime: 0.2
+  MapSlotInitPosOffsetFactor: 1.1
   MapUnitAppearTime: 0.3
   TeleportAuraGenerationTime: 0.3
   TeleportAuraDisappearTime: 0.2
   BeforeAuraDisappearWaitTime: 0.2
   AfterAuraDisappearWaitTime: 0.3
   AuraSize: 1.8
+  FinishWaitTime: 0
 --- !u!114 &4449895371926025500
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -86,8 +90,8 @@ MonoBehaviour:
   ExhaustScale: 0.8
   BlockedDis: 0.2
   ConflictBlockedDis: 0.5
-  TeleportSlotShakeDis: 0.05
-  TeleportSlotShakeTime: 0.4
+  TeleportSlotBlockedRotationAngle: 45
+  TeleportSlotBlockedRotationTime: 0.2
   TeleportSlotShakeCycle: 2
   DefaultEnergyColor: {r: 1, g: 1, b: 1, a: 1}
   AffectedEnergyColor: {r: 1, g: 0.8745098, b: 0.57254905, a: 1}

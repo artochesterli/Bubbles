@@ -116,13 +116,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aa10bf20393bae3489f0bb4a68acb7a2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MinLevelIndex: 41
-  MaxLevelIndex: 80
+  MinLevelIndex: 1
+  MaxLevelIndex: 40
   NextLevelScene: 
   Mask: {fileID: 6753361673317491879}
-  ScreenAppearTime: 1
-  ScreenFadeTime: 1
-  LevelFinishWaitTime: 3.5
+  ScreenAppearTime: 0
+  ScreenFadeTime: 0
+  LevelFinishWaitTime: 5
+  CopiedLevel: {fileID: 0}
 --- !u!1 &6753361672429651175
 GameObject:
   m_ObjectHideFlags: 0
@@ -233,7 +234,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &6753361672897297794
 RectTransform:
   m_ObjectHideFlags: 0
@@ -556,6 +557,7 @@ MonoBehaviour:
   AvailableColor: {r: 0.5254902, g: 0.9529412, b: 1, a: 1}
   UsedUpColor: {r: 0.3254902, g: 0.49019608, b: 0.50980395, a: 1}
   Size: 55
+  FadeTime: 0.2
 --- !u!1 &6753361673737319205
 GameObject:
   m_ObjectHideFlags: 0
@@ -695,7 +697,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 2100000, guid: 433d9adc9ce3df64eb4451077cf8f291, type: 2}
-  m_Color: {r: 0.9137255, g: 1, b: 0.42352942, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -728,6 +730,7 @@ MonoBehaviour:
   DefaultScale: 1
   InflateTime: 0.1
   CurrentScale: 1.2
-  AvailableColor: {r: 0.9137255, g: 1, b: 0.42352942, a: 1}
-  UsedUpColor: {r: 0.52156866, g: 0.5764706, b: 0.19607843, a: 1}
+  AvailableColor: {r: 1, g: 1, b: 1, a: 1}
+  UsedUpColor: {r: 0.6431373, g: 0.6431373, b: 0.6431373, a: 1}
   Size: 55
+  FadeTime: 0.2

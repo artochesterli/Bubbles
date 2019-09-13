@@ -43,6 +43,8 @@ public class GameManager : MonoBehaviour
     public float ScreenFadeTime;
     public float LevelFinishWaitTime;
 
+    public GameObject CopiedLevel;
+
     private GameObject AllLevel;
     private List<GameObject> SortedLevelList;
     //private GameObject CopiedLevel;
@@ -91,11 +93,10 @@ public class GameManager : MonoBehaviour
             SaveProgress();
         }*/
 
-        SortedLevelList[CurrentLevel - MinLevelIndex].SetActive(true);
-
-        /*CopiedLevel = Instantiate(SortedLevelList[CurrentLevel-MinLevelIndex]);
+        CopiedLevel = Instantiate(SortedLevelList[CurrentLevel - MinLevelIndex]);
         CopiedLevel.transform.parent = AllLevel.transform;
-        CopiedLevel.SetActive(false);*/
+        CopiedLevel.SetActive(false);
+        SortedLevelList[CurrentLevel - MinLevelIndex].SetActive(true);
 
         //State = GameState.Play;
         EventManager.instance.Fire(new LevelLoaded(CurrentLevel));
@@ -167,17 +168,19 @@ public class GameManager : MonoBehaviour
         {
             yield return StartCoroutine(ScreenFade());
 
+            State = GameState.SetUp;
+
             SortedLevelList[CurrentLevel - MinLevelIndex].SetActive(false);
-            //Destroy(SortedLevelList[CurrentLevel - MinLevelIndex]);
-            /*SortedLevelList[CurrentLevel - MinLevelIndex] = CopiedLevel;
+            Destroy(SortedLevelList[CurrentLevel - MinLevelIndex]);
+            SortedLevelList[CurrentLevel - MinLevelIndex] = CopiedLevel;
             CopiedLevel = Instantiate(SortedLevelList[index - MinLevelIndex]);
             CopiedLevel.transform.parent = AllLevel.transform;
-            CopiedLevel.SetActive(false);*/
+            CopiedLevel.SetActive(false);
             SortedLevelList[index - MinLevelIndex].SetActive(true);
             
             CurrentLevel = index;
             SaveProgress();
-            //State = GameState.Play;
+            
             EventManager.instance.Fire(new LevelLoaded(CurrentLevel));
 
             StartCoroutine(ScreenAppear());

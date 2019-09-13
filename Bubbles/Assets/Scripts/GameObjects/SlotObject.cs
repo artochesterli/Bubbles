@@ -59,10 +59,11 @@ public class SlotObject : MonoBehaviour
         EventManager.instance.RemoveHandler<LevelFinish>(OnLevelFinish);
     }
 
+
     // Start is called before the first frame update
     void Start()
     {
-        OriPos = transform.position;
+        OriPos = ConnectedSlotInfo.Location;
         LastShakeTarget = OriPos;
         ShakeTarget = OriPos;
     }
@@ -70,14 +71,8 @@ public class SlotObject : MonoBehaviour
     // Update is called once per frame
     void LateUpdate()
     {
-        if (finish)
-        {
-            transform.Rotate(Vector3.forward, FinishRotationSpeed * Time.deltaTime);
-        }
-
         SetAppearance();
         SetShake();
-        
     }
 
     private void SetAppearance()
@@ -99,32 +94,34 @@ public class SlotObject : MonoBehaviour
 
     private void SetShake()
     {
-        if (Selected)
+        if (GameManager.State != GameState.SetUp && GameManager.State != GameState.Clear)
         {
-            if (ShakeTimeCount >= ShakeTime)
+            if (Selected)
             {
-                LastShakeTarget = ShakeTarget;
-                ShakeTarget = OriPos + (Vector3)Random.insideUnitCircle * MaxShakeDis;
-                ShakeTimeCount = 0;
-                ShakeTime = (ShakeTarget - LastShakeTarget).magnitude / ShakeSpeed;
-            }
+                if (ShakeTimeCount >= ShakeTime)
+                {
+                    LastShakeTarget = ShakeTarget;
+                    ShakeTarget = OriPos + (Vector3)Random.insideUnitCircle * MaxShakeDis;
+                    ShakeTimeCount = 0;
+                    ShakeTime = (ShakeTarget - LastShakeTarget).magnitude / ShakeSpeed;
+                }
 
-            ShakeTimeCount += Time.deltaTime;
-            transform.position = Vector3.Lerp(LastShakeTarget, ShakeTarget, ShakeTimeCount / ShakeTime);
-        }
-        else
-        {
-            transform.position = OriPos;
-            ShakeTime = 0;
-            ShakeTimeCount = 0;
-            LastShakeTarget = OriPos;
-            ShakeTarget = OriPos;
+                ShakeTimeCount += Time.deltaTime;
+                transform.position = Vector3.Lerp(LastShakeTarget, ShakeTarget, ShakeTimeCount / ShakeTime);
+            }
+            else
+            {
+                transform.position = OriPos;
+                ShakeTime = 0;
+                ShakeTimeCount = 0;
+                LastShakeTarget = OriPos;
+                ShakeTarget = OriPos;
+            }
         }
     }
 
     public bool CursorInside()
     {
-        
         Vector3 MousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
         return MousePos.x >= OriPos.x - Size / 2 && MousePos.x <= OriPos.x + Size / 2 && MousePos.y >= OriPos.y - Size / 2 && MousePos.y <= OriPos.y + Size / 2;
     }
@@ -139,7 +136,6 @@ public class SlotObject : MonoBehaviour
             Coordinate.y > 0 && ConnectedMap[Coordinate.x][Coordinate.y - 1] != null && ConnectedMap[Coordinate.x][Coordinate.y - 1].InsideBubbleType != BubbleType.Null);
     }
 
-    
 
     private void OnLevelFinish(LevelFinish L)
     {
@@ -149,8 +145,6 @@ public class SlotObject : MonoBehaviour
     private IEnumerator FinishEffect()
     {
         yield return new WaitForSeconds(FinishWaitTime);
-
-        finish = true;
 
         float TimeCount = 0;
         while (TimeCount < FinishTime)

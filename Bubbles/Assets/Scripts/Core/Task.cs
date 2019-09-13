@@ -173,6 +173,7 @@ public abstract class TaskRunner : Task
 
 public class SerialTasks : TaskRunner
 {
+
     internal override void Update()
     {
         if (Tasks.Count > 0)

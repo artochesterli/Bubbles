@@ -3,9 +3,18 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum CursorState
+{
+    Release,
+    Pressing,
+    Holding
+}
+
 public class CursorManager : MonoBehaviour
 {
     public static GameObject AllSlot;
+
+    public float PressingTime;
 
     public Color NullColor;
     public Color DisappearBubbleColor;

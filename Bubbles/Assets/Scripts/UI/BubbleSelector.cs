@@ -18,17 +18,24 @@ public class BubbleSelector : MonoBehaviour
 
     public float Size;
 
+    public float FadeTime;
+
     private bool Remained;
+    private bool Active;
 
     // Start is called before the first frame update
     void Start()
     {
         EventManager.instance.AddHandler<BubbleNumSet>(OnBubbleNumSet);
+        EventManager.instance.AddHandler<LevelFinish>(OnLevelFinish);
+        EventManager.instance.AddHandler<LevelLoaded>(OnLevelLoaded);
     }
 
     private void OnDestroy()
     {
         EventManager.instance.RemoveHandler<BubbleNumSet>(OnBubbleNumSet);
+        EventManager.instance.RemoveHandler<LevelFinish>(OnLevelFinish);
+        EventManager.instance.RemoveHandler<LevelLoaded>(OnLevelLoaded);
     }
 
     // Update is called once per frame
@@ -98,15 +105,59 @@ public class BubbleSelector : MonoBehaviour
                 {
                     GetComponent<Image>().color = new Color(CurrentColor.r, CurrentColor.g, CurrentColor.b, 0);
                     Text.GetComponent<Text>().color = new Color(1, 1, 1, 0);
+                    Active = false;
                 }
-                Remained = false;
+                else
+                {
+                    Remained = false;
+                }
             }
             else
             {
                 GetComponent<Image>().color = new Color(CurrentColor.r, CurrentColor.g, CurrentColor.b, 1);
                 Text.GetComponent<Text>().color = Color.white;
                 Remained = true;
+                Active = true;
             }
+        }
+    }
+
+    private void OnLevelFinish(LevelFinish L)
+    {
+        if (Active)
+        {
+            StartCoroutine(Fade(false));
+        }
+    }
+
+    private void OnLevelLoaded(LevelLoaded L)
+    {
+        if (Active)
+        {
+            StartCoroutine(Fade(true));
+        }
+    }
+
+    private IEnumerator Fade(bool In)
+    {
+        Color ImageColor = GetComponent<Image>().color;
+        Color TextColor = transform.Find("RemainedNumber").GetComponent<Text>().color;
+
+        float TimeCount = 0;
+        while (TimeCount < FadeTime)
+        {
+            TimeCount += Time.deltaTime;
+            if (In)
+            {
+                GetComponent<Image>().color = Color.Lerp(new Color(ImageColor.r, ImageColor.g, ImageColor.b, 0), new Color(ImageColor.r, ImageColor.g, ImageColor.b, 1), TimeCount / FadeTime);
+                transform.Find("RemainedNumber").GetComponent<Text>().color = Color.Lerp(new Color(TextColor.r, TextColor.g, TextColor.b, 0), new Color(TextColor.r, TextColor.g, TextColor.b, 1), TimeCount / FadeTime);
+            }
+            else
+            {
+                GetComponent<Image>().color = Color.Lerp(new Color(ImageColor.r, ImageColor.g, ImageColor.b, 1), new Color(ImageColor.r, ImageColor.g, ImageColor.b, 0), TimeCount / FadeTime);
+                transform.Find("RemainedNumber").GetComponent<Text>().color = Color.Lerp(new Color(TextColor.r, TextColor.g, TextColor.b, 1), new Color(TextColor.r, TextColor.g, TextColor.b, 0), TimeCount / FadeTime);
+            }
+            yield return null;
         }
     }
 

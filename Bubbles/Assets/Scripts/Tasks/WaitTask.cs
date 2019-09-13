@@ -15,6 +15,7 @@ public class WaitTask : Task
 
     protected override void Init()
     {
+        //Debug.Log(WaitTime);
         if (WaitTime == 0)
         {
             SetState(TaskState.Success);
