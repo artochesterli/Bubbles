@@ -6,10 +6,17 @@ public class NormalBubble : MonoBehaviour
 {
     public float FinishWaitTime;
     public float SlotDisAppearTime;
+    public float PowerUpTime;
+    public float PowerUpInterval;
+    public int PowerUpNumber;
+    public float PowerUpInitScale;
     public float PowerUpShockWaveGap;
+    public float PowerUpSelfScale;
+    public float PowerUpSelfInflatedScale;
     public float ShockWaveTime;
     public float ShockWaveInitSize;
     public float ShockWaveEndSize;
+    public float ShockWaveAlpha;
 
     public float MoveBackTime;
     public float MoveBackDis;
@@ -49,15 +56,7 @@ public class NormalBubble : MonoBehaviour
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.H))
-        {
-            StartCoroutine(PerformShockWave());
-        }
 
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            StartCoroutine(MoveOut());
-        }
     }
 
     public IEnumerator MoveOut()
@@ -101,6 +100,7 @@ public class NormalBubble : MonoBehaviour
             {
                 BackSpeed = MaxBackSpeed * 2 * (MoveBackTime - TimeCount) / MoveBackTime;
             }
+            transform.localScale = Vector3.Lerp(Vector3.one * PowerUpSelfInflatedScale, Vector3.one, TimeCount / MoveBackTime);
             transform.position -= (Vector3)MoveOutBasicDirection * BackSpeed * Time.deltaTime;
             yield return null;
         }
@@ -113,6 +113,7 @@ public class NormalBubble : MonoBehaviour
             {
                 BackSpeed = 0;
             }
+            transform.localScale = Vector3.Lerp(Vector3.one * PowerUpSelfInflatedScale, Vector3.one, TimeCount / MoveBackTime);
             transform.position -= (Vector3)MoveOutBasicDirection * BackSpeed * Time.deltaTime;
             yield return null;
         }
@@ -217,37 +218,47 @@ public class NormalBubble : MonoBehaviour
         StableEfffect.GetComponent<ParticleSystem>().Stop();
         StableEfffect.GetComponent<ParticleSystem>().Clear();
 
-        GameObject PowerUpEffect = transform.Find("PowerUp").gameObject;
         GameObject ShockWave= transform.Find("ShockWave").gameObject;
-
-        PowerUpEffect.GetComponent<ParticleSystem>().Play();
-        ParticleSystem.Burst PowerUpBurst = PowerUpEffect.GetComponent<ParticleSystem>().emission.GetBurst(0);
 
         float TimeCount = 0;
         Color color = ShockWave.GetComponent<SpriteRenderer>().color;
-        float PowerUpTime = PowerUpBurst.repeatInterval * (PowerUpBurst.cycleCount - 1) + PowerUpEffect.GetComponent<ParticleSystem>().startLifetime;
         ShockWave.transform.localScale = Vector3.one * ShockWaveInitSize;
 
+        float PowerUpProcess = PowerUpTime + (PowerUpNumber - 1) * PowerUpInterval;
 
-        while (TimeCount < PowerUpTime)
+        int Number = 0;
+        while (TimeCount < PowerUpProcess)
         {
             TimeCount += Time.deltaTime;
-            ShockWave.GetComponent<SpriteRenderer>().color = Color.Lerp(new Color(color.r, color.g, color.b, 0), new Color(color.r, color.g, color.b, 1), TimeCount / PowerUpTime);
+            if (TimeCount >= Number * PowerUpInterval && Number<PowerUpNumber)
+            {
+                Number++;
+                GameObject PowerUp = (GameObject)Instantiate(Resources.Load("Prefabs/Effect/PowerUpEffect"), transform.position, Quaternion.Euler(0, 0, 0));
+                PowerUp.GetComponent<PowerUpEffect>().PlayTime = PowerUpTime;
+                PowerUp.GetComponent<PowerUpEffect>().EndScale= Vector3.Lerp(Vector3.one, Vector3.one * PowerUpSelfScale, (TimeCount+PowerUpTime) / PowerUpProcess).x;
+            }
+            ShockWave.GetComponent<SpriteRenderer>().color = Color.Lerp(new Color(color.r, color.g, color.b, 0), new Color(color.r, color.g, color.b, 1), TimeCount / PowerUpProcess);
+            transform.localScale = Vector3.Lerp(Vector3.one, Vector3.one * PowerUpSelfScale, TimeCount / PowerUpProcess);
             yield return null;
         }
         yield return new WaitForSeconds(PowerUpShockWaveGap);
 
 
         TimeCount = 0;
-        
+
+        float InflateTime = ShockWaveTime * (PowerUpSelfInflatedScale-PowerUpSelfScale)/(ShockWaveEndSize-PowerUpSelfScale);
+        float DeflateTime = ShockWaveTime * (PowerUpSelfInflatedScale - 1) / (ShockWaveEndSize - PowerUpSelfScale);
+
         while (TimeCount < ShockWaveTime)
         {
             TimeCount += Time.deltaTime;
             ShockWave.GetComponent<SpriteRenderer>().color = Color.Lerp(new Color(color.r, color.g, color.b, 1), new Color(color.r, color.g, color.b, 0), TimeCount / ShockWaveTime);
-            ShockWave.transform.localScale = Vector3.Lerp(Vector3.one * ShockWaveInitSize, Vector3.one * ShockWaveEndSize, TimeCount / ShockWaveTime);
+
+            transform.localScale = Vector3.Lerp(Vector3.one * PowerUpSelfScale, Vector3.one * PowerUpSelfInflatedScale, TimeCount / InflateTime);
+
+            ShockWave.transform.localScale = Vector3.Lerp(Vector3.one * PowerUpSelfScale, Vector3.one * ShockWaveEndSize, TimeCount / ShockWaveTime)/transform.localScale.x;
             yield return null;
         }
-
 
     }
 

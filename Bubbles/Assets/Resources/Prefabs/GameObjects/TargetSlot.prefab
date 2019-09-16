@@ -102,7 +102,7 @@ MonoBehaviour:
   Type: 1
   Selected: 0
   FinishWaitTime: 2.1
-  FinishTime: 0.5
+  FinishTime: 0.3
   FinishColor: {r: 0.44313726, g: 0.7019608, b: 0.7294118, a: 0}
   FinishRotationSpeed: 180
   ShakeSpeed: 0.3
