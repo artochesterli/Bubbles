@@ -12,12 +12,13 @@ public class ReleaseTask : Task
     private readonly Color FinishColor;
     private readonly List<List<SlotInfo>> Map;
     private readonly Vector2Int Pos;
+    private readonly List<bool> ShootParticles;
 
     private float TimeCount;
     private GameObject ActivateEffect;
     private GameObject ReleaseEffect;
 
-    public ReleaseTask(GameObject obj,float time,float initScale,float finishScale,Color initColor,Color finishColor,List<List<SlotInfo>> map, Vector2Int pos)
+    public ReleaseTask(GameObject obj,float time,float initScale,float finishScale,Color initColor,Color finishColor,List<List<SlotInfo>> map, Vector2Int pos, List<bool> shootParticles)
     {
         Obj = obj;
         ReleaseTime = time;
@@ -27,6 +28,7 @@ public class ReleaseTask : Task
         FinishColor = finishColor;
         Map = map;
         Pos = pos;
+        ShootParticles = shootParticles;
         SetMapInfo();
     }
 
@@ -43,9 +45,12 @@ public class ReleaseTask : Task
 
         ActivateEffect.GetComponent<ParticleSystem>().Stop();
 
-        foreach(Transform child in ReleaseEffect.transform)
+        for(int i = 0; i < ReleaseEffect.transform.childCount; i++)
         {
-            child.GetComponent<ParticleSystem>().Play();
+            if (ShootParticles[i])
+            {
+                ReleaseEffect.transform.GetChild(i).GetComponent<ParticleSystem>().Play();
+            }
         }
 
         if (Obj.GetComponent<Bubble>().Type == BubbleType.Normal)

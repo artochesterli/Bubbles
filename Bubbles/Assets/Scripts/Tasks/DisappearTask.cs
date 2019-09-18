@@ -13,6 +13,7 @@ public class DisappearTask : Task
 
     private float TimeCount;
     private Color color;
+    private GameObject ActivateEffect;
 
     public DisappearTask(GameObject obj, float time, Vector2Int pos, List<List<SlotInfo>> map, BubbleType type,bool rollback)
     {
@@ -47,6 +48,8 @@ public class DisappearTask : Task
 
         color = Obj.GetComponent<SpriteRenderer>().color;
 
+        ActivateEffect = Obj.transform.Find("ActivateEffect").gameObject;
+        ActivateEffect.GetComponent<ParticleSystem>().Stop();
         
     }
 

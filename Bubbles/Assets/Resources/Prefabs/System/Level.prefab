@@ -54,7 +54,7 @@ MonoBehaviour:
   MotionInterval: 0.2
   TeleportWaitTime: 0.5
   TeleportMotionInterval: 0.2
-  RoundEndInterval: 0.5
+  RoundEndInterval: 0.3
   RollBackTime: 0.2
   MapAppearUnitGapProbability: 0.3
   MapAppearUnitGapMinMax: {x: 0.05, y: 0.1}
@@ -80,7 +80,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 35cadfd079d3d2c42b695aa41ec5bce3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  MotionTime: 0.5
+  MotionTime: 0.4
   RecoverTime: 0.2
   TeleportTime: 0.2
   TeleportWaitTime: 0.1
@@ -93,8 +93,8 @@ MonoBehaviour:
   TeleportSlotBlockedRotationAngle: 45
   TeleportSlotBlockedRotationTime: 0.2
   TeleportSlotShakeCycle: 2
-  DefaultEnergyColor: {r: 1, g: 1, b: 1, a: 1}
-  AffectedEnergyColor: {r: 1, g: 0.8745098, b: 0.57254905, a: 1}
+  DefaultEnergyColor: {r: 0.6431373, g: 0.6431373, b: 0.6431373, a: 1}
+  AffectedEnergyColor: {r: 0.8235294, g: 0.72156864, b: 0.47843137, a: 1}
 --- !u!1 &5579169563043507166
 GameObject:
   m_ObjectHideFlags: 0

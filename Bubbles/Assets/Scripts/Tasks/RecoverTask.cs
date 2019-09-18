@@ -44,7 +44,18 @@ public class RecoverTask : Task
         StableEffect.GetComponent<ParticleSystem>().Play();
 
         ActivateEffect= Obj.transform.Find("ActivateEffect").gameObject;
+        ActivateEffect.GetComponent<ParticleSystem>().Stop();
         ReleaseEffect= Obj.transform.Find("ReleaseEffect").gameObject;
+
+        if (RecoverTime == 0)
+        {
+            if (Map[Pos.x][Pos.y].slotType == SlotType.Target && Obj.GetComponent<Bubble>().Type == BubbleType.Normal)
+            {
+                Obj.transform.Find("InTargetEffect").GetComponent<ParticleSystem>().Play();
+            }
+            Obj.GetComponent<SpriteRenderer>().sortingLayerName = "Circle";
+            SetState(TaskState.Success);
+        }
 
         ActivateEffect.GetComponent<ParticleSystem>().startColor = EnergyColor;
         foreach(Transform child in ReleaseEffect.transform)

@@ -13,6 +13,7 @@ public enum CursorState
 public class CursorManager : MonoBehaviour
 {
     public static GameObject AllSlot;
+    public GameObject ActivateEffect;
 
     public float PressingTime;
 
@@ -105,6 +106,7 @@ public class CursorManager : MonoBehaviour
             {
                 transform.localScale = Vector3.one * InSlotScale;
             }
+            
         }
         else
         {
@@ -114,11 +116,11 @@ public class CursorManager : MonoBehaviour
                 transform.localScale = Vector3.one * Scale;
             }
         }
+        ActivateEffect.transform.localScale = transform.localScale;
     }
 
     private void SetAppearance()
     {
-        GameObject ActivateEffect = transform.Find("ActivateEffect").gameObject;
 
         if (!ColorChanging)
         {
