@@ -266,9 +266,9 @@ public class NormalBubble : MonoBehaviour
     {
         yield return new WaitForSeconds(FinishWaitTime);
 
-        GameObject InTargetEffect = transform.Find("InTargetEffect").gameObject;
-        InTargetEffect.GetComponent<ParticleSystem>().Stop();
-        InTargetEffect.GetComponent<ParticleSystem>().Clear();
+        //GameObject InTargetEffect = transform.Find("InTargetEffect").gameObject;
+        //InTargetEffect.GetComponent<ParticleSystem>().Stop();
+        //InTargetEffect.GetComponent<ParticleSystem>().Clear();
 
         yield return StartCoroutine(PerformShockWave());
         yield return new WaitForSeconds(SlotDisAppearTime);

@@ -30,7 +30,7 @@ public class CursorManager : MonoBehaviour
     public float InSlotScale;
     public float InSlotScaleChangeTime;
 
-
+    private List<GameObject> OffsetCircles;
     private GameObject SelectedSlot;
 
     private bool ColorChanging;
@@ -39,6 +39,7 @@ public class CursorManager : MonoBehaviour
     void Start()
     {
         Cursor.visible = false;
+        OffsetCircles = new List<GameObject>();
         EventManager.instance.AddHandler<BubbleSelected>(OnBubbleSelected);
     }
 
@@ -64,16 +65,48 @@ public class CursorManager : MonoBehaviour
         {
             foreach (Transform child in AllSlot.transform)
             {
-                if (child.GetComponent<SlotObject>().CursorInside() && child.GetComponent<SlotObject>().AvailablePos())
+                List<GameObject> NearByCircleList = new List<GameObject>();
+                for(int i = 0; i < 4; i++)
+                {
+                    NearByCircleList.Add(null);
+                }
+                if (child.GetComponent<SlotObject>().CursorInside() && child.GetComponent<SlotObject>().AvailablePos(NearByCircleList))
                 {
                     if (child.gameObject != SelectedSlot)
                     {
                         if (SelectedSlot != null)
                         {
                             SelectedSlot.GetComponent<SlotObject>().Selected = false;
+                            ResetOffsetCircles();
                         }
                         child.GetComponent<SlotObject>().Selected = true;
                         SelectedSlot = child.gameObject;
+                        for (int i = 0; i < NearByCircleList.Count; i++)
+                        {
+                            if (NearByCircleList[i] != null)
+                            {
+                                OffsetCircles.Add(NearByCircleList[i]);
+                                NearByCircleList[i].GetComponent<Bubble>().Offseting = true;
+                                switch (i)
+                                {
+                                    case 0:
+                                        NearByCircleList[i].GetComponent<Bubble>().OffsetDirection = Vector2.right;
+                                        break;
+                                    case 1:
+                                        NearByCircleList[i].GetComponent<Bubble>().OffsetDirection = Vector2.left;
+                                        break;
+                                    case 2:
+                                        NearByCircleList[i].GetComponent<Bubble>().OffsetDirection = Vector2.up;
+                                        break;
+                                    case 3:
+                                        NearByCircleList[i].GetComponent<Bubble>().OffsetDirection = Vector2.down;
+                                        break;
+                                    default:
+                                        break;
+
+                                }
+                            }
+                        }
                     }
                     return;
                 }
@@ -82,10 +115,20 @@ public class CursorManager : MonoBehaviour
 
         if (SelectedSlot != null)
         {
+            ResetOffsetCircles();
             SelectedSlot.GetComponent<SlotObject>().Selected = false;
             SelectedSlot = null;
         }
 
+    }
+
+    private void ResetOffsetCircles()
+    {
+        for (int i = 0; i < OffsetCircles.Count; i++)
+        {
+            OffsetCircles[i].GetComponent<Bubble>().Offseting = false;
+        }
+        OffsetCircles.Clear();
     }
 
     private void CheckInput()

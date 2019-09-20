@@ -47,11 +47,11 @@ public class AppearTask : Task
             {
                 if (Map[Pos.x][Pos.y].slotType == SlotType.Target)
                 {
-                    Obj.transform.Find("InTargetEffect").GetComponent<ParticleSystem>().Play();
+                    //Obj.transform.Find("InTargetEffect").GetComponent<ParticleSystem>().Play();
                 }
                 else
                 {
-                    Obj.transform.Find("InTargetEffect").GetComponent<ParticleSystem>().Stop();
+                    //Obj.transform.Find("InTargetEffect").GetComponent<ParticleSystem>().Stop();
                 }
             }
             SetState(TaskState.Success);

@@ -95,7 +95,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MapPivotOffset: {x: 0, y: 0}
   Size: 0.92
-  SelectedColor: {r: 1, g: 1, b: 1, a: 1}
+  SelectedColor: {r: 0.9056604, g: 0.9056604, b: 0.9056604, a: 1}
   DefaultColor: {r: 0.6320754, g: 0.6320754, b: 0.6320754, a: 1}
   SelectedSprite: {fileID: 21300000, guid: fc3634d79234c45498607ed7ebc4b008, type: 3}
   DefaultSprite: {fileID: 21300000, guid: 8e77bf04e851e5a419f0442ef12e04ad, type: 3}

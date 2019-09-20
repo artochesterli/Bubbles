@@ -4863,6 +4863,11 @@ MonoBehaviour:
   NormalColor: {r: 1, g: 1, b: 1, a: 1}
   ActivateColor: {r: 0, g: 0, b: 0, a: 0}
   ExhaustColor: {r: 0.6431373, g: 0.6431373, b: 0.6431373, a: 1}
+  PrePushOffset: 0.1
+  OffsetTime: 0.1
+  Offseting: 0
+  OffsetDirection: {x: 0, y: 0}
+  OriPos: {x: 0, y: 0}
 --- !u!212 &7962594522415558197
 SpriteRenderer:
   m_ObjectHideFlags: 0

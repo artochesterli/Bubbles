@@ -516,10 +516,7 @@ public class LevelManager : MonoBehaviour
         
         foreach(KeyValuePair<GameObject,Vector2Int> entry in ActivateDic)
         {
-            if (NearByPushAvailable(entry.Value))
-            {
-                NewPosList.Add(entry.Value);
-            }
+            NewPosList.Add(entry.Value);
         }
 
         if (NewPosList.Count > 0)
@@ -775,11 +772,7 @@ public class LevelManager : MonoBehaviour
                     }
 
                     AffectedBubblePosDic.Remove(Bubble);
-
-                    if (NearByPushAvailable(TeleportSlot2.Pos))
-                    {
-                        PosList.Add(TeleportSlot2.Pos);
-                    }
+                    PosList.Add(TeleportSlot2.Pos);
 
                     ChangedBubblePosDic[Bubble] = TeleportSlot2.Pos;
 
@@ -805,10 +798,7 @@ public class LevelManager : MonoBehaviour
                     }
 
                     AffectedBubblePosDic.Remove(Bubble);
-                    if (NearByPushAvailable(TeleportSlot1.Pos))
-                    {
-                        PosList.Add(TeleportSlot1.Pos);
-                    }
+                    PosList.Add(TeleportSlot1.Pos);
 
                     ChangedBubblePosDic[Bubble] = TeleportSlot1.Pos;
 
@@ -831,13 +821,7 @@ public class LevelManager : MonoBehaviour
         {
             foreach(KeyValuePair<GameObject, Vector2Int> entry in AffectedBubblePosDic)
             {
-                Debug.Log(entry.Value);
-                if (NearByPushAvailable(entry.Value))
-                {
-                    Debug.Log("ggg");
-                    Debug.Log(entry.Value);
-                    PosList.Add(entry.Value);
-                }
+                PosList.Add(entry.Value);
             }
             
         }

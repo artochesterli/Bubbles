@@ -39,6 +39,7 @@ public class MoveTask : Task
 
         if (MoveTime == 0)
         {
+            Obj.GetComponent<Bubble>().OriPos = TargetPos;
             Obj.transform.localPosition = TargetPos;
             SetState(TaskState.Success);
         }
@@ -50,6 +51,7 @@ public class MoveTask : Task
 
         if (TimeCount >= MoveTime)
         {
+            Obj.GetComponent<Bubble>().OriPos = TargetPos;
             Obj.transform.localPosition = TargetPos;
             SetState(TaskState.Success);
         }

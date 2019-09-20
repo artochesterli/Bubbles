@@ -126,14 +126,47 @@ public class SlotObject : MonoBehaviour
         return MousePos.x >= OriPos.x - Size / 2 && MousePos.x <= OriPos.x + Size / 2 && MousePos.y >= OriPos.y - Size / 2 && MousePos.y <= OriPos.y + Size / 2;
     }
 
-    public bool AvailablePos()
+    public bool AvailablePos(List<GameObject> NearByCircleList = null)
     {
         Vector2Int Coordinate = ConnectedSlotInfo.Pos;
-        return ConnectedSlotInfo.InsideBubbleType == BubbleType.Null && GameManager.HeldBubbleType != BubbleType.Null &&
-            (Coordinate.x < ConnectedMap.Count - 1 && ConnectedMap[Coordinate.x + 1][Coordinate.y] != null && ConnectedMap[Coordinate.x + 1][Coordinate.y].InsideBubbleType != BubbleType.Null ||
-            Coordinate.x > 0 && ConnectedMap[Coordinate.x - 1][Coordinate.y] != null && ConnectedMap[Coordinate.x - 1][Coordinate.y].InsideBubbleType != BubbleType.Null ||
-            Coordinate.y < ConnectedMap[Coordinate.x].Count - 1 && ConnectedMap[Coordinate.x][Coordinate.y + 1] != null && ConnectedMap[Coordinate.x][Coordinate.y + 1].InsideBubbleType != BubbleType.Null ||
-            Coordinate.y > 0 && ConnectedMap[Coordinate.x][Coordinate.y - 1] != null && ConnectedMap[Coordinate.x][Coordinate.y - 1].InsideBubbleType != BubbleType.Null);
+        bool HaveNearByCircle = false;
+        if(Coordinate.x < ConnectedMap.Count - 1 && ConnectedMap[Coordinate.x + 1][Coordinate.y] != null && ConnectedMap[Coordinate.x + 1][Coordinate.y].InsideBubbleType != BubbleType.Null)
+        {
+            if (NearByCircleList != null)
+            {
+                NearByCircleList[0] = ConnectedMap[Coordinate.x + 1][Coordinate.y].ConnectedBubble;
+            }
+            HaveNearByCircle = true;
+        }
+
+        if(Coordinate.x > 0 && ConnectedMap[Coordinate.x - 1][Coordinate.y] != null && ConnectedMap[Coordinate.x - 1][Coordinate.y].InsideBubbleType != BubbleType.Null)
+        {
+            if (NearByCircleList != null)
+            {
+                NearByCircleList[1] = ConnectedMap[Coordinate.x - 1][Coordinate.y].ConnectedBubble;
+            }
+            HaveNearByCircle = true;
+        }
+
+        if(Coordinate.y < ConnectedMap[Coordinate.x].Count - 1 && ConnectedMap[Coordinate.x][Coordinate.y + 1] != null && ConnectedMap[Coordinate.x][Coordinate.y + 1].InsideBubbleType != BubbleType.Null)
+        {
+            if (NearByCircleList != null)
+            {
+                NearByCircleList[2] = ConnectedMap[Coordinate.x][Coordinate.y + 1].ConnectedBubble;
+            }
+            HaveNearByCircle = true;
+        }
+
+        if(Coordinate.y > 0 && ConnectedMap[Coordinate.x][Coordinate.y - 1] != null && ConnectedMap[Coordinate.x][Coordinate.y - 1].InsideBubbleType != BubbleType.Null)
+        {
+            if (NearByCircleList != null)
+            {
+                NearByCircleList[3] = ConnectedMap[Coordinate.x][Coordinate.y - 1].ConnectedBubble;
+            }
+            HaveNearByCircle = true;
+        }
+
+        return ConnectedSlotInfo.InsideBubbleType == BubbleType.Null && GameManager.HeldBubbleType != BubbleType.Null && HaveNearByCircle;
     }
 
 

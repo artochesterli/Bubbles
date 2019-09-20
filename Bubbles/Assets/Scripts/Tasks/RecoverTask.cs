@@ -75,7 +75,7 @@ public class RecoverTask : Task
         {
             if(Map[Pos.x][Pos.y].slotType==SlotType.Target&& Obj.GetComponent<Bubble>().Type == BubbleType.Normal)
             {
-                Obj.transform.Find("InTargetEffect").GetComponent<ParticleSystem>().Play();
+                //Obj.transform.Find("InTargetEffect").GetComponent<ParticleSystem>().Play();
             }
 
             Obj.GetComponent<SpriteRenderer>().sortingLayerName = "Circle";

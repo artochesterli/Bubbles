@@ -55,7 +55,7 @@ public class ReleaseTask : Task
 
         if (Obj.GetComponent<Bubble>().Type == BubbleType.Normal)
         {
-            Obj.transform.Find("InTargetEffect").GetComponent<ParticleSystem>().Stop();
+            //Obj.transform.Find("InTargetEffect").GetComponent<ParticleSystem>().Stop();
         }
     }
 
