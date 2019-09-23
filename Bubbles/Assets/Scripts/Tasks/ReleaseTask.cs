@@ -17,6 +17,7 @@ public class ReleaseTask : Task
     private float TimeCount;
     private GameObject ActivateEffect;
     private GameObject ReleaseEffect;
+    private GameObject EmptyReleaseEffect;
 
     public ReleaseTask(GameObject obj,float time,float initScale,float finishScale,Color initColor,Color finishColor,List<List<SlotInfo>> map, Vector2Int pos, List<bool> shootParticles)
     {
@@ -42,15 +43,24 @@ public class ReleaseTask : Task
 
         ActivateEffect = Obj.transform.Find("ActivateEffect").gameObject;
         ReleaseEffect = Obj.transform.Find("ReleaseEffect").gameObject;
+        EmptyReleaseEffect = Obj.transform.Find("EmptyReleaseEffect").gameObject;
 
         ActivateEffect.GetComponent<ParticleSystem>().Stop();
+
+        bool Push = false;
 
         for(int i = 0; i < ReleaseEffect.transform.childCount; i++)
         {
             if (ShootParticles[i])
             {
                 ReleaseEffect.transform.GetChild(i).GetComponent<ParticleSystem>().Play();
+                Push = true;
             }
+        }
+
+        if (!Push)
+        {
+            EmptyReleaseEffect.GetComponent<ParticleSystem>().Play();
         }
 
         if (Obj.GetComponent<Bubble>().Type == BubbleType.Normal)
