@@ -65,4 +65,28 @@ public class Back : Event
     }
 }
 
+public class TransferToLevelPlay : Event
+{
+    public GameObject ClickedButton;
+    public TransferToLevelPlay(GameObject Button)
+    {
+        ClickedButton = Button;
+    }
+}
+
+public class CallLoadLevel: Event
+{
+    public int index;
+    public CallLoadLevel(int num)
+    {
+        index = num;
+    }
+}
+
+public class CallActivateBubbleSelectors : Event { }
+
+public class CallDeactivateBubbleSelectors : Event { }
+
+public class BackToMenu : Event { }
+
 

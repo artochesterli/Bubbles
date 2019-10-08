@@ -8,6 +8,12 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 public enum GameState
 {
+    Menu,
+    Level
+}
+
+public enum LevelState
+{
     SetUp,
     Play,
     Run,
@@ -28,20 +34,42 @@ public class GameStatistics
     }
 }
 
+
+[System.Serializable]
+public class SaveData
+{
+    public int TotalLevelNumber;
+    public int CurrentLevel;
+    public List<bool> LevelFinished;
+
+    public SaveData(int totalNumber,int currentLevel,List<bool> finishList)
+    {
+        TotalLevelNumber = totalNumber;
+        CurrentLevel = currentLevel;
+        LevelFinished = finishList;
+    }
+}
+
 public class GameManager : MonoBehaviour
 {
-    public static GameState State;
-    public static BubbleType HeldBubbleType = BubbleType.Disappear;
-    public static int CurrentLevel;
+    public static GameState gameState;
+    public static LevelState levelState;
+    public static BubbleType HeldBubbleType;
+    public static SaveData CurrentSaveInfo;
+    public static GameObject ActivatedLevel;
+    public static GameObject Instance;
 
     public int MinLevelIndex;
     public int MaxLevelIndex;
+    public int TotalLevelNumber;
     public string NextLevelScene;
 
     public GameObject Mask;
+    public List<GameObject> Selectors;
     public float ScreenAppearTime;
     public float ScreenFadeTime;
     public float LevelFinishWaitTime;
+    public float MenuLoadLevelWaitTime;
 
     public GameObject CopiedLevel;
 
@@ -66,26 +94,43 @@ public class GameManager : MonoBehaviour
 
         EventManager.instance.AddHandler<Place>(OnPlace);
         EventManager.instance.AddHandler<LevelFinish>(OnLevelFinish);
+        EventManager.instance.AddHandler<CallLoadLevel>(OnCallLoadLevel);
     }
 
     private void OnDestroy()
     {
         EventManager.instance.RemoveHandler<Place>(OnPlace);
         EventManager.instance.RemoveHandler<LevelFinish>(OnLevelFinish);
+        EventManager.instance.RemoveHandler<CallLoadLevel>(OnCallLoadLevel);
     }
 
     // Update is called once per frame
     void Update()
     {
         Timer += Time.deltaTime;
+
+        if (Input.GetKey(KeyCode.Escape))
+        {
+            gameState = GameState.Menu;
+            StopCurrentLevel();
+            EventManager.instance.Fire(new BackToMenu());
+        }
     }
 
     private void Init()
     {
-        SortedLevelList = new List<GameObject>();
+        Instance = gameObject;
+
+        HeldBubbleType = BubbleType.Null;
+
         GetLevelInfo();
 
-        SortedLevelList[CurrentLevel - MinLevelIndex].SetActive(false);
+        //SortedLevelList[CurrentLevel - MinLevelIndex].SetActive(false);
+
+        if (!LoadProgress())
+        {
+            SaveProgress();
+        }
 
         /*if (!LoadProgress())
         {
@@ -93,19 +138,20 @@ public class GameManager : MonoBehaviour
             SaveProgress();
         }*/
 
-        CopiedLevel = Instantiate(SortedLevelList[CurrentLevel - MinLevelIndex]);
-        CopiedLevel.transform.parent = AllLevel.transform;
-        CopiedLevel.SetActive(false);
-        SortedLevelList[CurrentLevel - MinLevelIndex].SetActive(true);
+        //CopiedLevel = Instantiate(SortedLevelList[CurrentSaveInfo.CurrentLevel - MinLevelIndex]);
+        //CopiedLevel.transform.parent = AllLevel.transform;
+        //CopiedLevel.SetActive(false);
+       // SortedLevelList[CurrentSaveInfo.CurrentLevel - MinLevelIndex].SetActive(true);
 
         //State = GameState.Play;
-        EventManager.instance.Fire(new LevelLoaded(CurrentLevel));
+        //EventManager.instance.Fire(new LevelLoaded(CurrentSaveInfo.CurrentLevel));
         StartCoroutine(ScreenAppear());
 
     }
 
     private void GetLevelInfo()
     {
+        SortedLevelList = new List<GameObject>();
         List<int> IndexList = new List<int>();
         AllLevel = GameObject.Find("AllLevel").gameObject;
         foreach(Transform child in AllLevel.transform)
@@ -130,26 +176,27 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        for(int i = 0; i < SortedLevelList.Count; i++)
+        /*for(int i = 0; i < SortedLevelList.Count; i++)
         {
             if (SortedLevelList[i].activeSelf)
             {
                 CurrentLevel = IndexList[i];
+                return;
             }
         }
 
+        CurrentLevel = MinLevelIndex - 1;*/
     }
 
     private void OnPlace(Place P)
     {
-        State = GameState.Run;
+        levelState = LevelState.Run;
     }
 
     private void OnLevelFinish(LevelFinish L)
     {
-        State = GameState.Clear;
-        StartCoroutine(LoadLevel(L.Index + 1));
-
+        levelState = LevelState.Clear;
+        StartCoroutine(LoadLevel(L.Index + 1,false));
 
         SavePlayerData();
     }
@@ -161,37 +208,107 @@ public class GameManager : MonoBehaviour
         Timer = 0;
     }
 
-    private IEnumerator LoadLevel(int index)
+    private IEnumerator LoadLevel(int index,bool FromMenu)
     {
-        yield return new WaitForSeconds(LevelFinishWaitTime);
+        if (!FromMenu)
+        {
+            yield return new WaitForSeconds(LevelFinishWaitTime);
+        }
+        else
+        {
+            yield return new WaitForSeconds(MenuLoadLevelWaitTime);
+        }
+
         if (index <= MaxLevelIndex)
         {
             yield return StartCoroutine(ScreenFade());
 
-            State = GameState.SetUp;
+            levelState = LevelState.SetUp;
 
-            SortedLevelList[CurrentLevel - MinLevelIndex].SetActive(false);
-            Destroy(SortedLevelList[CurrentLevel - MinLevelIndex]);
-            SortedLevelList[CurrentLevel - MinLevelIndex] = CopiedLevel;
+            if (CurrentSaveInfo.CurrentLevel >= MinLevelIndex && !FromMenu)
+            {
+                SortedLevelList[CurrentSaveInfo.CurrentLevel - MinLevelIndex].SetActive(false);
+                Destroy(SortedLevelList[CurrentSaveInfo.CurrentLevel - MinLevelIndex]);
+                SortedLevelList[CurrentSaveInfo.CurrentLevel - MinLevelIndex] = CopiedLevel;
+            }
+
+
             CopiedLevel = Instantiate(SortedLevelList[index - MinLevelIndex]);
             CopiedLevel.transform.parent = AllLevel.transform;
             CopiedLevel.SetActive(false);
             SortedLevelList[index - MinLevelIndex].SetActive(true);
-            
-            CurrentLevel = index;
+            ActivatedLevel = SortedLevelList[index - MinLevelIndex];
+
+            if (!FromMenu)
+            {
+                CurrentSaveInfo.LevelFinished[CurrentSaveInfo.CurrentLevel-1] = true;
+            }
+            CurrentSaveInfo.CurrentLevel = index;
             SaveProgress();
             
-            EventManager.instance.Fire(new LevelLoaded(CurrentLevel));
+            EventManager.instance.Fire(new LevelLoaded(CurrentSaveInfo.CurrentLevel));
+
+            AssignSelectors();
 
             StartCoroutine(ScreenAppear());
         }
         else
         {
             yield return StartCoroutine(ScreenFade());
-            CurrentLevel = index;
+            CurrentSaveInfo.CurrentLevel = index;
             SaveProgress();
             SceneManager.LoadScene(NextLevelScene);
         }
+    }
+
+    private void SetSelector(GameObject obj, BubbleType Type, Color AvailableColor, Color UsedUpColor)
+    {
+        obj.GetComponent<BubbleSelector>().Type = Type;
+        obj.GetComponent<BubbleSelector>().AvailableColor = AvailableColor;
+        obj.GetComponent<BubbleSelector>().UsedUpColor = UsedUpColor;
+    }
+
+    private void AssignSelectors()
+    {
+        for(int i = 0; i < Selectors.Count; i++)
+        {
+            Selectors[i].GetComponent<BubbleSelector>().Type = BubbleType.Null;
+        }
+
+        var Data = GetComponent<ColorData>();
+
+        if (LevelManager.RemainedDisappearBubble > 0)
+        {
+            SetSelector(Selectors[0], BubbleType.Disappear, Data.DisappearBubble, Data.ExhaustDisappearBubble);
+
+            if (LevelManager.RemainedNormalBubble > 0)
+            {
+                SetSelector(Selectors[1], BubbleType.Normal, Data.NormalBubble, Data.ExhaustNormalBubble);
+                SetSelector(Selectors[2], BubbleType.Expand, Data.ExpandBubble, Data.ExhaustExpandBubble);
+            }
+            else
+            {
+                SetSelector(Selectors[1], BubbleType.Expand, Data.ExpandBubble, Data.ExhaustExpandBubble);
+            }
+        }
+        else if(LevelManager.RemainedNormalBubble > 0)
+        {
+            SetSelector(Selectors[0], BubbleType.Normal, Data.NormalBubble, Data.ExhaustNormalBubble);
+            if (LevelManager.RemainedExpandBubble > 0)
+            {
+                SetSelector(Selectors[1], BubbleType.Expand, Data.ExpandBubble, Data.ExhaustExpandBubble);
+            }
+        }
+        else
+        {
+            SetSelector(Selectors[0], BubbleType.Expand, Data.ExpandBubble, Data.ExhaustExpandBubble);
+        }
+
+        EventManager.instance.Fire(new BubbleNumSet(BubbleType.Disappear,LevelManager.RemainedDisappearBubble));
+        EventManager.instance.Fire(new BubbleNumSet(BubbleType.Normal,LevelManager.RemainedNormalBubble));
+        EventManager.instance.Fire(new BubbleNumSet(BubbleType.Expand, LevelManager.RemainedExpandBubble));
+        EventManager.instance.Fire(new CallActivateBubbleSelectors());
+
     }
 
     private IEnumerator ScreenFade()
@@ -239,7 +356,7 @@ public class GameManager : MonoBehaviour
         }
 
         BinaryFormatter binaryFormatter = new BinaryFormatter();
-        binaryFormatter.Serialize(stream, CurrentLevel);
+        binaryFormatter.Serialize(stream, CurrentSaveInfo);
         stream.Close();
     }
 
@@ -248,11 +365,17 @@ public class GameManager : MonoBehaviour
         string file = Path.Combine(Application.dataPath, SaveFolderName, SaveFileName + SaveFileExtension);
         if (!File.Exists(file))
         {
+            CurrentSaveInfo = new SaveData(TotalLevelNumber, 0, new List<bool>());
+            for(int i = 0; i < CurrentSaveInfo.TotalLevelNumber; i++)
+            {
+                CurrentSaveInfo.LevelFinished.Add(false);
+            }
             return false;
         }
         FileStream stream = File.Open(file, FileMode.Open);
         BinaryFormatter binaryFormatter = new BinaryFormatter();
-        CurrentLevel = (int)binaryFormatter.Deserialize(stream);
+        CurrentSaveInfo = (SaveData)binaryFormatter.Deserialize(stream);
+        //CurrentLevel = (int)binaryFormatter.Deserialize(stream);
         stream.Close();
         return true;
     }
@@ -276,7 +399,7 @@ public class GameManager : MonoBehaviour
 
         StreamWriter stream = new StreamWriter(file, true);
 
-        stream.WriteLine(CurrentLevel.ToString()+" "+ S.time.ToString() + " " + S.RemainedDisappearBubble.ToString() + " " + S.RemainedNormalBubble);
+        stream.WriteLine(CurrentSaveInfo.CurrentLevel.ToString()+" "+ S.time.ToString() + " " + S.RemainedDisappearBubble.ToString() + " " + S.RemainedNormalBubble);
         stream.Close();
     }
 
@@ -300,6 +423,18 @@ public class GameManager : MonoBehaviour
 
         stream.Close();
         return num;
+    }
+
+    private void OnCallLoadLevel(CallLoadLevel Call)
+    {
+        gameState = GameState.Level;
+        StartCoroutine(LoadLevel(Call.index,true));
+    }
+
+    private void StopCurrentLevel()
+    {
+        Destroy(SortedLevelList[CurrentSaveInfo.CurrentLevel - MinLevelIndex]);
+        SortedLevelList[CurrentSaveInfo.CurrentLevel - MinLevelIndex] = CopiedLevel;
     }
 }
 

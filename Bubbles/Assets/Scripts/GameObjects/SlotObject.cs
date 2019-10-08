@@ -6,7 +6,8 @@ public enum SlotType
 {
     Normal,
     Target,
-    Teleport
+    Teleport,
+    Expand
 }
 
 public enum SlotState
@@ -24,12 +25,14 @@ public class SlotObject : MonoBehaviour
 
     public float Size;
     public Color SelectedColor;
+    public Color NearBySelectedColor;
     public Color DefaultColor;
     public Sprite SelectedSprite;
     public Sprite DefaultSprite;
     
     public SlotType Type;
     public bool Selected;
+    public bool NearBySelected;
 
     public float FinishWaitTime;
     public float FinishTime;
@@ -38,6 +41,7 @@ public class SlotObject : MonoBehaviour
     public float FinishRotationSpeed;
     public float ShakeSpeed;
     public float MaxShakeDis;
+
 
     private bool finish;
     private bool NormalBubbleMatch;
@@ -75,14 +79,21 @@ public class SlotObject : MonoBehaviour
         SetShake();
     }
 
+
+
     private void SetAppearance()
     {
-        if (GameManager.State !=GameState.SetUp && GameManager.State!=GameState.Clear)
+        if (GameManager.levelState !=LevelState.SetUp && GameManager.levelState!=LevelState.Clear)
         {
             if (Selected)
             {
                 GetComponent<SpriteRenderer>().color = SelectedColor;
                 GetComponent<SpriteRenderer>().sprite = SelectedSprite;
+            }
+            else if (NearBySelected)
+            {
+                GetComponent<SpriteRenderer>().color = NearBySelectedColor;
+                GetComponent<SpriteRenderer>().sprite = DefaultSprite;
             }
             else
             {
@@ -94,7 +105,7 @@ public class SlotObject : MonoBehaviour
 
     private void SetShake()
     {
-        if (GameManager.State != GameState.SetUp && GameManager.State != GameState.Clear)
+        if (GameManager.levelState != LevelState.SetUp && GameManager.levelState != LevelState.Clear)
         {
             if (Selected)
             {

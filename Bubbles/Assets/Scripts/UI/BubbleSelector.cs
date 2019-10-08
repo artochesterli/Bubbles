@@ -28,14 +28,14 @@ public class BubbleSelector : MonoBehaviour
     {
         EventManager.instance.AddHandler<BubbleNumSet>(OnBubbleNumSet);
         EventManager.instance.AddHandler<LevelFinish>(OnLevelFinish);
-        EventManager.instance.AddHandler<LevelLoaded>(OnLevelLoaded);
+        EventManager.instance.AddHandler<CallActivateBubbleSelectors>(OnCallActivateBubbleSelector);
     }
 
     private void OnDestroy()
     {
         EventManager.instance.RemoveHandler<BubbleNumSet>(OnBubbleNumSet);
         EventManager.instance.RemoveHandler<LevelFinish>(OnLevelFinish);
-        EventManager.instance.RemoveHandler<LevelLoaded>(OnLevelLoaded);
+        EventManager.instance.RemoveHandler<CallActivateBubbleSelectors>(OnCallActivateBubbleSelector);
     }
 
     // Update is called once per frame
@@ -76,7 +76,7 @@ public class BubbleSelector : MonoBehaviour
         pointerEventData.position = Input.mousePosition;
         List<RaycastResult> raycastResults = new List<RaycastResult>();
         EventSystem.current.RaycastAll(pointerEventData, raycastResults);
-        for(int i = 0; i < raycastResults.Count; i++)
+        for (int i = 0; i < raycastResults.Count; i++)
         {
             if (raycastResults[i].gameObject == gameObject)
             {
@@ -84,11 +84,11 @@ public class BubbleSelector : MonoBehaviour
             }
         }
 
-        if (GameManager.HeldBubbleType != Type && Remained && Input.GetMouseButtonDown(0) && MouseIn)
+        if ( Remained && Input.GetMouseButtonDown(0) && MouseIn)
         {
             EventManager.instance.Fire(new BubbleSelected(Type));
-            GameManager.HeldBubbleType = Type;
         }
+
     }
     
     private void OnBubbleNumSet(BubbleNumSet B)
@@ -138,8 +138,32 @@ public class BubbleSelector : MonoBehaviour
         }
     }
 
-    private IEnumerator Fade(bool In)
+    private void OnCallActivateBubbleSelector(CallActivateBubbleSelectors Call)
     {
+        if (Active)
+        {
+            StartCoroutine(Fade(true));
+        }
+    }
+
+    private void OnBackToMenu(BackToMenu Back)
+    {
+        if (Active)
+        {
+            StartCoroutine(Fade(false));
+        }
+    }
+
+
+
+    public IEnumerator Fade(bool In)
+    {
+        if (In)
+        {
+            GetComponent<Image>().enabled = true;
+            transform.Find("RemainedNumber").GetComponent<Text>().enabled = true;
+        }
+
         Color ImageColor = GetComponent<Image>().color;
         Color TextColor = transform.Find("RemainedNumber").GetComponent<Text>().color;
 
@@ -158,6 +182,12 @@ public class BubbleSelector : MonoBehaviour
                 transform.Find("RemainedNumber").GetComponent<Text>().color = Color.Lerp(new Color(TextColor.r, TextColor.g, TextColor.b, 1), new Color(TextColor.r, TextColor.g, TextColor.b, 0), TimeCount / FadeTime);
             }
             yield return null;
+        }
+
+        if (!In)
+        {
+            GetComponent<Image>().enabled = false;
+            transform.Find("RemainedNumber").GetComponent<Text>().enabled = false;
         }
     }
 

@@ -72,12 +72,12 @@ SpriteRenderer:
   m_SortingLayerID: -474039353
   m_SortingLayer: 1
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 8e77bf04e851e5a419f0442ef12e04ad, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 8c54cc2e9b4355e458aea14cab5ebae9, type: 3}
   m_Color: {r: 0.44201672, g: 0.70056075, b: 0.7264151, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.94, y: 0.94}
+  m_Size: {x: 0.95, y: 0.95}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -98,11 +98,13 @@ MonoBehaviour:
   MapPivotOffset: {x: 0, y: 0}
   Size: 0.92
   SelectedColor: {r: 0.5254902, g: 0.9529412, b: 1, a: 1}
+  NearBySelectedColor: {r: 0.46764863, g: 0.8367261, b: 0.8773585, a: 1}
   DefaultColor: {r: 0.44313726, g: 0.7019608, b: 0.7294118, a: 1}
-  SelectedSprite: {fileID: 21300000, guid: fc3634d79234c45498607ed7ebc4b008, type: 3}
-  DefaultSprite: {fileID: 21300000, guid: 8e77bf04e851e5a419f0442ef12e04ad, type: 3}
+  SelectedSprite: {fileID: 21300000, guid: b43d3ef3ed62f134bb476af2a1815e54, type: 3}
+  DefaultSprite: {fileID: 21300000, guid: 8c54cc2e9b4355e458aea14cab5ebae9, type: 3}
   Type: 1
   Selected: 0
+  NearBySelected: 0
   FinishWaitTime: 2.1
   FinishTime: 0.3
   FinishColor: {r: 0.44313726, g: 0.7019608, b: 0.7294118, a: 0}
@@ -126,8 +128,8 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.94, y: 0.94}
-    newSize: {x: 0.94, y: 0.94}
+    oldSize: {x: 0.95, y: 0.95}
+    newSize: {x: 0.95, y: 0.95}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
@@ -148,6 +150,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Effect: {fileID: 3587435755205182618}
+  FilledEffectSize: 0.9
+  EmptyEffectSize: 0.5
 --- !u!1001 &8189156853306094678
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -159,6 +163,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: InTargetEffect
+      objectReference: {fileID: 0}
+    - target: {fileID: 4642255786666995916, guid: 7789d0a15f4a8f84dbcf4df8128d596a,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 4642255786666995907, guid: 7789d0a15f4a8f84dbcf4df8128d596a,
         type: 3}

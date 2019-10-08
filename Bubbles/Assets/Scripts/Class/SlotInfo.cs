@@ -12,13 +12,13 @@ public class SlotInfo
     public Vector3 Location;
     public GameObject Entity;
 
-    public SlotInfo(Vector2Int v, SlotType sType, BubbleType type, BubbleState state, GameObject g, Vector3 loc, GameObject entity)
+    public SlotInfo(Vector2Int v, SlotType sType, BubbleType type, BubbleState state, GameObject bubble, Vector3 loc, GameObject entity)
     {
         Pos = v;
         slotType = sType;
         InsideBubbleType = type;
         InsideBubbleState = state;
-        ConnectedBubble = g;
+        ConnectedBubble = bubble;
         Location = loc;
         Entity = entity;
     }

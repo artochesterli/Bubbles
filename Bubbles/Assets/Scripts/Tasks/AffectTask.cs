@@ -17,9 +17,11 @@ public class AffectTask : Task
     {
         GameObject ActivateEffect = Obj.transform.Find("ActivateEffect").gameObject;
         GameObject ReleaseEffect = Obj.transform.Find("ReleaseEffect").gameObject;
+        GameObject EmptyEffect = Obj.transform.Find("EmptyReleaseEffect").gameObject;
 
         ActivateEffect.GetComponent<ParticleSystem>().startColor = EnergyColor;
-        foreach(Transform child in ReleaseEffect.transform)
+        EmptyEffect.GetComponent<ParticleSystem>().startColor = EnergyColor;
+        foreach (Transform child in ReleaseEffect.transform)
         {
             child.GetComponent<ParticleSystem>().startColor = EnergyColor;
         }

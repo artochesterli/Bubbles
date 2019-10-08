@@ -6,7 +6,8 @@ public enum BubbleType
 {
     Null,
     Disappear,
-    Normal
+    Normal,
+    Expand
 }
 
 public enum BubbleState
@@ -22,16 +23,20 @@ public class Bubble : MonoBehaviour
     public BubbleState State;
 
     public Color NormalColor;
-    public Color ActivateColor;
     public Color ExhaustColor;
 
     public float PrePushOffset;
     public float OffsetTime;
+    public float OffsetStartDis;
+    public float OffsetEndDis;
+
     public bool Offseting;
     public Vector2 OffsetDirection;
     public Vector2 OriPos;
+    public GameObject DirectionIndicator;
 
-    private float CurrentOffset;
+    private float OffsetTimeCount;
+    private Vector2 OffsetEffectOriPos;
     
 
     void Start()
@@ -46,22 +51,25 @@ public class Bubble : MonoBehaviour
 
     private void CheckOffset()
     {
-        float OffsetSpeed = PrePushOffset / OffsetTime;
         if (Offseting)
         {
-            transform.position += OffsetSpeed * (Vector3)OffsetDirection * Time.deltaTime;
-            if (((Vector2)transform.position - OriPos).magnitude>PrePushOffset)
+            DirectionIndicator.GetComponent<SpriteRenderer>().enabled = true;
+            OffsetTimeCount += Time.deltaTime;
+            Color color = DirectionIndicator.GetComponent<SpriteRenderer>().color;
+            DirectionIndicator.GetComponent<SpriteRenderer>().color = Color.Lerp(new Color(color.r, color.g, color.b, 1), new Color(color.r, color.g, color.b, 0), OffsetTimeCount / OffsetTime);
+
+
+            if (OffsetTimeCount >= OffsetTime)
             {
-                transform.position = OriPos + OffsetDirection * PrePushOffset;
+                OffsetTimeCount = 0;
             }
+
+            DirectionIndicator.transform.localPosition = Vector2.Lerp(OffsetDirection * OffsetStartDis, OffsetDirection * OffsetEndDis, OffsetTimeCount / OffsetTime);
+            DirectionIndicator.transform.rotation = Quaternion.Euler(0,0, Vector2.SignedAngle(Vector2.right, OffsetDirection));
         }
         else
         {
-            transform.position -= OffsetSpeed * (Vector3)OffsetDirection * Time.deltaTime;
-            if (Vector2.Dot((Vector2)transform.position - OriPos, OffsetDirection) < 0)
-            {
-                transform.position = OriPos;
-            }
+            DirectionIndicator.GetComponent<SpriteRenderer>().enabled = false;
         }
     }
 

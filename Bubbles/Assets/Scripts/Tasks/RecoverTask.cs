@@ -18,6 +18,7 @@ public class RecoverTask : Task
     private GameObject StableEffect;
     private GameObject ActivateEffect;
     private GameObject ReleaseEffect;
+    private GameObject EmptyEffect;
 
     public RecoverTask(GameObject obj,float time,float initScale,float finishScale,Color initColor,Color finishColor, List<List<SlotInfo>> map,Vector2Int pos,Color energyColor)
     {
@@ -45,7 +46,9 @@ public class RecoverTask : Task
 
         ActivateEffect= Obj.transform.Find("ActivateEffect").gameObject;
         ActivateEffect.GetComponent<ParticleSystem>().Stop();
+
         ReleaseEffect= Obj.transform.Find("ReleaseEffect").gameObject;
+        EmptyEffect = Obj.transform.Find("EmptyReleaseEffect").gameObject;
 
         if (RecoverTime == 0)
         {
@@ -58,6 +61,7 @@ public class RecoverTask : Task
         }
 
         ActivateEffect.GetComponent<ParticleSystem>().startColor = EnergyColor;
+        EmptyEffect.GetComponent<ParticleSystem>().startColor = EnergyColor;
         foreach(Transform child in ReleaseEffect.transform)
         {
             child.GetComponent<ParticleSystem>().startColor = EnergyColor;

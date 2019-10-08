@@ -26,7 +26,7 @@ public class HintText : MonoBehaviour
 
     private bool CheckCircleRemained()
     {
-        return LevelManager.RemainedDisappearBubble > 0 || LevelManager.RemainedNormalBubble > 0 || GameManager.State!=GameState.Play;
+        return LevelManager.RemainedDisappearBubble > 0 || LevelManager.RemainedNormalBubble > 0 || GameManager.levelState!=LevelState.Play;
     }
 
     private void Show()

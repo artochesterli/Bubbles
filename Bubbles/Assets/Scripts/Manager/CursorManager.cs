@@ -12,7 +12,6 @@ public enum CursorType
 public enum CursorState
 {
     Release,
-    Pressing,
     Holding
 }
 
@@ -26,8 +25,7 @@ public class CursorManager : MonoBehaviour
     public Color NullColor;
     public Color DisappearBubbleColor;
     public Color NormalBubbleColor;
-    public Color ExhaustDisappearBubbleColor;
-    public Color ExhaustNormalBubbleColor;
+    public Color ExpandBubbleColor;
 
     public float ColorChangeTime;
     public float Scale;
@@ -37,22 +35,28 @@ public class CursorManager : MonoBehaviour
     public float InSlotScaleChangeTime;
 
     private List<GameObject> OffsetCircles;
+    private List<GameObject> NearBySelectedSlots;
     private GameObject SelectedSlot;
 
     private bool ColorChanging;
     private Color CurrentColor;
+    public CursorState CurrentState;
     // Start is called before the first frame update
     void Start()
     {
-        Cursor.visible = false;
+        DeactivateCursor();
+
         OffsetCircles = new List<GameObject>();
+        NearBySelectedSlots = new List<GameObject>();
         EventManager.instance.AddHandler<BubbleSelected>(OnBubbleSelected);
+        EventManager.instance.AddHandler<Place>(OnPlace);
     }
 
     private void OnDestroy()
     {
         AllSlot = null;
         EventManager.instance.RemoveHandler<BubbleSelected>(OnBubbleSelected);
+        EventManager.instance.RemoveHandler<Place>(OnPlace);
     }
 
     // Update is called once per frame
@@ -60,169 +64,162 @@ public class CursorManager : MonoBehaviour
     {
         SetPos();
         CheckSlotSelection();
-        SetAppearance();
         SetScale();
+
         CheckInput();
+    }
+
+    private GameObject GetNearBySlot(GameObject Slot, Vector2Int Offset)
+    {
+        List<List<SlotInfo>> Map = Slot.GetComponent<SlotObject>().ConnectedMap;
+        Vector2Int Coordination = Slot.GetComponent<SlotObject>().ConnectedSlotInfo.Pos + Offset;
+        return Map[Coordination.x][Coordination.y].Entity;
     }
 
     private void CheckSlotSelection()
     {
-        if(GameManager.State == GameState.Play)
+        if (GameManager.gameState == GameState.Level)
         {
-            foreach (Transform child in AllSlot.transform)
+            if (GameManager.levelState == LevelState.Play)
             {
-                List<GameObject> NearByCircleList = new List<GameObject>();
-                for(int i = 0; i < 4; i++)
+                if (CurrentState == CursorState.Holding)
                 {
-                    NearByCircleList.Add(null);
-                }
-                if (child.GetComponent<SlotObject>().CursorInside() && child.GetComponent<SlotObject>().AvailablePos(NearByCircleList))
-                {
-                    if (child.gameObject != SelectedSlot)
+                    foreach (Transform child in AllSlot.transform)
                     {
-                        if (SelectedSlot != null)
+                        List<GameObject> NearByCircleList = new List<GameObject>();
+                        for (int i = 0; i < 4; i++)
                         {
-                            SelectedSlot.GetComponent<SlotObject>().Selected = false;
-                            ResetOffsetCircles();
+                            NearByCircleList.Add(null);
                         }
-                        child.GetComponent<SlotObject>().Selected = true;
-                        SelectedSlot = child.gameObject;
-                        for (int i = 0; i < NearByCircleList.Count; i++)
+                        if (child.GetComponent<SlotObject>().CursorInside() && child.GetComponent<SlotObject>().AvailablePos(NearByCircleList))
                         {
-                            if (NearByCircleList[i] != null)
+                            if (child.gameObject != SelectedSlot)
                             {
-                                OffsetCircles.Add(NearByCircleList[i]);
-                                NearByCircleList[i].GetComponent<Bubble>().Offseting = true;
-                                switch (i)
+                                if (SelectedSlot != null)
                                 {
-                                    case 0:
-                                        NearByCircleList[i].GetComponent<Bubble>().OffsetDirection = Vector2.right;
-                                        break;
-                                    case 1:
-                                        NearByCircleList[i].GetComponent<Bubble>().OffsetDirection = Vector2.left;
-                                        break;
-                                    case 2:
-                                        NearByCircleList[i].GetComponent<Bubble>().OffsetDirection = Vector2.up;
-                                        break;
-                                    case 3:
-                                        NearByCircleList[i].GetComponent<Bubble>().OffsetDirection = Vector2.down;
-                                        break;
-                                    default:
-                                        break;
+                                    SelectedSlot.GetComponent<SlotObject>().Selected = false;
+                                    ResetOffsetInfo();
+                                }
+                                child.GetComponent<SlotObject>().Selected = true;
+                                SelectedSlot = child.gameObject;
+                                for (int i = 0; i < NearByCircleList.Count; i++)
+                                {
+                                    if (NearByCircleList[i] != null)
+                                    {
 
+                                        OffsetCircles.Add(NearByCircleList[i]);
+                                        NearByCircleList[i].GetComponent<Bubble>().Offseting = true;
+
+                                        GameObject Slot = null;
+
+                                        switch (i)
+                                        {
+                                            case 0:
+                                                Slot = GetNearBySlot(child.gameObject, Vector2Int.right);
+                                                Slot.GetComponent<SlotObject>().NearBySelected = true;
+                                                NearByCircleList[i].GetComponent<Bubble>().OffsetDirection = Vector2.right;
+                                                break;
+                                            case 1:
+                                                Slot = GetNearBySlot(child.gameObject, Vector2Int.left);
+                                                Slot.GetComponent<SlotObject>().NearBySelected = true;
+                                                NearByCircleList[i].GetComponent<Bubble>().OffsetDirection = Vector2.left;
+                                                break;
+                                            case 2:
+                                                Slot = GetNearBySlot(child.gameObject, Vector2Int.up);
+                                                Slot.GetComponent<SlotObject>().NearBySelected = true;
+                                                NearByCircleList[i].GetComponent<Bubble>().OffsetDirection = Vector2.up;
+                                                break;
+                                            case 3:
+                                                Slot = GetNearBySlot(child.gameObject, Vector2Int.down);
+                                                Slot.GetComponent<SlotObject>().NearBySelected = true;
+                                                NearByCircleList[i].GetComponent<Bubble>().OffsetDirection = Vector2.down;
+                                                break;
+                                            default:
+                                                break;
+
+                                        }
+
+                                        NearBySelectedSlots.Add(Slot);
+                                    }
                                 }
                             }
+                            return;
                         }
                     }
-                    return;
+                    if (SelectedSlot != null)
+                    {
+                        SelectedSlot.GetComponent<SlotObject>().Selected = false;
+                        SelectedSlot = null;
+                        ResetOffsetInfo();
+                    }
+                }
+                else
+                {
+                    if (SelectedSlot != null)
+                    {
+                        SelectedSlot.GetComponent<SlotObject>().Selected = false;
+                        SelectedSlot = null;
+                        ResetOffsetInfo();
+                    }
                 }
             }
         }
 
-        if (SelectedSlot != null)
-        {
-            ResetOffsetCircles();
-            SelectedSlot.GetComponent<SlotObject>().Selected = false;
-            SelectedSlot = null;
-        }
-
     }
 
-    private void ResetOffsetCircles()
+    private void ResetOffsetInfo()
     {
         for (int i = 0; i < OffsetCircles.Count; i++)
         {
             OffsetCircles[i].GetComponent<Bubble>().Offseting = false;
         }
+
+        for(int i = 0; i < NearBySelectedSlots.Count; i++)
+        {
+            NearBySelectedSlots[i].GetComponent<SlotObject>().NearBySelected = false;
+        }
+
         OffsetCircles.Clear();
+        NearBySelectedSlots.Clear();
     }
 
     private void CheckInput()
     {
-        if (Input.GetMouseButtonDown(0) && SelectedSlot != null)
+        if (GameManager.gameState == GameState.Level)
         {
-            SelectedSlot.GetComponent<SlotObject>().Selected = false;
-            EventManager.instance.Fire(new Place(SelectedSlot.GetComponent<SlotObject>().ConnectedSlotInfo.Pos, GameManager.HeldBubbleType));
+            if (Input.GetMouseButtonUp(0))
+            {
+                DeactivateCursor();
+                if (SelectedSlot != null)
+                {
+                    if (GameManager.HeldBubbleType == BubbleType.Expand)
+                    {
+                        GameManager.ActivatedLevel.GetComponent<LevelManager>().ExpandToNormal();
+                    }
+
+                    SelectedSlot.GetComponent<SlotObject>().Selected = false;
+                    EventManager.instance.Fire(new Place(SelectedSlot.GetComponent<SlotObject>().ConnectedSlotInfo.Pos, GameManager.HeldBubbleType));
+                    GameManager.HeldBubbleType = BubbleType.Null;
+                }
+                else if(GameManager.HeldBubbleType!=BubbleType.Null)
+                {
+                    if (GameManager.HeldBubbleType == BubbleType.Expand)
+                    {
+                        GameManager.ActivatedLevel.GetComponent<LevelManager>().CutMap();
+                    }
+                    CancelBubble();
+                }
+            }
         }
     }
 
     private void SetScale()
     {
-        if (SelectedSlot)
+        if (GameManager.gameState == GameState.Level)
         {
-            transform.localScale += Vector3.one * (InSlotScale - Scale) / InSlotScaleChangeTime * Time.deltaTime;
-            if (transform.localScale.x > InSlotScale)
-            {
-                transform.localScale = Vector3.one * InSlotScale;
-            }
-            
-        }
-        else
-        {
-            transform.localScale -= Vector3.one * (InSlotScale - Scale) / InSlotScaleChangeTime * Time.deltaTime;
-            if (transform.localScale.x < Scale)
-            {
-                transform.localScale = Vector3.one * Scale;
-            }
-        }
-        ActivateEffect.transform.localScale = transform.localScale;
-    }
 
-    private void SetAppearance()
-    {
-
-        if (!ColorChanging)
-        {
-            switch (GameManager.State)
-            {
-                case GameState.Play:
-                    if (!ActivateEffect.GetComponent<ParticleSystem>().isPlaying)
-                    {
-                        ActivateEffect.GetComponent<ParticleSystem>().Play();
-                    }
-
-                    switch (GameManager.HeldBubbleType)
-                    {
-                        case BubbleType.Disappear:
-                            GetComponent<Image>().color = DisappearBubbleColor;
-                            CurrentColor = DisappearBubbleColor;
-                            break;
-                        case BubbleType.Normal:
-                            GetComponent<Image>().color = NormalBubbleColor;
-                            CurrentColor = NormalBubbleColor;
-                            break;
-                        default:
-                            GetComponent<Image>().color = NullColor;
-                            CurrentColor = NullColor;
-                            ActivateEffect.GetComponent<ParticleSystem>().Stop();
-                            break;
-                    }
-
-                    
-                    break;
-                case GameState.Run:
-                    switch (GameManager.HeldBubbleType)
-                    {
-                        case BubbleType.Disappear:
-                            GetComponent<Image>().color = ExhaustDisappearBubbleColor;
-                            CurrentColor = ExhaustDisappearBubbleColor;
-                            break;
-                        case BubbleType.Normal:
-                            GetComponent<Image>().color = ExhaustNormalBubbleColor;
-                            CurrentColor = ExhaustNormalBubbleColor;
-                            break;
-                        default:
-                            GetComponent<Image>().color = NullColor;
-                            CurrentColor = NullColor;
-                            break;
-                    }
-
-                    ActivateEffect.GetComponent<ParticleSystem>().Stop();
-                    break;
-                default:
-                    break;
-            }
-            
+            transform.localScale = Vector3.one*InSlotScale;
+            ActivateEffect.transform.localScale = transform.localScale;
         }
     }
 
@@ -259,33 +256,77 @@ public class CursorManager : MonoBehaviour
 
     private void OnBubbleSelected(BubbleSelected B)
     {
-        StopAllCoroutines();
-        switch (GameManager.State)
+        ActivateCursor(B.Type);
+        if (B.Type == BubbleType.Expand)
         {
-            case GameState.Play:
-                switch (B.Type)
-                {
-                    case BubbleType.Disappear:
-                        StartCoroutine(ChangeColor(CurrentColor, DisappearBubbleColor));
-                        break;
-                    case BubbleType.Normal:
-                        StartCoroutine(ChangeColor(CurrentColor, NormalBubbleColor));
-                        break;
-                }
+            GameManager.ActivatedLevel.GetComponent<LevelManager>().ExpandMap();
+        }
+    }
+
+    private void ActivateCursor(BubbleType Type)
+    {
+        Cursor.visible = false;
+        CurrentState = CursorState.Holding;
+        GetComponent<Image>().enabled = true;
+        switch (Type)
+        {
+            case BubbleType.Disappear:
+                GetComponent<Image>().color = DisappearBubbleColor;
+                LevelManager.RemainedDisappearBubble--;
+                EventManager.instance.Fire(new BubbleNumSet(Type, LevelManager.RemainedDisappearBubble));
                 break;
-            case GameState.Run:
-                switch (B.Type)
-                {
-                    case BubbleType.Disappear:
-                        StartCoroutine(ChangeColor(CurrentColor, ExhaustDisappearBubbleColor));
-                        break;
-                    case BubbleType.Normal:
-                        StartCoroutine(ChangeColor(CurrentColor, ExhaustNormalBubbleColor));
-                        break;
-                }
+            case BubbleType.Normal:
+                GetComponent<Image>().color = NormalBubbleColor;
+                LevelManager.RemainedNormalBubble--;
+                EventManager.instance.Fire(new BubbleNumSet(Type, LevelManager.RemainedNormalBubble));
+                break;
+            case BubbleType.Expand:
+                GetComponent<Image>().color = ExpandBubbleColor;
+                LevelManager.RemainedExpandBubble--;
+                EventManager.instance.Fire(new BubbleNumSet(Type, LevelManager.RemainedExpandBubble));
                 break;
         }
-        
+
+        ActivateEffect.GetComponent<ParticleSystem>().Play();
+
+        GameManager.HeldBubbleType = Type;
+
+    }
+
+    private void DeactivateCursor()
+    {
+        Cursor.visible = true;
+        CurrentState = CursorState.Release;
+        GetComponent<Image>().enabled = false;
+        ActivateEffect.GetComponent<ParticleSystem>().Stop();
+    }
+
+    private void CancelBubble()
+    {
+        switch (GameManager.HeldBubbleType)
+        {
+            case BubbleType.Disappear:
+                LevelManager.RemainedDisappearBubble++;
+                EventManager.instance.Fire(new BubbleNumSet(GameManager.HeldBubbleType, LevelManager.RemainedDisappearBubble));
+                break;
+            case BubbleType.Normal:
+                LevelManager.RemainedNormalBubble++;
+                EventManager.instance.Fire(new BubbleNumSet(GameManager.HeldBubbleType, LevelManager.RemainedNormalBubble));
+                break;
+            case BubbleType.Expand:
+                LevelManager.RemainedExpandBubble++;
+                EventManager.instance.Fire(new BubbleNumSet(GameManager.HeldBubbleType, LevelManager.RemainedExpandBubble));
+                break;
+        }
+
+        GameManager.HeldBubbleType = BubbleType.Null;
+    }
+
+    private void OnPlace(Place P)
+    {
+        ResetOffsetInfo();
+        SelectedSlot.GetComponent<SlotObject>().Selected = false;
+        SelectedSlot = null;
     }
 
 }
