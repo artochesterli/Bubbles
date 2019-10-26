@@ -146,5 +146,48 @@ public class Utility
         }
         return answer;
     }
+
+    public static Vector2 RandomPosFromEdgeArea(float halfwidth, float halfheight, Vector2 HollowZoneX, Vector2 HollowZoneY)
+    {
+        Vector2 LeftRange = new Vector2(-halfwidth, HollowZoneX.x);
+        Vector2 RightRange = new Vector2(HollowZoneX.y, halfwidth);
+        Vector2 UpRange = new Vector2(HollowZoneY.y, halfheight);
+        Vector2 DownRange = new Vector2(-halfheight, HollowZoneY.x);
+
+        float XRangeLength = LeftRange.y - LeftRange.x + RightRange.y - RightRange.x;
+        float YRangeLength = UpRange.y - UpRange.x + DownRange.y - DownRange.x;
+
+        float XMarginRecArea = XRangeLength * 2 * halfheight;
+        float YMarginRecArea = YRangeLength * (HollowZoneX.y - HollowZoneX.x);
+
+        Vector2 Pos;
+
+        if (Random.Range(0, XMarginRecArea + YMarginRecArea) > XMarginRecArea)
+        {
+            Pos = new Vector2(Random.Range(HollowZoneX.x, HollowZoneX.y), Random.Range(0, YRangeLength));
+            if (Pos.y < DownRange.y - DownRange.x)
+            {
+                Pos.y += DownRange.x;
+            }
+            else
+            {
+                Pos.y = Pos.y + DownRange.x + HollowZoneY.y - HollowZoneY.x;
+            }
+        }
+        else
+        {
+            Pos = new Vector2(Random.Range(0, XRangeLength), Random.Range(-halfheight, halfheight));
+            if (Pos.x < LeftRange.y - LeftRange.x)
+            {
+                Pos.x += LeftRange.x;
+            }
+            else
+            {
+                Pos.x = Pos.x + LeftRange.x + HollowZoneX.y - HollowZoneX.x;
+            }
+        }
+
+        return Pos;
+    }
 }
 

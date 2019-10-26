@@ -17,10 +17,13 @@ public enum CursorState
 
 public class CursorManager : MonoBehaviour
 {
+    public static GameObject Entity;
     public static GameObject AllSlot;
     public GameObject ActivateEffect;
+    public GameObject CursorImage;
+    public Vector2 Offset;
 
-    public float PressingTime;
+    public float RollBackInputInterval;
 
     public Color NullColor;
     public Color DisappearBubbleColor;
@@ -28,9 +31,8 @@ public class CursorManager : MonoBehaviour
     public Color ExpandBubbleColor;
 
     public float ColorChangeTime;
-    public float Scale;
-    public float InflatedScale;
 
+    public float OutSlotScale;
     public float InSlotScale;
     public float InSlotScaleChangeTime;
 
@@ -40,16 +42,24 @@ public class CursorManager : MonoBehaviour
 
     private bool ColorChanging;
     private Color CurrentColor;
-    public CursorState CurrentState;
+    private CursorState CurrentState;
+
+    private float RollBackInputIntervalTimeCount;
+    private bool RollBackFirstTap;
     // Start is called before the first frame update
     void Start()
     {
+        Entity = gameObject;
+        ActivateEffect.transform.localPosition = Offset;
+        CursorImage.GetComponent<RectTransform>().localPosition = Offset;
+
         DeactivateCursor();
 
         OffsetCircles = new List<GameObject>();
         NearBySelectedSlots = new List<GameObject>();
         EventManager.instance.AddHandler<BubbleSelected>(OnBubbleSelected);
         EventManager.instance.AddHandler<Place>(OnPlace);
+        EventManager.instance.AddHandler<RollBack>(OnRollBack);
     }
 
     private void OnDestroy()
@@ -57,6 +67,7 @@ public class CursorManager : MonoBehaviour
         AllSlot = null;
         EventManager.instance.RemoveHandler<BubbleSelected>(OnBubbleSelected);
         EventManager.instance.RemoveHandler<Place>(OnPlace);
+        EventManager.instance.RemoveHandler<RollBack>(OnRollBack);
     }
 
     // Update is called once per frame
@@ -66,6 +77,7 @@ public class CursorManager : MonoBehaviour
         CheckSlotSelection();
         SetScale();
 
+        GetRollBackInput();
         CheckInput();
     }
 
@@ -74,6 +86,38 @@ public class CursorManager : MonoBehaviour
         List<List<SlotInfo>> Map = Slot.GetComponent<SlotObject>().ConnectedMap;
         Vector2Int Coordination = Slot.GetComponent<SlotObject>().ConnectedSlotInfo.Pos + Offset;
         return Map[Coordination.x][Coordination.y].Entity;
+    }
+
+    private void GetRollBackInput()
+    {
+        if(GameManager.levelState == LevelState.Play && CurrentState == CursorState.Release)
+        {
+            if (RollBackFirstTap)
+            {
+                RollBackInputIntervalTimeCount += Time.deltaTime;
+                if (RollBackInputIntervalTimeCount >= RollBackInputInterval)
+                {
+                    RollBackFirstTap = false;
+                }
+            }
+            if (Input.GetMouseButtonDown(0))
+            {
+                if (!RollBackFirstTap)
+                {
+                    RollBackInputIntervalTimeCount = 0;
+                    RollBackFirstTap = true;
+                }
+                else
+                {
+                    EventManager.instance.Fire(new RollBack());
+                }
+            }
+        }
+        else
+        {
+            RollBackFirstTap = false;
+            RollBackInputIntervalTimeCount = 0;
+        }
     }
 
     private void CheckSlotSelection()
@@ -97,6 +141,7 @@ public class CursorManager : MonoBehaviour
                             {
                                 if (SelectedSlot != null)
                                 {
+                                    Handheld.Vibrate();
                                     SelectedSlot.GetComponent<SlotObject>().Selected = false;
                                     ResetOffsetInfo();
                                 }
@@ -192,10 +237,6 @@ public class CursorManager : MonoBehaviour
                 DeactivateCursor();
                 if (SelectedSlot != null)
                 {
-                    if (GameManager.HeldBubbleType == BubbleType.Expand)
-                    {
-                        GameManager.ActivatedLevel.GetComponent<LevelManager>().ExpandToNormal();
-                    }
 
                     SelectedSlot.GetComponent<SlotObject>().Selected = false;
                     EventManager.instance.Fire(new Place(SelectedSlot.GetComponent<SlotObject>().ConnectedSlotInfo.Pos, GameManager.HeldBubbleType));
@@ -203,10 +244,6 @@ public class CursorManager : MonoBehaviour
                 }
                 else if(GameManager.HeldBubbleType!=BubbleType.Null)
                 {
-                    if (GameManager.HeldBubbleType == BubbleType.Expand)
-                    {
-                        GameManager.ActivatedLevel.GetComponent<LevelManager>().CutMap();
-                    }
                     CancelBubble();
                 }
             }
@@ -215,10 +252,17 @@ public class CursorManager : MonoBehaviour
 
     private void SetScale()
     {
-        if (GameManager.gameState == GameState.Level)
+        if (GameManager.gameState == GameState.Level && GameManager.levelState == LevelState.Play && CurrentState == CursorState.Holding)
         {
+            if (SelectedSlot)
+            {
 
-            transform.localScale = Vector3.one*InSlotScale;
+            }
+            else
+            {
+
+            }
+            transform.localScale = Vector3.one*OutSlotScale;
             ActivateEffect.transform.localScale = transform.localScale;
         }
     }
@@ -230,60 +274,27 @@ public class CursorManager : MonoBehaviour
         GetComponent<RectTransform>().position -= GetComponent<RectTransform>().position.z * Vector3.forward;
     }
 
-    private IEnumerator ChangeColor(Color Start, Color End)
-    {
-        ColorChanging = true;
-        transform.localScale = Scale * Vector3.one;
-        float TimeCount = 0;
-        while (TimeCount < ColorChangeTime / 2)
-        {
-            TimeCount += Time.deltaTime;
-            transform.localScale = Vector3.Lerp(Scale*Vector3.one, InflatedScale*Vector3.one, 2 * TimeCount / ColorChangeTime);
-            GetComponent<Image>().color = Color.Lerp(Start, End, TimeCount / ColorChangeTime);
-            yield return null;
-        }
-
-        while(TimeCount < ColorChangeTime)
-        {
-            TimeCount += Time.deltaTime;
-            transform.localScale = Vector3.Lerp(InflatedScale * Vector3.one, Scale * Vector3.one, (2 * TimeCount - ColorChangeTime) / ColorChangeTime);
-            GetComponent<Image>().color = Color.Lerp(Start, End, TimeCount / ColorChangeTime);
-            yield return null;
-        }
-        CurrentColor = End;
-        ColorChanging = false;
-    }
-
     private void OnBubbleSelected(BubbleSelected B)
     {
         ActivateCursor(B.Type);
-        if (B.Type == BubbleType.Expand)
-        {
-            GameManager.ActivatedLevel.GetComponent<LevelManager>().ExpandMap();
-        }
     }
 
     private void ActivateCursor(BubbleType Type)
     {
         Cursor.visible = false;
         CurrentState = CursorState.Holding;
-        GetComponent<Image>().enabled = true;
+        CursorImage.GetComponent<Image>().enabled = true;
         switch (Type)
         {
             case BubbleType.Disappear:
-                GetComponent<Image>().color = DisappearBubbleColor;
+                CursorImage.GetComponent<Image>().color = DisappearBubbleColor;
                 LevelManager.RemainedDisappearBubble--;
                 EventManager.instance.Fire(new BubbleNumSet(Type, LevelManager.RemainedDisappearBubble));
                 break;
             case BubbleType.Normal:
-                GetComponent<Image>().color = NormalBubbleColor;
+                CursorImage.GetComponent<Image>().color = NormalBubbleColor;
                 LevelManager.RemainedNormalBubble--;
                 EventManager.instance.Fire(new BubbleNumSet(Type, LevelManager.RemainedNormalBubble));
-                break;
-            case BubbleType.Expand:
-                GetComponent<Image>().color = ExpandBubbleColor;
-                LevelManager.RemainedExpandBubble--;
-                EventManager.instance.Fire(new BubbleNumSet(Type, LevelManager.RemainedExpandBubble));
                 break;
         }
 
@@ -297,7 +308,7 @@ public class CursorManager : MonoBehaviour
     {
         Cursor.visible = true;
         CurrentState = CursorState.Release;
-        GetComponent<Image>().enabled = false;
+        CursorImage.GetComponent<Image>().enabled = false;
         ActivateEffect.GetComponent<ParticleSystem>().Stop();
     }
 
@@ -313,10 +324,6 @@ public class CursorManager : MonoBehaviour
                 LevelManager.RemainedNormalBubble++;
                 EventManager.instance.Fire(new BubbleNumSet(GameManager.HeldBubbleType, LevelManager.RemainedNormalBubble));
                 break;
-            case BubbleType.Expand:
-                LevelManager.RemainedExpandBubble++;
-                EventManager.instance.Fire(new BubbleNumSet(GameManager.HeldBubbleType, LevelManager.RemainedExpandBubble));
-                break;
         }
 
         GameManager.HeldBubbleType = BubbleType.Null;
@@ -327,6 +334,12 @@ public class CursorManager : MonoBehaviour
         ResetOffsetInfo();
         SelectedSlot.GetComponent<SlotObject>().Selected = false;
         SelectedSlot = null;
+    }
+
+    private void OnRollBack(RollBack R)
+    {
+        DeactivateCursor();
+        CancelBubble();
     }
 
 }

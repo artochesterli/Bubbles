@@ -6,8 +6,7 @@ public enum SlotType
 {
     Normal,
     Target,
-    Teleport,
-    Expand
+    Teleport
 }
 
 public enum SlotState
@@ -133,8 +132,8 @@ public class SlotObject : MonoBehaviour
 
     public bool CursorInside()
     {
-        Vector3 MousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        return MousePos.x >= OriPos.x - Size / 2 && MousePos.x <= OriPos.x + Size / 2 && MousePos.y >= OriPos.y - Size / 2 && MousePos.y <= OriPos.y + Size / 2;
+        Vector3 CursorPos = Camera.main.ScreenToWorldPoint(Input.mousePosition+(Vector3)CursorManager.Entity.GetComponent<CursorManager>().Offset* CursorManager.Entity.transform.localScale.y);
+        return CursorPos.x >= OriPos.x - Size / 2 && CursorPos.x <= OriPos.x + Size / 2 && CursorPos.y >= OriPos.y - Size / 2 && CursorPos.y <= OriPos.y + Size / 2;
     }
 
     public bool AvailablePos(List<GameObject> NearByCircleList = null)
@@ -199,7 +198,5 @@ public class SlotObject : MonoBehaviour
             yield return null;
         }
     }
-
-
 
 }

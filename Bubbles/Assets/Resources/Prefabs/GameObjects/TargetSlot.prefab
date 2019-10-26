@@ -10,8 +10,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4536789516024372870}
   - component: {fileID: 4536789516024372869}
-  - component: {fileID: 657436438304216}
   - component: {fileID: 4410845237518528396}
+  - component: {fileID: 657436438304216}
   - component: {fileID: 4841008710686151484}
   m_Layer: 0
   m_Name: TargetSlot
@@ -83,6 +83,32 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!61 &4410845237518528396
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4536789516024372867}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 0.95, y: 0.95}
+    newSize: {x: 0.95, y: 0.95}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 0.9, y: 0.9}
+  m_EdgeRadius: 0
 --- !u!114 &657436438304216
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -111,32 +137,6 @@ MonoBehaviour:
   FinishRotationSpeed: 180
   ShakeSpeed: 0.3
   MaxShakeDis: 0.03
---- !u!61 &4410845237518528396
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4536789516024372867}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 1
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.95, y: 0.95}
-    newSize: {x: 0.95, y: 0.95}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
-  serializedVersion: 2
-  m_Size: {x: 0.9, y: 0.9}
-  m_EdgeRadius: 0
 --- !u!114 &4841008710686151484
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -150,8 +150,21 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Effect: {fileID: 3587435755205182618}
-  FilledEffectSize: 0.9
-  EmptyEffectSize: 0.5
+  InsideParticlePrefab: {fileID: 2092648900164286884, guid: 4ebe78d9692902b4095f96bd3dd2265b,
+    type: 3}
+  ParticleGenerateIntervalMin: 0.4
+  ParticleGenerateIntervalMax: 0.6
+  ParticleGenerationZoneSize: 0.8
+  ParticleGenerationZoneEdgeWidth: 0.1
+  ParticleMinSize: 0.1
+  ParticleMaxSize: 0.15
+  ParticleMaxAlpha: 0.25
+  ParticleLifeTime: 4
+  ParticleStartFadeProportion: 0.3
+  ParticleGoOutTime: 0.2
+  ParticleGoOutDisMin: 0.3
+  ParticleGoOutDisMax: 0.5
+  ParticleGoOutDelay: 0.3
 --- !u!1001 &8189156853306094678
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -167,7 +180,7 @@ PrefabInstance:
     - target: {fileID: 4642255786666995916, guid: 7789d0a15f4a8f84dbcf4df8128d596a,
         type: 3}
       propertyPath: m_IsActive
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4642255786666995907, guid: 7789d0a15f4a8f84dbcf4df8128d596a,
         type: 3}

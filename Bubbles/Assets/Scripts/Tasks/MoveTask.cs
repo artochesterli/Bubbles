@@ -12,11 +12,12 @@ public class MoveTask : Task
     private readonly Vector2Int End;
     private readonly BubbleType Type;
     private readonly List<List<SlotInfo>> Map;
+    private readonly bool Teleport;
 
     private float TimeCount;
     private float Speed;
 
-    public MoveTask(GameObject obj, Vector3 begin, Vector3 target , float time , Vector2Int start, Vector2Int end , BubbleType type = BubbleType.Null, List<List<SlotInfo>> map=null)
+    public MoveTask(GameObject obj, Vector3 begin, Vector3 target , float time , Vector2Int start, Vector2Int end , BubbleType type = BubbleType.Null, List<List<SlotInfo>> map=null, bool teleport = false)
     {
         Obj = obj;
         BeginPos = begin;
@@ -26,6 +27,7 @@ public class MoveTask : Task
         End = end;
         Type = type;
         Map = map;
+        Teleport = teleport;
 
         SetMapInfo();
 
@@ -33,7 +35,14 @@ public class MoveTask : Task
 
     protected override void Init()
     {
-        Activate();
+        if (Teleport)
+        {
+            EnergyLost();
+        }
+        else
+        {
+            Activate();
+        }
 
         Obj.transform.localPosition = BeginPos;
 
@@ -53,6 +62,9 @@ public class MoveTask : Task
         {
             Obj.GetComponent<Bubble>().OriPos = TargetPos;
             Obj.transform.localPosition = TargetPos;
+
+
+
             SetState(TaskState.Success);
         }
         else if(TimeCount >= MoveTime / 2)
@@ -78,7 +90,15 @@ public class MoveTask : Task
         Map[Start.x][Start.y].InsideBubbleType = BubbleType.Null;
         Map[Start.x][Start.y].ConnectedBubble = null;
 
-        Map[End.x][End.y].InsideBubbleState = BubbleState.Activated;
+        if (Teleport)
+        {
+            Map[End.x][End.y].InsideBubbleState = BubbleState.Exhausted;
+        }
+        else
+        {
+            Map[End.x][End.y].InsideBubbleState = BubbleState.Activated;
+        }
+
         Map[End.x][End.y].InsideBubbleType= Type;
         Map[End.x][End.y].ConnectedBubble = Obj;
     }
@@ -90,5 +110,19 @@ public class MoveTask : Task
         Obj.transform.Find("StableEffect").GetComponent<ParticleSystem>().Clear();
 
         Obj.transform.Find("ActivateEffect").GetComponent<ParticleSystem>().Play();
+    }
+
+    private void EnergyLost()
+    {
+        Obj.GetComponent<Bubble>().State = BubbleState.Stable;
+        GameObject ActivateEffect = Obj.transform.Find("ActivateEffect").gameObject;
+        GameObject Temp = (GameObject)GameObject.Instantiate(Resources.Load("Prefabs/Effect/TempActivateEffect"), Obj.transform.position, Quaternion.Euler(0, 0, 0));
+        ActivateEffect.GetComponent<ParticleSystem>().Stop();
+        ActivateEffect.GetComponent<ParticleSystem>().Clear();
+        Temp.GetComponent<ParticleSystem>().Stop();
+
+        Obj.GetComponent<Bubble>().State = BubbleState.Exhausted;
+        Obj.GetComponent<SpriteRenderer>().color = Obj.GetComponent<Bubble>().ExhaustColor;
+        //Obj.transform.localScale = Vector3.one * 0.8f;
     }
 }

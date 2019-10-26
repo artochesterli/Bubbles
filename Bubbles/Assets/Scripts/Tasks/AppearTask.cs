@@ -39,7 +39,7 @@ public class AppearTask : Task
     internal override void Update()
     {
         TimeCount += Time.deltaTime;
-        Obj.GetComponent<SpriteRenderer>().color = Color.Lerp( new Color(color.r, color.g, color.b, 0), new Color(color.r, color.g, color.b, 1), TimeCount / AppearTime);
+        Obj.GetComponent<SpriteRenderer>().color = new Color(color.r, color.g, color.b, Mathf.Lerp(0, 1, TimeCount / AppearTime));
         if (TimeCount >= AppearTime)
         {
             

@@ -90,6 +90,7 @@ public class GameManager : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        //Screen.SetResolution(540, 960, false);
         Init();
 
         EventManager.instance.AddHandler<Place>(OnPlace);
@@ -203,7 +204,7 @@ public class GameManager : MonoBehaviour
 
     private void SavePlayerData()
     {
-        SaveStat(new GameStatistics(Mathf.RoundToInt(Timer), LevelManager.RemainedDisappearBubble, LevelManager.RemainedNormalBubble));
+        //SaveStat(new GameStatistics(Mathf.RoundToInt(Timer), LevelManager.RemainedDisappearBubble, LevelManager.RemainedNormalBubble));
 
         Timer = 0;
     }
@@ -284,29 +285,15 @@ public class GameManager : MonoBehaviour
             if (LevelManager.RemainedNormalBubble > 0)
             {
                 SetSelector(Selectors[1], BubbleType.Normal, Data.NormalBubble, Data.ExhaustNormalBubble);
-                SetSelector(Selectors[2], BubbleType.Expand, Data.ExpandBubble, Data.ExhaustExpandBubble);
-            }
-            else
-            {
-                SetSelector(Selectors[1], BubbleType.Expand, Data.ExpandBubble, Data.ExhaustExpandBubble);
             }
         }
         else if(LevelManager.RemainedNormalBubble > 0)
         {
             SetSelector(Selectors[0], BubbleType.Normal, Data.NormalBubble, Data.ExhaustNormalBubble);
-            if (LevelManager.RemainedExpandBubble > 0)
-            {
-                SetSelector(Selectors[1], BubbleType.Expand, Data.ExpandBubble, Data.ExhaustExpandBubble);
-            }
-        }
-        else
-        {
-            SetSelector(Selectors[0], BubbleType.Expand, Data.ExpandBubble, Data.ExhaustExpandBubble);
         }
 
         EventManager.instance.Fire(new BubbleNumSet(BubbleType.Disappear,LevelManager.RemainedDisappearBubble));
         EventManager.instance.Fire(new BubbleNumSet(BubbleType.Normal,LevelManager.RemainedNormalBubble));
-        EventManager.instance.Fire(new BubbleNumSet(BubbleType.Expand, LevelManager.RemainedExpandBubble));
         EventManager.instance.Fire(new CallActivateBubbleSelectors());
 
     }
@@ -380,7 +367,7 @@ public class GameManager : MonoBehaviour
         return true;
     }
 
-    private void SaveStat(GameStatistics S)
+    /*private void SaveStat(GameStatistics S)
     {
         string Dic = Path.Combine(Application.dataPath, DataFolderName);
 
@@ -423,7 +410,7 @@ public class GameManager : MonoBehaviour
 
         stream.Close();
         return num;
-    }
+    }*/
 
     private void OnCallLoadLevel(CallLoadLevel Call)
     {

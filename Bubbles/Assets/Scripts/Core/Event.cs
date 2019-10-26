@@ -89,4 +89,6 @@ public class CallDeactivateBubbleSelectors : Event { }
 
 public class BackToMenu : Event { }
 
+public class RollBack : Event { }
+
 

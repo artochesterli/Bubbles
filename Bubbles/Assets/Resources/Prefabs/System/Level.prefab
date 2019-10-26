@@ -49,24 +49,19 @@ MonoBehaviour:
   LevelIndex: 0
   DisappearBubbleInitNum: 0
   NormalBubbleInitNum: 0
+  ExpandBubbleInitNum: 0
   AllSlot: {fileID: 8357767004902170851}
   AllBubble: {fileID: 5579169563043507166}
   MotionInterval: 0.2
-  TeleportWaitTime: 0.5
-  TeleportMotionInterval: 0.2
   RoundEndInterval: 0.3
   RollBackTime: 0.2
+  PlaceScale: 1.5
   MapAppearUnitGapProbability: 0.3
   MapAppearUnitGapMinMax: {x: 0.05, y: 0.1}
   MapAppearLayerInterval: 0.08
   MapAppearBubbleWaitTime: 0.2
   MapSlotInitPosOffsetFactor: 1.1
   MapUnitAppearTime: 0.3
-  TeleportAuraGenerationTime: 0.3
-  TeleportAuraDisappearTime: 0.2
-  BeforeAuraDisappearWaitTime: 0.2
-  AfterAuraDisappearWaitTime: 0.3
-  AuraSize: 1.8
   FinishWaitTime: 0
 --- !u!114 &4449895371926025500
 MonoBehaviour:

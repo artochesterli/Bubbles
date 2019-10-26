@@ -6,8 +6,7 @@ public enum BubbleType
 {
     Null,
     Disappear,
-    Normal,
-    Expand
+    Normal
 }
 
 public enum BubbleState

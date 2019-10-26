@@ -14,21 +14,19 @@ public class LevelManager : MonoBehaviour
 {
     public static int RemainedDisappearBubble;
     public static int RemainedNormalBubble;
-    public static int RemainedExpandBubble;
-    public static GameObject TeleportAura;
 
     public int LevelIndex;
     public int DisappearBubbleInitNum;
     public int NormalBubbleInitNum;
-    public int ExpandBubbleInitNum;
 
     public GameObject AllSlot;
     public GameObject AllBubble;
     public float MotionInterval;
-    //public float TeleportWaitTime;
-    //public float TeleportMotionInterval;
+
     public float RoundEndInterval;
     public float RollBackTime;
+
+    public float PlaceScale;
 
     public float MapAppearUnitGapProbability;
     public Vector2 MapAppearUnitGapMinMax;
@@ -38,13 +36,6 @@ public class LevelManager : MonoBehaviour
 
 
     public float MapUnitAppearTime;
-
-
-    //public float TeleportAuraGenerationTime;
-    //public float TeleportAuraDisappearTime;
-    //public float BeforeAuraDisappearWaitTime;
-    //public float AfterAuraDisappearWaitTime;
-    public float AuraSize;
 
     public float FinishWaitTime;
 
@@ -66,7 +57,8 @@ public class LevelManager : MonoBehaviour
 
     private Vector3 SlotScale = Vector3.one;
     private const float DropMoveTime = 0.1f;
-    
+
+
 
     private void OnEnable()
     {
@@ -81,6 +73,7 @@ public class LevelManager : MonoBehaviour
         EventManager.instance.AddHandler<Place>(OnPlace);
         EventManager.instance.AddHandler<MotionFinish>(OnMotionFinish);
         EventManager.instance.AddHandler<LevelLoaded>(OnLevelLoaded);
+        EventManager.instance.AddHandler<RollBack>(OnRollBack);
 
     }
 
@@ -89,6 +82,7 @@ public class LevelManager : MonoBehaviour
         EventManager.instance.RemoveHandler<Place>(OnPlace);
         EventManager.instance.RemoveHandler<MotionFinish>(OnMotionFinish);
         EventManager.instance.RemoveHandler<LevelLoaded>(OnLevelLoaded);
+        EventManager.instance.RemoveHandler<RollBack>(OnRollBack);
     }
 
     private void OnDestroy()
@@ -96,6 +90,7 @@ public class LevelManager : MonoBehaviour
         EventManager.instance.RemoveHandler<Place>(OnPlace);
         EventManager.instance.RemoveHandler<MotionFinish>(OnMotionFinish);
         EventManager.instance.RemoveHandler<LevelLoaded>(OnLevelLoaded);
+        EventManager.instance.RemoveHandler<RollBack>(OnRollBack);
     }
 
     void Update()
@@ -114,176 +109,6 @@ public class LevelManager : MonoBehaviour
             BubbleMotionTasks.Update();
         }
 
-        if(GameManager.levelState==LevelState.Play && Input.GetMouseButtonDown(1) && ChangeInfoList.Count > 0)
-        {
-            StartCoroutine(RollBack());
-        }
-    }
-
-    public void ExpandToNormal()
-    {
-        for(int i = 0; i < TemporarySlot.Count; i++)
-        {
-            GameObject Slot = (GameObject)Instantiate(Resources.Load("Prefabs/GameObjects/Slot"), TemporarySlot[i].Entity.transform.position, Quaternion.Euler(0, 0, 0));
-
-            Destroy(TemporarySlot[i].Entity);
-            TemporarySlot[i].Entity = Slot;
-            Slot.GetComponent<SlotObject>().ConnectedMap = Map;
-            Slot.GetComponent<SlotObject>().ConnectedSlotInfo = TemporarySlot[i];
-            Slot.transform.parent = AllSlot.transform;
-        }
-    }
-
-    public void ExpandMap()
-    {
-        PivotOffset.x -= 1;
-        PivotOffset.y -= 1;
-
-        List<List<SlotInfo>> NewMap = new List<List<SlotInfo>>();
-        for(int i = 0; i < Map.Count + 2; i++)
-        {
-            NewMap.Add(new List<SlotInfo>());
-            for(int j = 0; j < Map[0].Count + 2; j++)
-            {
-                NewMap[i].Add(null);
-            }
-        }
-
-        for(int i = 0; i < Map.Count; i++)
-        {
-            for(int j = 0; j < Map[0].Count; j++)
-            {
-                if (Map[i][j] != null)
-                {
-                    NewMap[i + 1][j + 1] = Map[i][j];
-                    NewMap[i + 1][j + 1].Pos = new Vector2Int(i + 1, j + 1);
-                }
-            }
-        }
-
-        List<List<bool>> TempSlotGenerate = new List<List<bool>>();
-
-        for (int i = 0; i < NewMap.Count; i++)
-        {
-            TempSlotGenerate.Add(new List<bool>());
-            for (int j = 0; j < NewMap[i].Count; j++)
-            {
-                TempSlotGenerate[i].Add(false);
-            }
-        }
-
-        for (int i = 0; i < NewMap.Count; i++)
-        {
-            for(int j = 0; j < NewMap[i].Count; j++)
-            {
-                if (NewMap[i][j] != null)
-                {
-                    bool LeftEmpty = NewMap[i - 1][j] == null;
-                    bool RightEmpty = NewMap[i + 1][j] == null;
-                    bool UpEmpty = NewMap[i][j + 1] == null;
-                    bool DownEmpty = NewMap[i][j - 1] == null;
-
-                    if (LeftEmpty)
-                    {
-                        TempSlotGenerate[i - 1][j] = true;
-                    }
-
-                    if (RightEmpty)
-                    {
-                        TempSlotGenerate[i + 1][j] = true;
-                    }
-
-                    if (UpEmpty)
-                    {
-                        TempSlotGenerate[i][j + 1] = true;
-                    }
-
-                    if (DownEmpty)
-                    {
-                        TempSlotGenerate[i][j - 1] = true;
-                    }
-
-                    /*if(LeftEmpty && UpEmpty)
-                    {
-                        TempSlotGenerate[i - 1][j + 1] = true;
-                    }
-
-                    if(LeftEmpty && DownEmpty)
-                    {
-                        TempSlotGenerate[i - 1][j - 1] = true;
-                    }
-
-                    if(RightEmpty && UpEmpty)
-                    {
-                        TempSlotGenerate[i + 1][j + 1] = true;
-                    }
-
-                    if(RightEmpty && DownEmpty)
-                    {
-                        TempSlotGenerate[i + 1][j - 1] = true;
-                    }*/
-                }
-            }
-        }
-
-        for(int i = 0; i < TempSlotGenerate.Count; i++)
-        {
-            for(int j = 0; j < TempSlotGenerate[i].Count; j++)
-            {
-                if (TempSlotGenerate[i][j])
-                {
-                    GameObject Slot = (GameObject)Instantiate(Resources.Load("Prefabs/GameObjects/ExpandSlot"));
-                    Slot.transform.localPosition = new Vector2(PivotOffset.x + i, PivotOffset.y + j);
-                    
-                    NewMap[i][j] = new SlotInfo(new Vector2Int(i, j), SlotType.Normal, BubbleType.Null, BubbleState.Stable, null, Slot.transform.localPosition, Slot);
-                    Slot.GetComponent<SlotObject>().ConnectedMap = NewMap;
-                    Slot.GetComponent<SlotObject>().ConnectedSlotInfo = NewMap[i][j];
-                    Slot.transform.parent = AllSlot.transform;
-                    TemporarySlot.Add(NewMap[i][j]);
-                }
-            }
-        }
-
-        Map = NewMap;
-
-        foreach(Transform child in AllSlot.transform)
-        {
-            child.GetComponent<SlotObject>().ConnectedMap = Map;
-        }
-
-    }
-
-    public void CutMap()
-    {
-        PivotOffset.x += 1;
-        PivotOffset.y += 1;
-
-        for(int i = 0; i < TemporarySlot.Count; i++)
-        {
-            Destroy(TemporarySlot[i].Entity);
-        }
-
-        List<List<SlotInfo>> NewMap = new List<List<SlotInfo>>();
-
-        for(int i = 0; i < Map.Count - 2; i++)
-        {
-            NewMap.Add(new List<SlotInfo>());
-            for(int j = 0; j < Map[i].Count - 2; j++)
-            {
-                NewMap[i].Add(Map[i + 1][j + 1]);
-                NewMap[i][j].Pos = new Vector2Int(i, j);
-            }
-        }
-
-        TemporarySlot.Clear();
-
-        Map = NewMap;
-
-
-        foreach (Transform child in AllSlot.transform)
-        {
-            child.GetComponent<SlotObject>().ConnectedMap = Map;
-        }
 
     }
 
@@ -368,8 +193,6 @@ public class LevelManager : MonoBehaviour
         {
             for(int j = 0; j < Map[i].Count; j++)
             {
-                
-
                 if (Map[i][j] != null)
                 {
                     Color SlotColor = Map[i][j].Entity.GetComponent<SpriteRenderer>().color;
@@ -534,18 +357,18 @@ public class LevelManager : MonoBehaviour
             }
         }
 
+        Vector3 GeneratePos = Vector3.back * Camera.main.transform.position.z + Camera.main.ScreenToWorldPoint(Input.mousePosition + (Vector3)CursorManager.Entity.GetComponent<CursorManager>().Offset * CursorManager.Entity.transform.localScale.y);
+
         switch (Type)
         {
             case BubbleType.Disappear:
-                Map[Pos.x][Pos.y].ConnectedBubble = (GameObject)Instantiate(Resources.Load("Prefabs/GameObjects/DisappearBubble"), Vector3.back * Camera.main.transform.position.z + Camera.main.ScreenToWorldPoint(Input.mousePosition), Quaternion.Euler(0, 0, 0));
+                Map[Pos.x][Pos.y].ConnectedBubble = (GameObject)Instantiate(Resources.Load("Prefabs/GameObjects/DisappearBubble"), GeneratePos, Quaternion.Euler(0, 0, 0));
                 break;
             case BubbleType.Normal:
-                Map[Pos.x][Pos.y].ConnectedBubble = (GameObject)Instantiate(Resources.Load("Prefabs/GameObjects/NormalBubble"), Vector3.back * Camera.main.transform.position.z + Camera.main.ScreenToWorldPoint(Input.mousePosition), Quaternion.Euler(0, 0, 0));
-                break;
-            case BubbleType.Expand:
-                Map[Pos.x][Pos.y].ConnectedBubble = (GameObject)Instantiate(Resources.Load("Prefabs/GameObjects/ExpandBubble"), Vector3.back * Camera.main.transform.position.z + Camera.main.ScreenToWorldPoint(Input.mousePosition), Quaternion.Euler(0, 0, 0));
+                Map[Pos.x][Pos.y].ConnectedBubble = (GameObject)Instantiate(Resources.Load("Prefabs/GameObjects/NormalBubble"), GeneratePos, Quaternion.Euler(0, 0, 0));
                 break;
         }
+
 
         Map[Pos.x][Pos.y].InsideBubbleType = Type;
         Map[Pos.x][Pos.y].InsideBubbleState = BubbleState.Activated;
@@ -553,13 +376,18 @@ public class LevelManager : MonoBehaviour
         Map[Pos.x][Pos.y].ConnectedBubble.transform.Find("StableEffect").GetComponent<ParticleSystem>().Stop();
         Map[Pos.x][Pos.y].ConnectedBubble.transform.Find("ActivateEffect").GetComponent<ParticleSystem>().Play();
         Map[Pos.x][Pos.y].ConnectedBubble.transform.parent = AllBubble.transform;
-        Map[Pos.x][Pos.y].ConnectedBubble.transform.localScale = Vector3.one * GetComponent<BubbleMotionData>().NormalScale;
+
+        Map[Pos.x][Pos.y].ConnectedBubble.transform.localScale = Vector3.one * PlaceScale;
 
         var Data = GetComponent<BubbleMotionData>();
 
         Vector3 Start = Map[Pos.x][Pos.y].ConnectedBubble.transform.localPosition;
         Vector3 End = Map[Pos.x][Pos.y].Location;
-        BubbleMotionTasks.Add(new TransformTask(Map[Pos.x][Pos.y].ConnectedBubble, Start, End, DropMoveTime));
+
+        ParallelTasks PlaceTask = new ParallelTasks();
+        PlaceTask.Add(new TransformTask(Map[Pos.x][Pos.y].ConnectedBubble, Start, End, DropMoveTime));
+        PlaceTask.Add(new ScaleChangeTask(Map[Pos.x][Pos.y].ConnectedBubble, PlaceScale, GetComponent<BubbleMotionData>().NormalScale, DropMoveTime));
+        BubbleMotionTasks.Add(PlaceTask);
 
         bool TeleportAffected = false;
 
@@ -650,12 +478,6 @@ public class LevelManager : MonoBehaviour
                                 BubbleRecoverTasks.Add(new RecoverTask(Bubble, 0, Data.NormalScale, Data.NormalScale, Bubble.GetComponent<Bubble>().NormalColor, Bubble.GetComponent<Bubble>().NormalColor, Map, new Vector2Int(i, j), Data.DefaultEnergyColor));
                             }
                             break;
-                        case BubbleType.Expand:
-                            BubbleRecoverTasks.Add(new DisappearTask(Bubble, Data.RecoverTime, new Vector2Int(i, j), Map, BubbleType.Expand, false));
-                            Map[i][j].ConnectedBubble = null;
-                            Map[i][j].InsideBubbleType = BubbleType.Null;
-                            Map[i][j].InsideBubbleState = BubbleState.Stable;
-                            break;
                     }
                 }
             }
@@ -675,7 +497,7 @@ public class LevelManager : MonoBehaviour
         List<Vector2Int> NewPosList = new List<Vector2Int>();
         Dictionary<GameObject, Vector2Int> ActivateDic = new Dictionary<GameObject, Vector2Int>();
 
-        SetBubbleMovement(PosList, ActivateDic, TeleportAffected);
+        SetBubbleMovement(PosList, ActivateDic);
         
         foreach(KeyValuePair<GameObject,Vector2Int> entry in ActivateDic)
         {
@@ -685,12 +507,10 @@ public class LevelManager : MonoBehaviour
 
         if (NewPosList.Count > 0)
         {
-            Debug.Log("ggg");
             BubbleMotionTasks.Add(new WaitTask(MotionInterval));
         }
         else
         {
-            Debug.Log("HHH");
             BubbleMotionTasks.Add(new WaitTask(RoundEndInterval));
         }
 
@@ -703,29 +523,12 @@ public class LevelManager : MonoBehaviour
         return S != null && S.InsideBubbleType != BubbleType.Null && (S.InsideBubbleState == BubbleState.Activated || S.InsideBubbleState == BubbleState.Stable);
     }
 
-    private void SetBubbleMovement(List<Vector2Int> PosList, Dictionary<GameObject, Vector2Int> ActivateDic, bool TeleportAffected)
+    private void SetBubbleMovement(List<Vector2Int> PosList, Dictionary<GameObject, Vector2Int> ActivateDic)
     {
+
         if (PosList.Count == 0)
         {
-            if (TeleportAffected)
-            {
-                /*if (ActivateDic.Count > 0)
-                {
-                    BubbleMotionTasks.Add(new WaitTask(BeforeAuraDisappearWaitTime));
-                }*/
-                //BubbleMotionTasks.Add(new TeleportAuraDisappearTask(TeleportAuraDisappearTime, AuraSize));
-
-                /*if (ActivateDic.Count > 0)
-                {
-                    BubbleMotionTasks.Add(new WaitTask(AfterAuraDisappearWaitTime));
-                }*/
-            }
             return;
-        }
-
-        if (TeleportAffected)
-        {
-            //BubbleMotionTasks.Add(new WaitTask(TeleportMotionInterval));
         }
 
         ParallelTasks BackMovementSet = new ParallelTasks();
@@ -815,11 +618,7 @@ public class LevelManager : MonoBehaviour
 
                 ParallelTasks BubbleBlocked = new ParallelTasks();
 
-                if (TeleportAffected)
-                {
-                    BubbleBlocked.Add(new AffectTask(Bubble, Data.AffectedEnergyColor));
-                }
-                BubbleBlocked.Add(GetEnergyFillTask(Bubble,TeleportAffected));
+                BubbleBlocked.Add(GetEnergyFillTask(Bubble));
                 BubbleBlocked.Add(new BlockedTask(Bubble, Moves[k].CurrentLocation, dir, Data.BlockedDis, Data.MotionTime, Moves[k].CurrentPos, Map));
 
                 BubbleInflateMoveBlocked.Add(BubbleBlocked);
@@ -841,11 +640,7 @@ public class LevelManager : MonoBehaviour
 
                     ParallelTasks BubbleBlocked = new ParallelTasks();
 
-                    if (TeleportAffected)
-                    {
-                        BubbleBlocked.Add(new AffectTask(Bubble, Data.AffectedEnergyColor));
-                    }
-                    BubbleBlocked.Add(GetEnergyFillTask(Bubble,TeleportAffected));
+                    BubbleBlocked.Add(GetEnergyFillTask(Bubble));
                     BubbleBlocked.Add(new BlockedTask(Bubble, Moves[k].CurrentLocation, dir, Data.ConflictBlockedDis, Data.MotionTime, Moves[k].CurrentPos, Map));
 
                     BubbleInflateMoveBlocked.Add(BubbleBlocked);
@@ -865,12 +660,18 @@ public class LevelManager : MonoBehaviour
 
                     ParallelTasks BubbleMove = new ParallelTasks();
 
-                    if (TeleportAffected)
-                    {
-                        BubbleMove.Add(new AffectTask(Bubble, Data.AffectedEnergyColor));
-                    }
-                    BubbleMove.Add(GetEnergyFillTask(Bubble,TeleportAffected));
+                    BubbleMove.Add(GetEnergyFillTask(Bubble));
                     BubbleMove.Add(new MoveTask(Bubble, Moves[k].CurrentLocation, Moves[k].TargetLocation, Data.MotionTime, Moves[k].CurrentPos, Moves[k].TargetPos, Bubble.GetComponent<Bubble>().Type, Map));
+                    if (Map[Moves[k].TargetPos.x][Moves[k].TargetPos.y].slotType == SlotType.Target)
+                    {
+                        BubbleMove.Add(GetTargetSlotFilledTask(Map[Moves[k].TargetPos.x][Moves[k].TargetPos.y].Entity));
+                        Map[Moves[k].TargetPos.x][Moves[k].TargetPos.y].Entity.GetComponent<TargetSlotObject>().ClearInsideParticleInfo();
+                        Map[Moves[k].TargetPos.x][Moves[k].TargetPos.y].Entity.GetComponent<TargetSlotObject>().SetBubbleInside(true);
+                    }
+                    else if(Map[Moves[k].CurrentPos.x][Moves[k].CurrentPos.y].slotType == SlotType.Target)
+                    {
+                        Map[Moves[k].CurrentPos.x][Moves[k].CurrentPos.y].Entity.GetComponent<TargetSlotObject>().SetBubbleInside(false);
+                    }
 
                     BubbleInflateMoveBlocked.Add(BubbleMove);
 
@@ -887,23 +688,13 @@ public class LevelManager : MonoBehaviour
                 AffectedBubblePosDic.Add(Bubble, Target);
             }
 
-            if (TeleportAffected)
+            if (ActivateDic.ContainsKey(Bubble))
             {
-                if (ActivateDic.ContainsKey(Bubble))
-                {
-                    ActivateDic.Remove(Bubble);
-                }
+                ActivateDic[Bubble] = Target;
             }
             else
             {
-                if (ActivateDic.ContainsKey(Bubble))
-                {
-                    ActivateDic[Bubble] = Target;
-                }
-                else
-                {
-                    ActivateDic.Add(Bubble, Target);
-                }
+                ActivateDic.Add(Bubble, Target);
             }
 
             Vector2Int v = AffectedBubblePosDic[Bubble];
@@ -921,8 +712,6 @@ public class LevelManager : MonoBehaviour
         }
 
         BubbleMotionTasks.Add(BubbleInflateMoveBlocked);
-
-        bool HaveTeleport=TeleportAffected;
 
         if (Slot1Active && !Slot2Active || !Slot1Active && Slot2Active)
         {
@@ -943,8 +732,6 @@ public class LevelManager : MonoBehaviour
                     ChangedBubblePosDic[Bubble] = TeleportSlot2.Pos;
 
                     Teleport(TeleportSlot1.ConnectedBubble, TeleportSlot2, BubbleInflateMoveBlocked);
-
-                    HaveTeleport = true;
                 }
                 else
                 {
@@ -969,8 +756,6 @@ public class LevelManager : MonoBehaviour
                     ChangedBubblePosDic[Bubble] = TeleportSlot1.Pos;
 
                     Teleport(TeleportSlot2.ConnectedBubble, TeleportSlot1, BubbleInflateMoveBlocked);
-
-                    HaveTeleport = true;
                 }
                 else
                 {
@@ -982,17 +767,6 @@ public class LevelManager : MonoBehaviour
         {
             TeleportSlotBlocked();
         }
-
-        /*if (TeleportAffected)
-        {
-            foreach(KeyValuePair<GameObject, Vector2Int> entry in AffectedBubblePosDic)
-            {
-                PosList.Add(entry.Value);
-            }
-            
-        }*/
-
-        //SetBubbleMovement(PosList, ActivateDic, HaveTeleport);
 
 
     }
@@ -1105,44 +879,32 @@ public class LevelManager : MonoBehaviour
 
         ParallelTasks TeleportTask = new ParallelTasks();
         SerialTasks BubbleTeleportTask = new SerialTasks();
-        //SerialTasks TeleportAuraTask = new SerialTasks();
 
         if (Target == TeleportSlot1)
         {
             if (BubbleMovementTask != null)
             {
                 BubbleTeleportTask.Add(new WaitTask(Data.MotionTime));
-                //TeleportAuraTask.Add(new WaitTask(Data.MotionTime));
             }
-            //BubbleTeleportTask.Add(new AffectTask(Obj, Data.AffectedEnergyColor));
             BubbleTeleportTask.Add(new ScaleChangeTask(Obj, Data.NormalScale, 0, Data.TeleportTime/2));
-            BubbleTeleportTask.Add(new MoveTask(Obj, TeleportSlot2.Location, TeleportSlot1.Location, 0, TeleportSlot2.Pos, TeleportSlot1.Pos, TeleportSlot2.InsideBubbleType, Map));
-            BubbleTeleportTask.Add(new ScaleChangeTask(Obj, 0, Data.NormalScale, Data.TeleportTime/2));
-
-            //TeleportAuraTask.Add(new WaitTask(Data.TeleportTime));
-            //TeleportAuraTask.Add(new TeleportAuraGenerationTask(TeleportSlot1.Location, TeleportAuraGenerationTime));
+            BubbleTeleportTask.Add(new MoveTask(Obj, TeleportSlot2.Location, TeleportSlot1.Location, 0, TeleportSlot2.Pos, TeleportSlot1.Pos, TeleportSlot2.InsideBubbleType, Map, true));
+            BubbleTeleportTask.Add(new ScaleChangeTask(Obj, 0, Data.ExhaustScale, Data.TeleportTime / 2));
         }
         else
         {
             if (BubbleMovementTask != null)
             {
                 BubbleTeleportTask.Add(new WaitTask(Data.MotionTime));
-                //TeleportAuraTask.Add(new WaitTask(Data.MotionTime));
             }
-            //BubbleTeleportTask.Add(new AffectTask(Obj, Data.AffectedEnergyColor));
             BubbleTeleportTask.Add(new ScaleChangeTask(Obj, Data.NormalScale, 0, Data.TeleportTime/2));
-            BubbleTeleportTask.Add(new MoveTask(Obj, TeleportSlot1.Location, TeleportSlot2.Location, 0, TeleportSlot1.Pos, TeleportSlot2.Pos, TeleportSlot1.InsideBubbleType, Map));
-            BubbleTeleportTask.Add(new ScaleChangeTask(Obj, 0, Data.NormalScale, Data.TeleportTime/2));
+            BubbleTeleportTask.Add(new MoveTask(Obj, TeleportSlot1.Location, TeleportSlot2.Location, 0, TeleportSlot1.Pos, TeleportSlot2.Pos, TeleportSlot1.InsideBubbleType, Map, true));
+            BubbleTeleportTask.Add(new ScaleChangeTask(Obj, 0, Data.ExhaustScale, Data.TeleportTime / 2));
 
-
-            //TeleportAuraTask.Add(new WaitTask(Data.TeleportTime));
-            //TeleportAuraTask.Add(new TeleportAuraGenerationTask(TeleportSlot2.Location, TeleportAuraGenerationTime));
         }
 
         bool DuringBubbleMovement = BubbleMovementTask != null;
 
         TeleportTask.Add(BubbleTeleportTask);
-        //TeleportTask.Add(TeleportAuraTask);
 
         TeleportTask.Add(GetTeleportSlotTask(TeleportSlot1.Entity, DuringBubbleMovement));
         TeleportTask.Add(GetTeleportSlotTask(TeleportSlot2.Entity, DuringBubbleMovement));
@@ -1152,13 +914,54 @@ public class LevelManager : MonoBehaviour
         if (BubbleMovementTask == null)
         {
             BubbleMotionTasks.Add(TeleportTask);
-            //BubbleMotionTasks.Add(new WaitTask(TeleportWaitTime));
         }
         else
         {
             BubbleMovementTask.Add(TeleportTask);
-            //BubbleMotionTasks.Add(new WaitTask(TeleportWaitTime));
         }
+    }
+
+    private SerialTasks GetTargetSlotFilledTask(GameObject Obj)
+    {
+        var TargetSlotdata = Obj.GetComponent<TargetSlotObject>();
+
+        SerialTasks TargetSlotFilledTask = new SerialTasks();
+
+        TargetSlotFilledTask.Add(new WaitTask(TargetSlotdata.ParticleGoOutDelay));
+
+        ParallelTasks ParticleOutTask = new ParallelTasks();
+
+        List<InsideParticle> ParticleList = Obj.GetComponent<TargetSlotObject>().GetInsideParticles();
+
+        for (int i = 0; i < ParticleList.Count; i++)
+        {
+            SerialTasks Unit = new SerialTasks();
+            ParallelTasks UnitMove = new ParallelTasks();
+
+            Vector3 Begin = ParticleList[i].Obj.transform.localPosition;
+            Vector2 Dir = ParticleList[i].Obj.transform.localPosition.normalized;
+            Vector3 End = (Vector2)Begin + Dir * Random.Range(TargetSlotdata.ParticleGoOutDisMin, TargetSlotdata.ParticleGoOutDisMax);
+            UnitMove.Add(new TransformTask(ParticleList[i].Obj, Begin, End, TargetSlotdata.ParticleGoOutTime));
+
+            Color color = ParticleList[i].Obj.GetComponent<SpriteRenderer>().color;
+
+            UnitMove.Add(new ColorChangeTask(ParticleList[i].Obj, new Color(color.r, color.g, color.b, 1), new Color(color.r, color.g, color.b, 0), TargetSlotdata.ParticleGoOutTime));
+            UnitMove.Add(new ScaleChangeTask(ParticleList[i].Obj, ParticleList[i].Obj.transform.localScale.x, ParticleList[i].Obj.transform.localScale.x*2, TargetSlotdata.ParticleGoOutTime));
+
+
+            Unit.Add(new ScaleChangeTask(ParticleList[i].Obj, ParticleList[i].Obj.transform.localScale.x, 0, TargetSlotdata.ParticleGoOutTime));
+            //Unit.Add(UnitMove);
+            Unit.Add(new DestroySelfTask(ParticleList[i].Obj));
+
+            ParticleOutTask.Add(Unit);
+        }
+
+        TargetSlotFilledTask.Add(ParticleOutTask);
+
+
+
+        return TargetSlotFilledTask;
+
     }
 
     private SerialTasks GetTeleportSlotTask(GameObject Obj,bool DuringBubbleMovement)
@@ -1185,15 +988,11 @@ public class LevelManager : MonoBehaviour
         return TeleportSlotTask;
     }
 
-    private SerialTasks GetEnergyFillTask(GameObject Obj,bool TeleportAffected)
+    private SerialTasks GetEnergyFillTask(GameObject Obj)
     {
         var Data = GetComponent<BubbleMotionData>();
 
         Color TargetColor = Data.DefaultEnergyColor;
-        if (TeleportAffected)
-        {
-            TargetColor = Data.AffectedEnergyColor;
-        }
 
         SerialTasks EnergyFillTask = new SerialTasks();
         EnergyFillTask.Add(new ColorChangeTask(Obj, Obj.GetComponent<Bubble>().NormalColor, TargetColor, Data.MotionTime / 2));
@@ -1245,8 +1044,15 @@ public class LevelManager : MonoBehaviour
         {
             RemainedDisappearBubble = DisappearBubbleInitNum;
             RemainedNormalBubble = NormalBubbleInitNum;
-            RemainedExpandBubble = ExpandBubbleInitNum;
 
+        }
+    }
+
+    private void OnRollBack(RollBack R)
+    {
+        if (GameManager.levelState == LevelState.Play && ChangeInfoList.Count > 0)
+        {
+            StartCoroutine(RollBack());
         }
     }
 
@@ -1258,8 +1064,6 @@ public class LevelManager : MonoBehaviour
         List<BubbleChangeInfo> list = ChangeInfoList[ChangeInfoList.Count - 1];
 
         ParallelTasks RollBackTask = new ParallelTasks();
-
-        bool MapExpanded = false;
 
         for(int i = 0; i < list.Count; i++)
         {
@@ -1274,11 +1078,6 @@ public class LevelManager : MonoBehaviour
                     case BubbleType.Normal:
                         RollBackTask.Add(new DisappearTask(list[i].Bubble, RollBackTime / 2, list[i].To, Map, list[i].Type, true));
                         break;
-                    case BubbleType.Expand:
-                        MapExpanded = true;
-                        RemainedExpandBubble++;
-                        EventManager.instance.Fire(new BubbleNumSet(BubbleType.Expand, RemainedExpandBubble));
-                        break;
                 }
             }
             else
@@ -1290,6 +1089,11 @@ public class LevelManager : MonoBehaviour
                     serialTasks.Add(new TransformTask(list[i].Bubble, list[i].EndPos, list[i].BeginPos, 0));
                     serialTasks.Add(new AppearTask(list[i].Bubble, RollBackTime / 2, true, list[i].From, Map, list[i].Type));
                     RollBackTask.Add(serialTasks);
+
+                    if (Map[list[i].To.x][list[i].To.y].slotType == SlotType.Target)
+                    {
+                        Map[list[i].To.x][list[i].To.y].Entity.GetComponent<TargetSlotObject>().SetBubbleInside(false);
+                    }
                 }
             }
         }
@@ -1301,10 +1105,6 @@ public class LevelManager : MonoBehaviour
             yield return null;
         }
 
-        if (MapExpanded)
-        {
-            CutMap();
-        }
 
         ChangeInfoList.Remove(list);
         GameManager.levelState = LevelState.Play;

@@ -16,10 +16,10 @@ public class BackgroundEffectGenerator : MonoBehaviour
     public int Maxunit;
 
     private float Timer;
-    private Vector2 XLeftInterval;
-    private Vector2 XRightInterval;
-    private Vector2 YUpInterval;
-    private Vector2 YDownInterval;
+    private Vector2 LeftRange;
+    private Vector2 RightRange;
+    private Vector2 UpRange;
+    private Vector2 DownRange;
 
     private float halfwidth;
     private float halfheight;
@@ -29,10 +29,7 @@ public class BackgroundEffectGenerator : MonoBehaviour
     {
         halfwidth = Camera.main.orthographicSize * (float)Camera.main.pixelWidth / Camera.main.pixelHeight;
         halfheight = Camera.main.orthographicSize;
-        XLeftInterval = new Vector2(-halfwidth, MapZoneX.x);
-        XRightInterval = new Vector2(MapZoneX.y, halfwidth);
-        YUpInterval = new Vector2(MapZoneY.y, halfheight);
-        YDownInterval = new Vector2(-halfheight, MapZoneY.x);
+
     }
 
     // Update is called once per frame
@@ -75,38 +72,7 @@ public class BackgroundEffectGenerator : MonoBehaviour
         float Speed = Random.Range(SpeedMinMax.x, SpeedMinMax.y);
         float MaxAlpha = Random.Range(MaxAlphaMinMax.x, MaxAlphaMinMax.y);
 
-        float XIntervalLength = XLeftInterval.y - XLeftInterval.x + XRightInterval.y - XRightInterval.x;
-        float YIntervalLength = YUpInterval.y - YUpInterval.x + YDownInterval.y - YDownInterval.x;
-
-        float XMarginRecArea = XIntervalLength * 2 * halfheight;
-        float YMarginRecArea = YIntervalLength * (MapZoneX.y - MapZoneX.x);
-
-        Vector2 Pos;
-
-        if (Random.Range(0, XMarginRecArea + YMarginRecArea) > XMarginRecArea)
-        {
-            Pos = new Vector2(Random.Range(MapZoneX.x, MapZoneX.y), Random.Range(0, YIntervalLength));
-            if (Pos.y < YDownInterval.y - YDownInterval.x)
-            {
-                Pos.y += YDownInterval.x;
-            }
-            else
-            {
-                Pos.y = Pos.y + YDownInterval.x + MapZoneY.y - MapZoneY.x;
-            }
-        }
-        else
-        {
-            Pos = new Vector2(Random.Range(0, XIntervalLength), Random.Range(-halfheight, halfheight));
-            if (Pos.x < XLeftInterval.y - XLeftInterval.x)
-            {
-                Pos.x += XLeftInterval.x;
-            }
-            else
-            {
-                Pos.x = Pos.x + XLeftInterval.x + MapZoneX.y - MapZoneX.x;
-            }
-        }
+        Vector2 Pos = Utility.RandomPosFromEdgeArea(halfwidth, halfheight, MapZoneX, MapZoneY);
 
         float dis = Speed * (2 * AppearFadeTime + StableTime);
 
