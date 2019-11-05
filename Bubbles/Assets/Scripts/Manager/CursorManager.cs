@@ -19,6 +19,7 @@ public class CursorManager : MonoBehaviour
 {
     public static GameObject Entity;
     public static GameObject AllSlot;
+    public static CursorState CurrentState;
     public GameObject ActivateEffect;
     public GameObject CursorImage;
     public Vector2 Offset;
@@ -42,7 +43,7 @@ public class CursorManager : MonoBehaviour
 
     private bool ColorChanging;
     private Color CurrentColor;
-    private CursorState CurrentState;
+
 
     private float RollBackInputIntervalTimeCount;
     private bool RollBackFirstTap;
@@ -58,7 +59,7 @@ public class CursorManager : MonoBehaviour
         OffsetCircles = new List<GameObject>();
         NearBySelectedSlots = new List<GameObject>();
         EventManager.instance.AddHandler<BubbleSelected>(OnBubbleSelected);
-        EventManager.instance.AddHandler<Place>(OnPlace);
+        //EventManager.instance.AddHandler<Place>(OnPlace);
         EventManager.instance.AddHandler<RollBack>(OnRollBack);
     }
 
@@ -74,11 +75,11 @@ public class CursorManager : MonoBehaviour
     void Update()
     {
         SetPos();
-        CheckSlotSelection();
-        SetScale();
+        //CheckSlotSelection();
+        //SetScale();
 
         GetRollBackInput();
-        CheckInput();
+        //CheckInput();
     }
 
     private GameObject GetNearBySlot(GameObject Slot, Vector2Int Offset)
@@ -153,7 +154,6 @@ public class CursorManager : MonoBehaviour
                                     {
 
                                         OffsetCircles.Add(NearByCircleList[i]);
-                                        NearByCircleList[i].GetComponent<Bubble>().Offseting = true;
 
                                         GameObject Slot = null;
 
@@ -162,22 +162,18 @@ public class CursorManager : MonoBehaviour
                                             case 0:
                                                 Slot = GetNearBySlot(child.gameObject, Vector2Int.right);
                                                 Slot.GetComponent<SlotObject>().NearBySelected = true;
-                                                NearByCircleList[i].GetComponent<Bubble>().OffsetDirection = Vector2.right;
                                                 break;
                                             case 1:
                                                 Slot = GetNearBySlot(child.gameObject, Vector2Int.left);
                                                 Slot.GetComponent<SlotObject>().NearBySelected = true;
-                                                NearByCircleList[i].GetComponent<Bubble>().OffsetDirection = Vector2.left;
                                                 break;
                                             case 2:
                                                 Slot = GetNearBySlot(child.gameObject, Vector2Int.up);
                                                 Slot.GetComponent<SlotObject>().NearBySelected = true;
-                                                NearByCircleList[i].GetComponent<Bubble>().OffsetDirection = Vector2.up;
                                                 break;
                                             case 3:
                                                 Slot = GetNearBySlot(child.gameObject, Vector2Int.down);
                                                 Slot.GetComponent<SlotObject>().NearBySelected = true;
-                                                NearByCircleList[i].GetComponent<Bubble>().OffsetDirection = Vector2.down;
                                                 break;
                                             default:
                                                 break;
@@ -214,10 +210,6 @@ public class CursorManager : MonoBehaviour
 
     private void ResetOffsetInfo()
     {
-        for (int i = 0; i < OffsetCircles.Count; i++)
-        {
-            OffsetCircles[i].GetComponent<Bubble>().Offseting = false;
-        }
 
         for(int i = 0; i < NearBySelectedSlots.Count; i++)
         {
@@ -239,7 +231,7 @@ public class CursorManager : MonoBehaviour
                 {
 
                     SelectedSlot.GetComponent<SlotObject>().Selected = false;
-                    EventManager.instance.Fire(new Place(SelectedSlot.GetComponent<SlotObject>().ConnectedSlotInfo.Pos, GameManager.HeldBubbleType));
+                    //EventManager.instance.Fire(new Place(SelectedSlot.GetComponent<SlotObject>().ConnectedSlotInfo.Pos, GameManager.HeldBubbleType));
                     GameManager.HeldBubbleType = BubbleType.Null;
                 }
                 else if(GameManager.HeldBubbleType!=BubbleType.Null)

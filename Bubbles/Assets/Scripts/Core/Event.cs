@@ -6,11 +6,13 @@ public class Event { }
 
 public class Place : Event
 {
+    public GameObject UseableBubble;
     public Vector2Int Pos;
     public BubbleType Type;
 
-    public Place(Vector2Int v, BubbleType type)
+    public Place(GameObject bubble, Vector2Int v, BubbleType type)
     {
+        UseableBubble = bubble;
         Pos = v;
         Type = type;
     }

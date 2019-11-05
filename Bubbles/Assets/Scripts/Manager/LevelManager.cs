@@ -62,12 +62,13 @@ public class LevelManager : MonoBehaviour
 
     private void OnEnable()
     {
+        UsableCircle.AllSlot = AllSlot;
+
         CursorManager.AllSlot = AllSlot;
         if (Map == null)
         {
             Map = new List<List<SlotInfo>>();
             GetMapInfo();
-            SetMapAppear();
         }
 
         EventManager.instance.AddHandler<Place>(OnPlace);
@@ -95,16 +96,8 @@ public class LevelManager : MonoBehaviour
 
     void Update()
     {
-        if (GameManager.levelState == LevelState.SetUp)
-        {
-            MapAppearTask.Update();
-            if (MapAppearTask.State == Task.TaskState.Success)
-            {
-                GameManager.levelState = LevelState.Play;
-            }
-        }
 
-        if (GameManager.levelState == LevelState.Run)
+        if (GameManager.levelState == LevelState.Executing)
         {
             BubbleMotionTasks.Update();
         }
@@ -181,8 +174,10 @@ public class LevelManager : MonoBehaviour
         }
     }
 
-    private void SetMapAppear()
+    public SerialTasks GetMapAppearTask()
     {
+        MapAppearTask = new SerialTasks();
+
         List<SlotInfo> AllSlotInfo = new List<SlotInfo>();
         List<int> AllSlotLayer = new List<int>();
         List<SlotInfo> AllSlotWithBubble = new List<SlotInfo>();
@@ -332,13 +327,13 @@ public class LevelManager : MonoBehaviour
 
         MapAppearTask.Add(AllSlotAppear);
         MapAppearTask.Add(AllBubbleAppear);
-        
 
+        return MapAppearTask;
 
     }
 
 
-    private void PlaceBubble(Vector2Int Pos, BubbleType Type)
+    private void PlaceBubble(GameObject UseableBubble, Vector2Int Pos, BubbleType Type)
     {
         ChangeInfoList.Add(new List<BubbleChangeInfo>());
 
@@ -372,6 +367,7 @@ public class LevelManager : MonoBehaviour
 
         Map[Pos.x][Pos.y].InsideBubbleType = Type;
         Map[Pos.x][Pos.y].InsideBubbleState = BubbleState.Activated;
+
         Map[Pos.x][Pos.y].ConnectedBubble.GetComponent<Bubble>().State = BubbleState.Activated;
         Map[Pos.x][Pos.y].ConnectedBubble.transform.Find("StableEffect").GetComponent<ParticleSystem>().Stop();
         Map[Pos.x][Pos.y].ConnectedBubble.transform.Find("ActivateEffect").GetComponent<ParticleSystem>().Play();
@@ -422,7 +418,7 @@ public class LevelManager : MonoBehaviour
             }
         }
 
-        ChangeInfoList[ChangeInfoList.Count - 1].Add(new BubbleChangeInfo(Map[Pos.x][Pos.y].ConnectedBubble, Type, true, Pos, Pos, Map[Pos.x][Pos.y].Location, Map[Pos.x][Pos.y].Location));
+        ChangeInfoList[ChangeInfoList.Count - 1].Add(new BubbleChangeInfo(Map[Pos.x][Pos.y].ConnectedBubble, Type, true, UseableBubble, Pos, Pos, Map[Pos.x][Pos.y].Location, Map[Pos.x][Pos.y].Location));
 
         List<Vector2Int> PosList = new List<Vector2Int>();
         if (!TeleportAffected)
@@ -443,7 +439,7 @@ public class LevelManager : MonoBehaviour
             Vector2Int To = ChangedBubblePosDic[Bubble];
             Vector3 BeginPos = Map[From.x][From.y].Location;
             Vector3 EndPos = Map[To.x][To.y].Location;
-            ChangeInfoList[ChangeInfoList.Count - 1].Add(new BubbleChangeInfo(Bubble,Bubble.GetComponent<Bubble>().Type, false, From, To, BeginPos, EndPos));
+            ChangeInfoList[ChangeInfoList.Count - 1].Add(new BubbleChangeInfo(Bubble,Bubble.GetComponent<Bubble>().Type, false, null, From, To, BeginPos, EndPos));
         }
     }
 
@@ -1025,7 +1021,7 @@ public class LevelManager : MonoBehaviour
     {
         if (gameObject.activeSelf)
         {
-            PlaceBubble(P.Pos, P.Type);
+            PlaceBubble(P.UseableBubble, P.Pos, P.Type);
         }
     }
 
@@ -1059,7 +1055,7 @@ public class LevelManager : MonoBehaviour
     private IEnumerator RollBack()
     {
 
-        GameManager.levelState = LevelState.Run;
+        GameManager.levelState = LevelState.Executing;
 
         List<BubbleChangeInfo> list = ChangeInfoList[ChangeInfoList.Count - 1];
 
@@ -1079,6 +1075,10 @@ public class LevelManager : MonoBehaviour
                         RollBackTask.Add(new DisappearTask(list[i].Bubble, RollBackTime / 2, list[i].To, Map, list[i].Type, true));
                         break;
                 }
+
+                Color color = list[i].UseableBubble.GetComponent<SpriteRenderer>().color;
+                list[i].UseableBubble.SetActive(true);
+                RollBackTask.Add(new ColorChangeTask(list[i].UseableBubble, Utility.ColorWithAlpha(color, 0), Utility.ColorWithAlpha(color, 1), RollBackTime/2));
             }
             else
             {

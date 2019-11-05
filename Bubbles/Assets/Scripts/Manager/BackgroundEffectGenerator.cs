@@ -6,6 +6,7 @@ public class BackgroundEffectGenerator : MonoBehaviour
 {
     public Vector2 MapZoneX;
     public Vector2 MapZoneY;
+    public float UseableBubbleZoneHeight;
     public Vector2 StableTimeMinMax;
     public Vector2 AppearFadeTimeMinMax;
     public Vector2 MaxAlphaMinMax;
@@ -24,11 +25,17 @@ public class BackgroundEffectGenerator : MonoBehaviour
     private float halfwidth;
     private float halfheight;
 
+    private Vector2 EdgeZoneX;
+    private Vector2 EdgeZoneY;
+
     // Start is called before the first frame update
     void Start()
     {
         halfwidth = Camera.main.orthographicSize * (float)Camera.main.pixelWidth / Camera.main.pixelHeight;
         halfheight = Camera.main.orthographicSize;
+
+        EdgeZoneX = new Vector2(-halfwidth, halfwidth);
+        EdgeZoneY = new Vector2(-halfheight, halfheight);
 
     }
 
@@ -72,7 +79,7 @@ public class BackgroundEffectGenerator : MonoBehaviour
         float Speed = Random.Range(SpeedMinMax.x, SpeedMinMax.y);
         float MaxAlpha = Random.Range(MaxAlphaMinMax.x, MaxAlphaMinMax.y);
 
-        Vector2 Pos = Utility.RandomPosFromEdgeArea(halfwidth, halfheight, MapZoneX, MapZoneY);
+        Vector2 Pos = Utility.RandomPosFromEdgeArea(EdgeZoneX, EdgeZoneY, MapZoneX, MapZoneY);
 
         float dis = Speed * (2 * AppearFadeTime + StableTime);
 

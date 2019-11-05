@@ -4,6 +4,11 @@ using UnityEngine;
 
 public class Utility
 {
+    public static Color ColorWithAlpha(Color color, float alpha)
+    {
+        return new Color(color.r, color.g, color.b, alpha);
+    }
+
     public static void CircleGetIntersection(List<Vector2> Intersectionlist, Vector2 Center, float radius, bool vertical, float value, float min, float max)
     {
         if (vertical)
@@ -147,17 +152,17 @@ public class Utility
         return answer;
     }
 
-    public static Vector2 RandomPosFromEdgeArea(float halfwidth, float halfheight, Vector2 HollowZoneX, Vector2 HollowZoneY)
+    public static Vector2 RandomPosFromEdgeArea(Vector2 EdgeZoneX, Vector2 EdgeZoneY, Vector2 HollowZoneX, Vector2 HollowZoneY)
     {
-        Vector2 LeftRange = new Vector2(-halfwidth, HollowZoneX.x);
-        Vector2 RightRange = new Vector2(HollowZoneX.y, halfwidth);
-        Vector2 UpRange = new Vector2(HollowZoneY.y, halfheight);
-        Vector2 DownRange = new Vector2(-halfheight, HollowZoneY.x);
+        Vector2 LeftRange = new Vector2(EdgeZoneX.x, HollowZoneX.x);
+        Vector2 RightRange = new Vector2(HollowZoneX.y, EdgeZoneX.y);
+        Vector2 UpRange = new Vector2(HollowZoneY.y, EdgeZoneY.y);
+        Vector2 DownRange = new Vector2(EdgeZoneY.x, HollowZoneY.x);
 
         float XRangeLength = LeftRange.y - LeftRange.x + RightRange.y - RightRange.x;
         float YRangeLength = UpRange.y - UpRange.x + DownRange.y - DownRange.x;
 
-        float XMarginRecArea = XRangeLength * 2 * halfheight;
+        float XMarginRecArea = XRangeLength * (EdgeZoneY.y-EdgeZoneY.x);
         float YMarginRecArea = YRangeLength * (HollowZoneX.y - HollowZoneX.x);
 
         Vector2 Pos;
@@ -176,7 +181,7 @@ public class Utility
         }
         else
         {
-            Pos = new Vector2(Random.Range(0, XRangeLength), Random.Range(-halfheight, halfheight));
+            Pos = new Vector2(Random.Range(0, XRangeLength), Random.Range(EdgeZoneY.x, EdgeZoneY.y));
             if (Pos.x < LeftRange.y - LeftRange.x)
             {
                 Pos.x += LeftRange.x;

@@ -152,12 +152,12 @@ MonoBehaviour:
   Effect: {fileID: 3587435755205182618}
   InsideParticlePrefab: {fileID: 2092648900164286884, guid: 4ebe78d9692902b4095f96bd3dd2265b,
     type: 3}
-  ParticleGenerateIntervalMin: 0.4
-  ParticleGenerateIntervalMax: 0.6
+  ParticleGenerateIntervalMin: 0.8
+  ParticleGenerateIntervalMax: 1
   ParticleGenerationZoneSize: 0.8
   ParticleGenerationZoneEdgeWidth: 0.1
-  ParticleMinSize: 0.1
-  ParticleMaxSize: 0.15
+  ParticleMinSize: 0.05
+  ParticleMaxSize: 0.1
   ParticleMaxAlpha: 0.25
   ParticleLifeTime: 4
   ParticleStartFadeProportion: 0.3

@@ -8,8 +8,6 @@ public class ColorData : MonoBehaviour
     public Color ExhaustDisappearBubble;
     public Color NormalBubble;
     public Color ExhaustNormalBubble;
-    public Color ExpandBubble;
-    public Color ExhaustExpandBubble;
 
     // Start is called before the first frame update
     void Start()

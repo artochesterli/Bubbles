@@ -136,6 +136,11 @@ public class SlotObject : MonoBehaviour
         return CursorPos.x >= OriPos.x - Size / 2 && CursorPos.x <= OriPos.x + Size / 2 && CursorPos.y >= OriPos.y - Size / 2 && CursorPos.y <= OriPos.y + Size / 2;
     }
 
+    public bool Inside(Vector3 CursorPos)
+    {
+        return CursorPos.x >= OriPos.x - Size / 2 && CursorPos.x <= OriPos.x + Size / 2 && CursorPos.y >= OriPos.y - Size / 2 && CursorPos.y <= OriPos.y + Size / 2;
+    }
+
     public bool AvailablePos(List<GameObject> NearByCircleList = null)
     {
         Vector2Int Coordinate = ConnectedSlotInfo.Pos;

@@ -16,7 +16,7 @@ public enum LevelState
 {
     SetUp,
     Play,
-    Run,
+    Executing,
     Clear
 }
 
@@ -64,10 +64,25 @@ public class GameManager : MonoBehaviour
     public int TotalLevelNumber;
     public string NextLevelScene;
 
+    public GameObject AllUseableBubbles;
+    public GameObject UseableBubblePrefab;
+    public float UseableBubblesXGap;
+
+    public GameObject UseableAreaMarkLeft;
+    public GameObject UseableAreaMarkRight;
+    public GameObject LevelMarkLeft;
+    public GameObject LevelMarkRight;
+    public GameObject LevelNumber;
+    public float LevelMarkBaseLength;
+    public float LevelMarkHeight;
+    public float LevelMarkLengthDeduction;
+
+
+    public float MarkFillTime;
+    public float LevelNumberAndUseableBubbleAppearTime;
+
     public GameObject Mask;
     public List<GameObject> Selectors;
-    public float ScreenAppearTime;
-    public float ScreenFadeTime;
     public float LevelFinishWaitTime;
     public float MenuLoadLevelWaitTime;
 
@@ -75,7 +90,11 @@ public class GameManager : MonoBehaviour
 
     private GameObject AllLevel;
     private List<GameObject> SortedLevelList;
-    //private GameObject CopiedLevel;
+
+    private List<GameObject> UseableBubbleList;
+
+    private SerialTasks LevelStartUITasks;
+    private SerialTasks LevelEndUITasks;
 
     private List<GameStatistics> LevelFinishStat=new List<GameStatistics>();
     private float Timer;
@@ -110,6 +129,9 @@ public class GameManager : MonoBehaviour
     {
         Timer += Time.deltaTime;
 
+        LevelStartUITasks.Update();
+        LevelEndUITasks.Update();
+
         if (Input.GetKey(KeyCode.Escape))
         {
             gameState = GameState.Menu;
@@ -123,6 +145,11 @@ public class GameManager : MonoBehaviour
         Instance = gameObject;
 
         HeldBubbleType = BubbleType.Null;
+
+        UseableBubbleList = new List<GameObject>();
+
+        LevelStartUITasks = new SerialTasks();
+        LevelEndUITasks = new SerialTasks();
 
         GetLevelInfo();
 
@@ -146,7 +173,6 @@ public class GameManager : MonoBehaviour
 
         //State = GameState.Play;
         //EventManager.instance.Fire(new LevelLoaded(CurrentSaveInfo.CurrentLevel));
-        StartCoroutine(ScreenAppear());
 
     }
 
@@ -191,7 +217,7 @@ public class GameManager : MonoBehaviour
 
     private void OnPlace(Place P)
     {
-        levelState = LevelState.Run;
+        levelState = LevelState.Executing;
     }
 
     private void OnLevelFinish(LevelFinish L)
@@ -213,6 +239,7 @@ public class GameManager : MonoBehaviour
     {
         if (!FromMenu)
         {
+            GetLevelEnd();
             yield return new WaitForSeconds(LevelFinishWaitTime);
         }
         else
@@ -222,7 +249,6 @@ public class GameManager : MonoBehaviour
 
         if (index <= MaxLevelIndex)
         {
-            yield return StartCoroutine(ScreenFade());
 
             levelState = LevelState.SetUp;
 
@@ -251,11 +277,11 @@ public class GameManager : MonoBehaviour
 
             AssignSelectors();
 
-            StartCoroutine(ScreenAppear());
+
+            GetLevelStart();
         }
         else
         {
-            yield return StartCoroutine(ScreenFade());
             CurrentSaveInfo.CurrentLevel = index;
             SaveProgress();
             SceneManager.LoadScene(NextLevelScene);
@@ -267,6 +293,46 @@ public class GameManager : MonoBehaviour
         obj.GetComponent<BubbleSelector>().Type = Type;
         obj.GetComponent<BubbleSelector>().AvailableColor = AvailableColor;
         obj.GetComponent<BubbleSelector>().UsedUpColor = UsedUpColor;
+    }
+
+    private void GenerateUseableBubbles()
+    {
+        int BubbleNumber = LevelManager.RemainedDisappearBubble + LevelManager.RemainedNormalBubble;
+
+        float StartX;
+
+        if(BubbleNumber % 2 == 1)
+        {
+            StartX = -UseableBubblesXGap * (BubbleNumber / 2);
+        }
+        else
+        {
+            StartX = -UseableBubblesXGap * (BubbleNumber / 2) + 0.5f * UseableBubblesXGap;
+        }
+
+        var ColorData = GetComponent<ColorData>();
+
+        for(int i = 0; i < LevelManager.RemainedDisappearBubble; i++)
+        {
+            GameObject Bubble = GameObject.Instantiate(UseableBubblePrefab);
+            Bubble.transform.parent = AllUseableBubbles.transform;
+            Bubble.transform.localPosition = new Vector3(StartX + i * UseableBubblesXGap, 0, 0);
+            Bubble.GetComponent<UsableCircle>().Type = BubbleType.Disappear;
+            Bubble.GetComponent<SpriteRenderer>().color = Utility.ColorWithAlpha(ColorData.DisappearBubble,0);
+
+            UseableBubbleList.Add(Bubble);
+        }
+
+        for (int i = 0; i < LevelManager.RemainedNormalBubble; i++)
+        {
+            GameObject Bubble = GameObject.Instantiate(UseableBubblePrefab);
+            Bubble.transform.parent = AllUseableBubbles.transform;
+            Bubble.transform.localPosition = new Vector3(StartX + (i+LevelManager.RemainedDisappearBubble) * UseableBubblesXGap, 0, 0);
+            Bubble.GetComponent<UsableCircle>().Type = BubbleType.Normal;
+            Bubble.GetComponent<SpriteRenderer>().color = Utility.ColorWithAlpha(ColorData.NormalBubble,0);
+
+            UseableBubbleList.Add(Bubble);
+        }
     }
 
     private void AssignSelectors()
@@ -296,28 +362,6 @@ public class GameManager : MonoBehaviour
         EventManager.instance.Fire(new BubbleNumSet(BubbleType.Normal,LevelManager.RemainedNormalBubble));
         EventManager.instance.Fire(new CallActivateBubbleSelectors());
 
-    }
-
-    private IEnumerator ScreenFade()
-    {
-        float TimeCount = 0;
-        while (TimeCount < ScreenFadeTime)
-        {
-            TimeCount += Time.deltaTime;
-            Mask.GetComponent<Image>().color = Color.Lerp(new Color(0, 0, 0, 0), Color.black, TimeCount / ScreenFadeTime);
-            yield return null;
-        }
-    }
-
-    private IEnumerator ScreenAppear()
-    {
-        float TimeCount = 0;
-        while (TimeCount < ScreenAppearTime)
-        {
-            TimeCount += Time.deltaTime;
-            Mask.GetComponent<Image>().color = Color.Lerp(Color.black, new Color(0, 0, 0, 0), TimeCount / ScreenAppearTime);
-            yield return null;
-        }
     }
 
     private void SaveProgress()
@@ -422,6 +466,75 @@ public class GameManager : MonoBehaviour
     {
         Destroy(SortedLevelList[CurrentSaveInfo.CurrentLevel - MinLevelIndex]);
         SortedLevelList[CurrentSaveInfo.CurrentLevel - MinLevelIndex] = CopiedLevel;
+    }
+
+    private void GetLevelStart()
+    {
+        LevelNumber.GetComponent<Text>().text = CurrentSaveInfo.CurrentLevel.ToString();
+        LevelMarkLeft.GetComponent<RectTransform>().sizeDelta = new Vector2(LevelMarkBaseLength - LevelMarkLengthDeduction * (CurrentSaveInfo.CurrentLevel / 10), LevelMarkHeight);
+        LevelMarkRight.GetComponent<RectTransform>().sizeDelta = new Vector2(LevelMarkBaseLength - LevelMarkLengthDeduction * (CurrentSaveInfo.CurrentLevel / 10), LevelMarkHeight);
+        GenerateUseableBubbles();
+
+        LevelStartUITasks = new SerialTasks();
+
+        ParallelTasks MarkAppearTask = new ParallelTasks();
+        ParallelTasks UseableBubbleAndLevelNumebrAppearTask = new ParallelTasks();
+
+        MarkAppearTask.Add(new UIFillTask(LevelMarkLeft, 0, 1, MarkFillTime));
+        MarkAppearTask.Add(new UIFillTask(LevelMarkRight, 0, 1, MarkFillTime));
+        MarkAppearTask.Add(new UIFillTask(UseableAreaMarkLeft, 0, 1, MarkFillTime));
+        MarkAppearTask.Add(new UIFillTask(UseableAreaMarkRight, 0, 1, MarkFillTime));
+
+        Color levelnumbercolor = LevelNumber.GetComponent<Text>().color;
+        
+
+        UseableBubbleAndLevelNumebrAppearTask.Add(new UITextColorChangeTask(LevelNumber, Utility.ColorWithAlpha(levelnumbercolor, 0), Utility.ColorWithAlpha(levelnumbercolor,1), LevelNumberAndUseableBubbleAppearTime));
+        for(int i = 0; i < UseableBubbleList.Count; i++)
+        {
+            Color color = UseableBubbleList[i].GetComponent<SpriteRenderer>().color;
+            UseableBubbleAndLevelNumebrAppearTask.Add(new ColorChangeTask(UseableBubbleList[i], Utility.ColorWithAlpha(color, 0), Utility.ColorWithAlpha(color, 1), LevelNumberAndUseableBubbleAppearTime));
+        }
+
+        UseableBubbleAndLevelNumebrAppearTask.Add(ActivatedLevel.GetComponent<LevelManager>().GetMapAppearTask());
+
+        LevelStartUITasks.Add(MarkAppearTask);
+        LevelStartUITasks.Add(UseableBubbleAndLevelNumebrAppearTask);
+        LevelStartUITasks.Add(new SwitchLevelStateTask(levelState,LevelState.Play));
+    }
+
+    private void GetLevelEnd()
+    {
+        for(int i = 0; i < UseableBubbleList.Count; i++)
+        {
+            Destroy(UseableBubbleList[i]);
+        }
+
+        UseableBubbleList.Clear();
+
+        LevelEndUITasks = new SerialTasks();
+
+        ParallelTasks AllTask = new ParallelTasks();
+        Color levelnumbercolor = LevelNumber.GetComponent<Text>().color;
+        AllTask.Add(new UITextColorChangeTask(LevelNumber, Utility.ColorWithAlpha(levelnumbercolor, 1), Utility.ColorWithAlpha(levelnumbercolor, 0), LevelNumberAndUseableBubbleAppearTime));
+
+        SerialTasks MarkDisappear = new SerialTasks();
+
+        MarkDisappear.Add(new WaitTask(LevelNumberAndUseableBubbleAppearTime - MarkFillTime));
+
+        ParallelTasks MarkDisappearTask = new ParallelTasks();
+
+        MarkDisappearTask.Add(new UIFillTask(LevelMarkLeft, 1, 0, MarkFillTime));
+        MarkDisappearTask.Add(new UIFillTask(LevelMarkRight, 1, 0, MarkFillTime));
+        MarkDisappearTask.Add(new UIFillTask(UseableAreaMarkLeft, 1, 0, MarkFillTime));
+        MarkDisappearTask.Add(new UIFillTask(UseableAreaMarkRight, 1, 0, MarkFillTime));
+
+        MarkDisappear.Add(MarkDisappearTask);
+
+        AllTask.Add(MarkDisappear);
+
+        LevelEndUITasks.Add(AllTask);
+
+
     }
 }
 

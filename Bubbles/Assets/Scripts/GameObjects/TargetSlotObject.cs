@@ -55,10 +55,10 @@ public class TargetSlotObject : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!BubbleInside && (GameManager.levelState == LevelState.Play || GameManager.levelState == LevelState.Run))
+        if (!BubbleInside && (GameManager.levelState == LevelState.Play || GameManager.levelState == LevelState.Executing))
         {
-            UpdateEffect();
-            GenerateParticles();
+            //UpdateEffect();
+            //GenerateParticles();
         }
     }
 
@@ -88,7 +88,9 @@ public class TargetSlotObject : MonoBehaviour
         ParticleGenerationTimeCount -= Time.deltaTime;
         if (ParticleGenerationTimeCount<=0)
         {
-            Vector2 Pos = Utility.RandomPosFromEdgeArea(ParticleGenerationZoneSize / 2, ParticleGenerationZoneSize / 2, new Vector2(-ParticleGenerationZoneSize / 2 + ParticleGenerationZoneEdgeWidth, ParticleGenerationZoneSize / 2 - ParticleGenerationZoneEdgeWidth), new Vector2(-ParticleGenerationZoneSize / 2 + ParticleGenerationZoneEdgeWidth, ParticleGenerationZoneSize / 2 - ParticleGenerationZoneEdgeWidth));
+            Vector2 Zone = new Vector2(-ParticleGenerationZoneSize / 2, ParticleGenerationZoneSize / 2);
+
+            Vector2 Pos = Utility.RandomPosFromEdgeArea(Zone,Zone, new Vector2(-ParticleGenerationZoneSize / 2 + ParticleGenerationZoneEdgeWidth, ParticleGenerationZoneSize / 2 - ParticleGenerationZoneEdgeWidth), new Vector2(-ParticleGenerationZoneSize / 2 + ParticleGenerationZoneEdgeWidth, ParticleGenerationZoneSize / 2 - ParticleGenerationZoneEdgeWidth));
 
             GameObject Particle = (GameObject)Instantiate(InsideParticlePrefab, transform);
             Particle.transform.position = (Vector2)transform.position + Pos;
