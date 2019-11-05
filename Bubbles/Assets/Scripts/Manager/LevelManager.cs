@@ -15,6 +15,9 @@ public class LevelManager : MonoBehaviour
     public static int RemainedDisappearBubble;
     public static int RemainedNormalBubble;
 
+    public GameObject DisappearBubblePrefab;
+    public GameObject NormalBubblePrefab;
+
     public int LevelIndex;
     public int DisappearBubbleInitNum;
     public int NormalBubbleInitNum;
@@ -352,15 +355,15 @@ public class LevelManager : MonoBehaviour
             }
         }
 
-        Vector3 GeneratePos = Vector3.back * Camera.main.transform.position.z + Camera.main.ScreenToWorldPoint(Input.mousePosition + (Vector3)CursorManager.Entity.GetComponent<CursorManager>().Offset * CursorManager.Entity.transform.localScale.y);
+        Vector3 GeneratePos = UseableBubble.transform.position;
 
         switch (Type)
         {
             case BubbleType.Disappear:
-                Map[Pos.x][Pos.y].ConnectedBubble = (GameObject)Instantiate(Resources.Load("Prefabs/GameObjects/DisappearBubble"), GeneratePos, Quaternion.Euler(0, 0, 0));
+                Map[Pos.x][Pos.y].ConnectedBubble = (GameObject)Instantiate(DisappearBubblePrefab, GeneratePos, Quaternion.Euler(0, 0, 0));
                 break;
             case BubbleType.Normal:
-                Map[Pos.x][Pos.y].ConnectedBubble = (GameObject)Instantiate(Resources.Load("Prefabs/GameObjects/NormalBubble"), GeneratePos, Quaternion.Euler(0, 0, 0));
+                Map[Pos.x][Pos.y].ConnectedBubble = (GameObject)Instantiate(NormalBubblePrefab, GeneratePos, Quaternion.Euler(0, 0, 0));
                 break;
         }
 

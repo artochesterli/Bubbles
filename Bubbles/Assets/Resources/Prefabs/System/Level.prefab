@@ -46,10 +46,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e54352ba7ca7a1e44a0fd6c274da7952, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  DisappearBubblePrefab: {fileID: 7186387597664638592, guid: f8485f2006ec2714baebafb95137afe7,
+    type: 3}
+  NormalBubblePrefab: {fileID: 6318222624647526198, guid: 9b628bcfd76a3d748aa92dbba9a907c1,
+    type: 3}
   LevelIndex: 0
   DisappearBubbleInitNum: 0
   NormalBubbleInitNum: 0
-  ExpandBubbleInitNum: 0
   AllSlot: {fileID: 8357767004902170851}
   AllBubble: {fileID: 5579169563043507166}
   MotionInterval: 0.2

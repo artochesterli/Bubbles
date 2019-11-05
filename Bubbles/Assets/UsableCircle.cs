@@ -11,6 +11,7 @@ public class UsableCircle : MonoBehaviour
     public float SelectedSize;
     public float SelectedOffset;
     public GameObject ActivatedEffect;
+    public GameObject TempActivatedEffectPrefab;
 
     public float InflationTime;
     public float ColorRecoverTime;
@@ -41,10 +42,10 @@ public class UsableCircle : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        CheckSelected();
+        SetTransform();
         if (GameManager.levelState == LevelState.Play)
         {
-            CheckSelected();
-            SetTransform();
             CheckSlotSelection();
         }
     }
@@ -124,6 +125,9 @@ public class UsableCircle : MonoBehaviour
             }
             else
             {
+                GameObject Temp = GameObject.Instantiate(TempActivatedEffectPrefab, transform.position, Quaternion.Euler(0, 0, 0));
+                Temp.GetComponent<ParticleSystem>().Stop();
+
                 transform.position = OriPos;
                 transform.localScale = Vector3.one * DefaultSize;
                 CurrentSize = DefaultSize;
@@ -132,6 +136,9 @@ public class UsableCircle : MonoBehaviour
                 ColorRecoverTimeCount = 0;
 
                 ActivatedEffect.GetComponent<ParticleSystem>().Stop();
+                ActivatedEffect.GetComponent<ParticleSystem>().Clear();
+
+
             }
         }
     }

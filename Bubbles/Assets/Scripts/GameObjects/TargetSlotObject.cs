@@ -57,8 +57,8 @@ public class TargetSlotObject : MonoBehaviour
     {
         if (!BubbleInside && (GameManager.levelState == LevelState.Play || GameManager.levelState == LevelState.Executing))
         {
-            //UpdateEffect();
-            //GenerateParticles();
+            UpdateEffect();
+            GenerateParticles();
         }
     }
 
