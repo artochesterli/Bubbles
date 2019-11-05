@@ -91,8 +91,8 @@ public class SlotObject : MonoBehaviour
             }
             else if (NearBySelected)
             {
-                GetComponent<SpriteRenderer>().color = NearBySelectedColor;
-                GetComponent<SpriteRenderer>().sprite = DefaultSprite;
+                GetComponent<SpriteRenderer>().color = SelectedColor;
+                GetComponent<SpriteRenderer>().sprite = SelectedSprite;
             }
             else
             {
