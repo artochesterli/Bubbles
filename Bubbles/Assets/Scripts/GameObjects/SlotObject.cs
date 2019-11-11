@@ -33,7 +33,6 @@ public class SlotObject : MonoBehaviour
     public bool Selected;
     public bool NearBySelected;
 
-    public float FinishWaitTime;
     public float FinishTime;
     public Color FinishColor;
 
@@ -54,12 +53,12 @@ public class SlotObject : MonoBehaviour
 
     private void OnEnable()
     {
-        EventManager.instance.AddHandler<LevelFinish>(OnLevelFinish);
+
     }
 
     private void OnDisable()
     {
-        EventManager.instance.RemoveHandler<LevelFinish>(OnLevelFinish);
+
     }
 
 
@@ -184,24 +183,9 @@ public class SlotObject : MonoBehaviour
         return ConnectedSlotInfo.InsideBubbleType == BubbleType.Null && GameManager.HeldBubbleType != BubbleType.Null && HaveNearByCircle;
     }
 
-
-    private void OnLevelFinish(LevelFinish L)
+    public ColorChangeTask GetFadeTask()
     {
-        StartCoroutine(FinishEffect());
-    }
-
-    private IEnumerator FinishEffect()
-    {
-        yield return new WaitForSeconds(FinishWaitTime);
-
-        float TimeCount = 0;
-        while (TimeCount < FinishTime)
-        {
-            TimeCount += Time.deltaTime;
-            Color CurrentColor = GetComponent<SpriteRenderer>().color;
-            GetComponent<SpriteRenderer>().color = Color.Lerp(DefaultColor, FinishColor, TimeCount / FinishTime);
-            yield return null;
-        }
+        return new ColorChangeTask(gameObject, DefaultColor, FinishColor, FinishTime);
     }
 
 }

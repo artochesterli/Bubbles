@@ -41,9 +41,6 @@ public class RecoverTask : Task
         Obj.GetComponent<SpriteRenderer>().color = InitColor;
         Obj.GetComponent<CircleCollider2D>().enabled = true;
 
-        StableEffect = Obj.transform.Find("StableEffect").gameObject;
-        StableEffect.GetComponent<ParticleSystem>().Play();
-
         ActivateEffect= Obj.transform.Find("ActivateEffect").gameObject;
         ActivateEffect.GetComponent<ParticleSystem>().Stop();
 

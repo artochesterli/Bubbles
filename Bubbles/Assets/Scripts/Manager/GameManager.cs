@@ -83,6 +83,10 @@ public class GameManager : MonoBehaviour
 
     public GameObject Mask;
     public List<GameObject> Selectors;
+
+    public float PerformLevelFinishEffectWaitTime;
+    public float StartNewLevelWaitTime;
+
     public float LevelFinishWaitTime;
     public float MenuLoadLevelWaitTime;
 
@@ -92,9 +96,6 @@ public class GameManager : MonoBehaviour
     private List<GameObject> SortedLevelList;
 
     private List<GameObject> UseableBubbleList;
-
-    private SerialTasks LevelStartUITasks;
-    private SerialTasks LevelEndUITasks;
 
     private List<GameStatistics> LevelFinishStat=new List<GameStatistics>();
     private float Timer;
@@ -129,9 +130,6 @@ public class GameManager : MonoBehaviour
     {
         Timer += Time.deltaTime;
 
-        LevelStartUITasks.Update();
-        LevelEndUITasks.Update();
-
         if (Input.GetKey(KeyCode.Escape))
         {
             gameState = GameState.Menu;
@@ -148,8 +146,6 @@ public class GameManager : MonoBehaviour
 
         UseableBubbleList = new List<GameObject>();
 
-        LevelStartUITasks = new SerialTasks();
-        LevelEndUITasks = new SerialTasks();
 
         GetLevelInfo();
 
@@ -239,8 +235,49 @@ public class GameManager : MonoBehaviour
     {
         if (!FromMenu)
         {
-            GetLevelEnd();
-            yield return new WaitForSeconds(LevelFinishWaitTime);
+            SerialTasks LevelEndUITasks = GetLevelEndTask();
+
+            while (!LevelEndUITasks.IsFinished)
+            {
+                LevelEndUITasks.Update();
+                yield return null;
+            }
+
+            yield return new WaitForSeconds(PerformLevelFinishEffectWaitTime);
+
+            ParallelTasks BubblePowerUp = GetBubblePowerUpTasks();
+
+            while (!BubblePowerUp.IsFinished)
+            {
+                BubblePowerUp.Update();
+                yield return null;
+            }
+
+            ParallelTasks ShockWaveEmitAndFade = GetShockWaveEmitAndFadeTasks();
+
+            while (!ShockWaveEmitAndFade.IsFinished)
+            {
+                ShockWaveEmitAndFade.Update();
+                yield return null;
+            }
+
+            ParallelTasks MoveOutPrepare = GetBubbleMoveOutPrepareTasks();
+
+            while (!MoveOutPrepare.IsFinished)
+            {
+                MoveOutPrepare.Update();
+                yield return null;
+            }
+
+            ParallelTasks MoveOutEscape = GetBubbleEscapeTasks();
+
+            while (!MoveOutEscape.IsFinished)
+            {
+                MoveOutEscape.Update();
+                yield return null;
+            }
+
+            yield return new WaitForSeconds(StartNewLevelWaitTime);
         }
         else
         {
@@ -249,7 +286,6 @@ public class GameManager : MonoBehaviour
 
         if (index <= MaxLevelIndex)
         {
-
             levelState = LevelState.SetUp;
 
             if (CurrentSaveInfo.CurrentLevel >= MinLevelIndex && !FromMenu)
@@ -258,7 +294,6 @@ public class GameManager : MonoBehaviour
                 Destroy(SortedLevelList[CurrentSaveInfo.CurrentLevel - MinLevelIndex]);
                 SortedLevelList[CurrentSaveInfo.CurrentLevel - MinLevelIndex] = CopiedLevel;
             }
-
 
             CopiedLevel = Instantiate(SortedLevelList[index - MinLevelIndex]);
             CopiedLevel.transform.parent = AllLevel.transform;
@@ -275,16 +310,15 @@ public class GameManager : MonoBehaviour
             
             EventManager.instance.Fire(new LevelLoaded(CurrentSaveInfo.CurrentLevel));
 
-            AssignSelectors();
+            SerialTasks LevelStartUITasks = GetLevelStartTask();
 
+            while (!LevelStartUITasks.IsFinished)
+            {
+                LevelStartUITasks.Update();
+                yield return null;
+            }
 
-            GetLevelStart();
-        }
-        else
-        {
-            CurrentSaveInfo.CurrentLevel = index;
-            SaveProgress();
-            SceneManager.LoadScene(NextLevelScene);
+            levelState = LevelState.Play;
         }
     }
 
@@ -333,35 +367,6 @@ public class GameManager : MonoBehaviour
 
             UseableBubbleList.Add(Bubble);
         }
-    }
-
-    private void AssignSelectors()
-    {
-        for(int i = 0; i < Selectors.Count; i++)
-        {
-            Selectors[i].GetComponent<BubbleSelector>().Type = BubbleType.Null;
-        }
-
-        var Data = GetComponent<ColorData>();
-
-        if (LevelManager.RemainedDisappearBubble > 0)
-        {
-            SetSelector(Selectors[0], BubbleType.Disappear, Data.DisappearBubble, Data.ExhaustDisappearBubble);
-
-            if (LevelManager.RemainedNormalBubble > 0)
-            {
-                SetSelector(Selectors[1], BubbleType.Normal, Data.NormalBubble, Data.ExhaustNormalBubble);
-            }
-        }
-        else if(LevelManager.RemainedNormalBubble > 0)
-        {
-            SetSelector(Selectors[0], BubbleType.Normal, Data.NormalBubble, Data.ExhaustNormalBubble);
-        }
-
-        EventManager.instance.Fire(new BubbleNumSet(BubbleType.Disappear,LevelManager.RemainedDisappearBubble));
-        EventManager.instance.Fire(new BubbleNumSet(BubbleType.Normal,LevelManager.RemainedNormalBubble));
-        EventManager.instance.Fire(new CallActivateBubbleSelectors());
-
     }
 
     private void SaveProgress()
@@ -468,14 +473,14 @@ public class GameManager : MonoBehaviour
         SortedLevelList[CurrentSaveInfo.CurrentLevel - MinLevelIndex] = CopiedLevel;
     }
 
-    private void GetLevelStart()
+    private SerialTasks GetLevelStartTask()
     {
         LevelNumber.GetComponent<Text>().text = CurrentSaveInfo.CurrentLevel.ToString();
         LevelMarkLeft.GetComponent<RectTransform>().sizeDelta = new Vector2(LevelMarkBaseLength - LevelMarkLengthDeduction * (CurrentSaveInfo.CurrentLevel / 10), LevelMarkHeight);
         LevelMarkRight.GetComponent<RectTransform>().sizeDelta = new Vector2(LevelMarkBaseLength - LevelMarkLengthDeduction * (CurrentSaveInfo.CurrentLevel / 10), LevelMarkHeight);
         GenerateUseableBubbles();
 
-        LevelStartUITasks = new SerialTasks();
+        SerialTasks LevelStartUITasks = new SerialTasks();
 
         ParallelTasks MarkAppearTask = new ParallelTasks();
         ParallelTasks UseableBubbleAndLevelNumebrAppearTask = new ParallelTasks();
@@ -499,10 +504,11 @@ public class GameManager : MonoBehaviour
 
         LevelStartUITasks.Add(MarkAppearTask);
         LevelStartUITasks.Add(UseableBubbleAndLevelNumebrAppearTask);
-        LevelStartUITasks.Add(new SwitchLevelStateTask(levelState,LevelState.Play));
+
+        return LevelStartUITasks;
     }
 
-    private void GetLevelEnd()
+    private SerialTasks GetLevelEndTask()
     {
         for(int i = 0; i < UseableBubbleList.Count; i++)
         {
@@ -511,7 +517,7 @@ public class GameManager : MonoBehaviour
 
         UseableBubbleList.Clear();
 
-        LevelEndUITasks = new SerialTasks();
+        SerialTasks LevelEndUITasks = new SerialTasks();
 
         ParallelTasks AllTask = new ParallelTasks();
         Color levelnumbercolor = LevelNumber.GetComponent<Text>().color;
@@ -534,7 +540,67 @@ public class GameManager : MonoBehaviour
 
         LevelEndUITasks.Add(AllTask);
 
+        return LevelEndUITasks;
+    }
 
+    private ParallelTasks GetBubblePowerUpTasks()
+    {
+        ParallelTasks AllPowerUp = new ParallelTasks();
+        GameObject AllBubbles = ActivatedLevel.GetComponent<LevelManager>().AllBubble;
+
+        foreach(Transform child in AllBubbles.transform)
+        {
+            AllPowerUp.Add(child.GetComponent<NormalBubble>().GetShockWavePowerUpTask());
+        }
+
+        return AllPowerUp;
+    }
+
+    private ParallelTasks GetShockWaveEmitAndFadeTasks()
+    {
+        ParallelTasks AllEmitAndFade = new ParallelTasks();
+        GameObject AllBubbles = ActivatedLevel.GetComponent<LevelManager>().AllBubble;
+        GameObject AllSlots = ActivatedLevel.GetComponent<LevelManager>().AllSlot;
+
+        foreach (Transform child in AllBubbles.transform)
+        {
+            AllEmitAndFade.Add(child.GetComponent<NormalBubble>().GetShockWaveEmitTask());
+        }
+
+        foreach(Transform child in AllSlots.transform)
+        {
+            AllEmitAndFade.Add(child.GetComponent<SlotObject>().GetFadeTask());
+        }
+
+        return AllEmitAndFade;
+    }
+
+    private ParallelTasks GetBubbleMoveOutPrepareTasks()
+    {
+        ParallelTasks AllPrepare = new ParallelTasks();
+
+        GameObject AllBubbles = ActivatedLevel.GetComponent<LevelManager>().AllBubble;
+
+        foreach (Transform child in AllBubbles.transform)
+        {
+            AllPrepare.Add(child.GetComponent<NormalBubble>().GetMoveOutPrepareTask());
+        }
+
+        return AllPrepare;
+    }
+
+    private ParallelTasks GetBubbleEscapeTasks()
+    {
+        ParallelTasks AllEscape = new ParallelTasks();
+
+        GameObject AllBubbles = ActivatedLevel.GetComponent<LevelManager>().AllBubble;
+
+        foreach (Transform child in AllBubbles.transform)
+        {
+            AllEscape.Add(child.GetComponent<NormalBubble>().GetMoveOutEscapeTask());
+        }
+
+        return AllEscape;
     }
 }
 

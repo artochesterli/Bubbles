@@ -592,6 +592,8 @@ MonoBehaviour:
   - {fileID: 6753361674185346743}
   - {fileID: 6753361673710823320}
   - {fileID: 7434213683849343629}
+  PerformLevelFinishEffectWaitTime: 0.5
+  StartNewLevelWaitTime: 0.5
   LevelFinishWaitTime: 5
   MenuLoadLevelWaitTime: 1
   CopiedLevel: {fileID: 0}

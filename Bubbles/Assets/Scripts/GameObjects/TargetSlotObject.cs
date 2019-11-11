@@ -18,6 +18,10 @@ public class TargetSlotObject : MonoBehaviour
     public GameObject Effect;
     public GameObject InsideParticlePrefab;
 
+    public float BreathCycle;
+    public float BreathMaxSize;
+
+
     public float ParticleGenerateIntervalMin;
     public float ParticleGenerateIntervalMax;
     public float ParticleGenerationZoneSize;
@@ -40,6 +44,9 @@ public class TargetSlotObject : MonoBehaviour
     private List<InsideParticle> InsideParticles;
     private bool BubbleInside;
 
+
+    private float BreathTimer;
+    private bool BreathInflate;
     // Start is called before the first frame update
     void Start()
     {
@@ -55,11 +62,41 @@ public class TargetSlotObject : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (!BubbleInside && (GameManager.levelState == LevelState.Play || GameManager.levelState == LevelState.Executing))
+        if (!BubbleInside)
         {
-            UpdateEffect();
-            GenerateParticles();
+            //UpdateEffect();
+            //GenerateParticles();
         }
+
+        if(GameManager.levelState == LevelState.Play || GameManager.levelState == LevelState.Executing)
+        {
+            //Breath();
+        }
+    }
+
+    private void Breath()
+    {
+        BreathTimer += Time.deltaTime;
+        if (BreathInflate)
+        {
+            transform.localScale = Vector3.Lerp(Vector3.one, Vector3.one * BreathMaxSize, BreathTimer / (BreathCycle / 2));
+            if(BreathTimer >= BreathCycle / 2)
+            {
+                BreathTimer = 0;
+                BreathInflate = false;
+            }
+        }
+        else
+        {
+            transform.localScale = Vector3.Lerp(Vector3.one * BreathMaxSize, Vector3.one,  BreathTimer / (BreathCycle / 2));
+            if (BreathTimer >= BreathCycle / 2)
+            {
+                BreathTimer = 0;
+                BreathInflate = true;
+            }
+        }
+
+        //transform.localScale = Vector3.one * (1 + (BreathMaxSize - 1)/2 + (BreathMaxSize - 1) / 2 * Mathf.Sin(BreathTimer / BreathCycle * 2 * Mathf.PI));
     }
 
     public List<InsideParticle> GetInsideParticles()

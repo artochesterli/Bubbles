@@ -42,8 +42,13 @@ public class UsableCircle : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        CheckSelected();
-        SetTransform();
+        if (GameManager.levelState == LevelState.Play || GameManager.levelState == LevelState.Executing)
+        {
+            CheckSelected();
+            SetTransform();
+            SetColor();
+        }
+
         if (GameManager.levelState == LevelState.Play)
         {
             CheckSlotSelection();
@@ -88,7 +93,10 @@ public class UsableCircle : MonoBehaviour
         }*/
 
         transform.localScale = Vector3.one * CurrentSize;
+    }
 
+    private void SetColor()
+    {
         ColorRecoverTimeCount += Time.deltaTime;
         GetComponent<SpriteRenderer>().color = new Color(color.r, color.g, color.b, Mathf.Lerp(0, 1, ColorRecoverTimeCount / ColorRecoverTime));
     }

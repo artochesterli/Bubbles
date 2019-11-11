@@ -4,8 +4,8 @@ using UnityEngine;
 
 public class NormalBubble : MonoBehaviour
 {
-    public float FinishWaitTime;
-    public float SlotDisAppearTime;
+    public GameObject PowerUpEffectPrefab;
+    public GameObject ShockWave;
     public float PowerUpTime;
     public float PowerUpInterval;
     public int PowerUpNumber;
@@ -40,17 +40,11 @@ public class NormalBubble : MonoBehaviour
 
     private void OnEnable()
     {
-        EventManager.instance.AddHandler<LevelFinish>(OnLevelFinish);
+
     }
 
     private void OnDisable()
     {
-        EventManager.instance.RemoveHandler<LevelFinish>(OnLevelFinish);
-    }
-
-    private void OnLevelFinish(LevelFinish L)
-    {
-        StartCoroutine(FinishEffect());
 
     }
 
@@ -59,12 +53,24 @@ public class NormalBubble : MonoBehaviour
 
     }
 
-    public IEnumerator MoveOut()
+    public SerialTasks GetShockWavePowerUpTask()
     {
-        float HalfWidth = Camera.main.pixelWidth / Camera.main.pixelHeight * Camera.main.orthographicSize / 2;
-        float HalfHeight = Camera.main.orthographicSize / 2;
+        SerialTasks PowerUpTask = new SerialTasks();
 
+        PowerUpTask.Add(new ShockWavePowerUpTask(gameObject, PowerUpEffectPrefab, ShockWave, PowerUpSelfScale, PowerUpTime, PowerUpInterval, PowerUpNumber));
+        PowerUpTask.Add(new WaitTask(PowerUpShockWaveGap));
 
+        return PowerUpTask;
+    }
+
+    public ShockWaveEmitTask GetShockWaveEmitTask()
+    {
+        return new ShockWaveEmitTask(gameObject, ShockWave, ShockWaveTime, ShockWaveEndSize, PowerUpSelfInflatedScale, PowerUpSelfScale);
+    }
+
+    public SerialTasks GetMoveOutPrepareTask()
+    {
+        SerialTasks MoveOutPrepareTask = new SerialTasks();
 
         List<Vector2> IntersectionList = new List<Vector2>();
         List<float> IntersectionAngle = new List<float>();
@@ -81,52 +87,25 @@ public class NormalBubble : MonoBehaviour
 
         MoveOutBasicDirection = Utility.GetRandomDirectionOfCuttedCircle(IntersectionList, transform.position, cut);
 
+        MoveOutPrepareTask.Add(new MoveOutBackAccelerationTask(gameObject, MoveBackDis, MoveBackTime, MoveOutBasicDirection, PowerUpSelfInflatedScale));
+        MoveOutPrepareTask.Add(new MoveOutBackDecelerationTask(gameObject, MoveBackDis, MoveBackTime, MoveOutBasicDirection, PowerUpSelfInflatedScale));
 
-        float TimeCount = 0;
+        return MoveOutPrepareTask;
+    }
 
-        Vector2 CurrentPos = transform.position;
-        float BackSpeed = 0;
-        float MaxBackSpeed = MoveBackDis / MoveBackTime;
-
-
-        while (TimeCount < MoveBackTime / 2)
-        {
-            TimeCount += Time.deltaTime;
-            if (TimeCount < MoveBackTime / 2)
-            {
-                BackSpeed = MaxBackSpeed * 2 * TimeCount / MoveBackTime;
-            }
-            else
-            {
-                BackSpeed = MaxBackSpeed * 2 * (MoveBackTime - TimeCount) / MoveBackTime;
-            }
-            transform.localScale = Vector3.Lerp(Vector3.one * PowerUpSelfInflatedScale, Vector3.one, TimeCount / MoveBackTime);
-            transform.position -= (Vector3)MoveOutBasicDirection * BackSpeed * Time.deltaTime;
-            yield return null;
-        }
-
-        while (TimeCount < MoveBackTime)
-        {
-            TimeCount += Time.deltaTime;
-            BackSpeed = MaxBackSpeed * 2 * (MoveBackTime - TimeCount) / MoveBackTime;
-            if (BackSpeed < 0)
-            {
-                BackSpeed = 0;
-            }
-            transform.localScale = Vector3.Lerp(Vector3.one * PowerUpSelfInflatedScale, Vector3.one, TimeCount / MoveBackTime);
-            transform.position -= (Vector3)MoveOutBasicDirection * BackSpeed * Time.deltaTime;
-            yield return null;
-        }
+    public SerialTasks GetMoveOutEscapeTask()
+    {
+        SerialTasks MoveOutEscape= new SerialTasks();
 
         int layermask = 1 << LayerMask.NameToLayer("Border");
 
-        RaycastHit2D Hit = Physics2D.Raycast(transform.position, MoveOutBasicDirection,RayDis,layermask);
+        RaycastHit2D Hit = Physics2D.Raycast(transform.position, MoveOutBasicDirection, RayDis, layermask);
 
         Vector2 StartPoint = transform.position;
         Vector2 EndPoint = Hit.point;
-        if(Hit.collider.gameObject.name == "Up" || Hit.collider.gameObject.name == "Down")
+        if (Hit.collider.gameObject.name == "Up" || Hit.collider.gameObject.name == "Down")
         {
-            EndPoint += MoveOutBasicDirection * Mathf.Abs(1 / MoveOutBasicDirection.y)*Size/2;
+            EndPoint += MoveOutBasicDirection * Mathf.Abs(1 / MoveOutBasicDirection.y) * Size / 2;
         }
         else
         {
@@ -134,7 +113,7 @@ public class NormalBubble : MonoBehaviour
         }
 
 
-        Vector2 MidPoint = Vector3.Lerp(StartPoint,EndPoint,Random.Range(MoveOutMidPointHorizontalPercentageMinMax.x, MoveOutMidPointHorizontalPercentageMinMax.y));
+        Vector2 MidPoint = Vector3.Lerp(StartPoint, EndPoint, Random.Range(MoveOutMidPointHorizontalPercentageMinMax.x, MoveOutMidPointHorizontalPercentageMinMax.y));
 
         if (Hit.collider.gameObject.name == "Up")
         {
@@ -147,7 +126,7 @@ public class NormalBubble : MonoBehaviour
                 MidPoint += (Vector2)(Quaternion.Euler(0, 0, -90) * MoveOutBasicDirection) * Random.Range(MoveOutMidPointVerticalOffsetMinMax.x, MoveOutMidPointVerticalOffsetMinMax.y);
             }
         }
-        else if(Hit.collider.gameObject.name == "Down")
+        else if (Hit.collider.gameObject.name == "Down")
         {
             if (MoveOutBasicDirection.x > 0)
             {
@@ -158,7 +137,7 @@ public class NormalBubble : MonoBehaviour
                 MidPoint += (Vector2)(Quaternion.Euler(0, 0, 90) * MoveOutBasicDirection) * Random.Range(MoveOutMidPointVerticalOffsetMinMax.x, MoveOutMidPointVerticalOffsetMinMax.y);
             }
         }
-        else if(Hit.collider.gameObject.name == "Left")
+        else if (Hit.collider.gameObject.name == "Left")
         {
             if (MoveOutBasicDirection.y > 0)
             {
@@ -181,99 +160,12 @@ public class NormalBubble : MonoBehaviour
             }
         }
 
-        TimeCount = 0;
-
         float MoveOutTime = Random.Range(MoveOutTimeMinMax.x, MoveOutTimeMinMax.y);
 
-        Color color = GetComponent<SpriteRenderer>().color;
+        MoveOutEscape.Add(new MoveOutEscapeTask(gameObject, StartPoint, EndPoint, MidPoint, MoveOutTime, MoveOutMaxTimeScale, MoveOutAcTimePercentage));
 
-        float TimeScale=0;
-
-
-        while (TimeCount < MoveOutTime)
-        {
-            TimeCount += Time.deltaTime * TimeScale;
-            if (TimeCount < MoveOutTime * MoveOutAcTimePercentage)
-            {
-                TimeScale += MoveOutMaxTimeScale / (MoveOutAcTimePercentage * MoveOutTime) * Time.deltaTime;
-            }
-            else
-            {
-                TimeScale -= (2 * MoveOutMaxTimeScale - (2 - MoveOutMaxTimeScale * MoveOutAcTimePercentage) / (1 - MoveOutAcTimePercentage)) / ((1 - MoveOutAcTimePercentage) * MoveOutTime) * Time.deltaTime;
-            }
-            Vector2 v1 = Vector2.Lerp(StartPoint, MidPoint, TimeCount / MoveOutTime);
-            Vector2 v2 = Vector2.Lerp(MidPoint, EndPoint, TimeCount / MoveOutTime);
-            transform.position = Vector2.Lerp(v1, v2, TimeCount / MoveOutTime);
-            GetComponent<SpriteRenderer>().color = Color.Lerp(new Color(color.r, color.g, color.b, 1), new Color(color.r, color.g, color.b, 0), TimeCount / MoveOutTime);
-            yield return null;
-        }
-
+        return MoveOutEscape;
 
     }
 
-    private IEnumerator PerformShockWave()
-    {
-        GameObject StableEfffect = transform.Find("StableEffect").gameObject;
-
-        StableEfffect.GetComponent<ParticleSystem>().Stop();
-        StableEfffect.GetComponent<ParticleSystem>().Clear();
-
-        GameObject ShockWave= transform.Find("ShockWave").gameObject;
-
-        float TimeCount = 0;
-        Color color = ShockWave.GetComponent<SpriteRenderer>().color;
-        ShockWave.transform.localScale = Vector3.one * ShockWaveInitSize;
-
-        float PowerUpProcess = PowerUpTime + (PowerUpNumber - 1) * PowerUpInterval;
-
-        int Number = 0;
-        while (TimeCount < PowerUpProcess)
-        {
-            TimeCount += Time.deltaTime;
-            if (TimeCount >= Number * PowerUpInterval && Number<PowerUpNumber)
-            {
-                Number++;
-                GameObject PowerUp = (GameObject)Instantiate(Resources.Load("Prefabs/Effect/PowerUpEffect"), transform.position, Quaternion.Euler(0, 0, 0));
-                PowerUp.GetComponent<PowerUpEffect>().PlayTime = PowerUpTime;
-                PowerUp.GetComponent<PowerUpEffect>().EndScale= Vector3.Lerp(Vector3.one, Vector3.one * PowerUpSelfScale, (TimeCount+PowerUpTime) / PowerUpProcess).x;
-            }
-            ShockWave.GetComponent<SpriteRenderer>().color = Color.Lerp(new Color(color.r, color.g, color.b, 0), new Color(color.r, color.g, color.b, 1), TimeCount / PowerUpProcess);
-            transform.localScale = Vector3.Lerp(Vector3.one, Vector3.one * PowerUpSelfScale, TimeCount / PowerUpProcess);
-            yield return null;
-        }
-        yield return new WaitForSeconds(PowerUpShockWaveGap);
-
-
-        TimeCount = 0;
-
-        float InflateTime = ShockWaveTime * (PowerUpSelfInflatedScale-PowerUpSelfScale)/(ShockWaveEndSize-PowerUpSelfScale);
-        float DeflateTime = ShockWaveTime * (PowerUpSelfInflatedScale - 1) / (ShockWaveEndSize - PowerUpSelfScale);
-
-        while (TimeCount < ShockWaveTime)
-        {
-            TimeCount += Time.deltaTime;
-            ShockWave.GetComponent<SpriteRenderer>().color = Color.Lerp(new Color(color.r, color.g, color.b, 1), new Color(color.r, color.g, color.b, 0), TimeCount / ShockWaveTime);
-
-            transform.localScale = Vector3.Lerp(Vector3.one * PowerUpSelfScale, Vector3.one * PowerUpSelfInflatedScale, TimeCount / InflateTime);
-
-            ShockWave.transform.localScale = Vector3.Lerp(Vector3.one * PowerUpSelfScale, Vector3.one * ShockWaveEndSize, TimeCount / ShockWaveTime)/transform.localScale.x;
-            yield return null;
-        }
-
-    }
-
-    private IEnumerator FinishEffect()
-    {
-        yield return new WaitForSeconds(FinishWaitTime);
-
-        //GameObject InTargetEffect = transform.Find("InTargetEffect").gameObject;
-        //InTargetEffect.GetComponent<ParticleSystem>().Stop();
-        //InTargetEffect.GetComponent<ParticleSystem>().Clear();
-
-        yield return StartCoroutine(PerformShockWave());
-        yield return new WaitForSeconds(SlotDisAppearTime);
-        yield return StartCoroutine(MoveOut());
-
-
-    }
 }

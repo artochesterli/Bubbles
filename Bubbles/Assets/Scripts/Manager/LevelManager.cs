@@ -335,6 +335,28 @@ public class LevelManager : MonoBehaviour
 
     }
 
+    public SerialTasks GetMapDisappearTask()
+    {
+        ParallelTasks SlotDisappearTasks = new ParallelTasks();
+
+        ParallelTasks BubbleDisappearTasks = new ParallelTasks();
+
+        foreach(Transform child in AllBubble.transform)
+        {
+            Color color = child.GetComponent<SpriteRenderer>().color;
+            BubbleDisappearTasks.Add(new ColorChangeTask(child.gameObject, Utility.ColorWithAlpha(color, 1), Utility.ColorWithAlpha(color, 0), MapUnitAppearTime));
+        }
+
+        foreach(Transform child in AllSlot.transform)
+        {
+            Color color = child.GetComponent<SpriteRenderer>().color;
+            SlotDisappearTasks.Add(new ColorChangeTask(child.gameObject, Utility.ColorWithAlpha(color, 1), Utility.ColorWithAlpha(color, 0), MapUnitAppearTime));
+            SlotInfo Info = child.GetComponent<SlotObject>().ConnectedSlotInfo;
+            SlotDisappearTasks.Add(new TransformTask(child.gameObject, Info.Location, Info.Location * MapSlotInitPosOffsetFactor, MapUnitAppearTime));
+        }
+
+        return new SerialTasks();
+    }
 
     private void PlaceBubble(GameObject UseableBubble, Vector2Int Pos, BubbleType Type)
     {
@@ -377,6 +399,12 @@ public class LevelManager : MonoBehaviour
         Map[Pos.x][Pos.y].ConnectedBubble.transform.parent = AllBubble.transform;
 
         Map[Pos.x][Pos.y].ConnectedBubble.transform.localScale = Vector3.one * PlaceScale;
+
+        if(Map[Pos.x][Pos.y].slotType == SlotType.Target && Type == BubbleType.Normal)
+        {
+            Map[Pos.x][Pos.y].Entity.GetComponent<TargetSlotObject>().SetBubbleInside(true);
+            Map[Pos.x][Pos.y].Entity.GetComponent<TargetSlotObject>().ClearInsideParticleInfo();
+        }
 
         var Data = GetComponent<BubbleMotionData>();
 
@@ -1070,13 +1098,14 @@ public class LevelManager : MonoBehaviour
             {
                 switch (list[i].Type)
                 {
-                    case BubbleType.Disappear:
-                        RemainedDisappearBubble++;
-                        EventManager.instance.Fire(new BubbleNumSet(BubbleType.Disappear, RemainedDisappearBubble));
-                        break;
                     case BubbleType.Normal:
                         RollBackTask.Add(new DisappearTask(list[i].Bubble, RollBackTime / 2, list[i].To, Map, list[i].Type, true));
                         break;
+                }
+
+                if (Map[list[i].From.x][list[i].From.y].slotType == SlotType.Target)
+                {
+                    Map[list[i].From.x][list[i].From.y].Entity.GetComponent<TargetSlotObject>().SetBubbleInside(false);
                 }
 
                 Color color = list[i].UseableBubble.GetComponent<SpriteRenderer>().color;
@@ -1097,6 +1126,13 @@ public class LevelManager : MonoBehaviour
                     {
                         Map[list[i].To.x][list[i].To.y].Entity.GetComponent<TargetSlotObject>().SetBubbleInside(false);
                     }
+
+                    if(Map[list[i].From.x][list[i].From.y].slotType == SlotType.Target)
+                    {
+
+                        Map[list[i].From.x][list[i].From.y].Entity.GetComponent<TargetSlotObject>().ClearInsideParticleInfo();
+                        Map[list[i].From.x][list[i].From.y].Entity.GetComponent<TargetSlotObject>().SetBubbleInside(true);
+                    }
                 }
             }
         }
@@ -1111,14 +1147,6 @@ public class LevelManager : MonoBehaviour
 
         ChangeInfoList.Remove(list);
         GameManager.levelState = LevelState.Play;
-    }
-
-    private void LevelFinishEffectTask()
-    {
-        SerialTasks FinishEffect = new SerialTasks();
-        ParallelTasks BubbleShockWave = new ParallelTasks();
-        ParallelTasks BubbleMoveOut = new ParallelTasks();
-        ParallelTasks SlotDisappear = new ParallelTasks();
     }
 
 }
