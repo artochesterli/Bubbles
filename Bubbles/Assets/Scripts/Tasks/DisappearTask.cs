@@ -37,11 +37,9 @@ public class DisappearTask : Task
             {
                 case BubbleType.Disappear:
                     LevelManager.RemainedDisappearBubble++;
-                    EventManager.instance.Fire(new BubbleNumSet(BubbleType.Disappear, LevelManager.RemainedDisappearBubble));
                     break;
                 case BubbleType.Normal:
                     LevelManager.RemainedNormalBubble++;
-                    EventManager.instance.Fire(new BubbleNumSet(BubbleType.Normal, LevelManager.RemainedNormalBubble));
                     break;
             }
         }

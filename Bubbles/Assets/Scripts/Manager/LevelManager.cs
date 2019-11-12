@@ -194,13 +194,13 @@ public class LevelManager : MonoBehaviour
                 if (Map[i][j] != null)
                 {
                     Color SlotColor = Map[i][j].Entity.GetComponent<SpriteRenderer>().color;
-                    Map[i][j].Entity.GetComponent<SpriteRenderer>().color = new Color(SlotColor.r, SlotColor.g, SlotColor.b, 0);
+                    Map[i][j].Entity.GetComponent<SpriteRenderer>().color = Utility.ColorWithAlpha(SlotColor, 0);
                     Map[i][j].Entity.transform.localPosition = Map[i][j].Location * MapSlotInitPosOffsetFactor;
                     if (Map[i][j].InsideBubbleType != BubbleType.Null)
                     {
                         AllSlotWithBubble.Add(Map[i][j]);
                         Color BubbleColor = Map[i][j].ConnectedBubble.GetComponent<SpriteRenderer>().color;
-                        Map[i][j].ConnectedBubble.GetComponent<SpriteRenderer>().color = new Color(BubbleColor.r, BubbleColor.g, BubbleColor.b, 0);
+                        Map[i][j].ConnectedBubble.GetComponent<SpriteRenderer>().color = Utility.ColorWithAlpha(BubbleColor, 0);
                     }
 
                     AllSlotInfo.Add(Map[i][j]);
@@ -337,6 +337,8 @@ public class LevelManager : MonoBehaviour
 
     public SerialTasks GetMapDisappearTask()
     {
+        SerialTasks MapDisappearTask = new SerialTasks();
+
         ParallelTasks SlotDisappearTasks = new ParallelTasks();
 
         ParallelTasks BubbleDisappearTasks = new ParallelTasks();
@@ -344,18 +346,22 @@ public class LevelManager : MonoBehaviour
         foreach(Transform child in AllBubble.transform)
         {
             Color color = child.GetComponent<SpriteRenderer>().color;
-            BubbleDisappearTasks.Add(new ColorChangeTask(child.gameObject, Utility.ColorWithAlpha(color, 1), Utility.ColorWithAlpha(color, 0), MapUnitAppearTime));
+            BubbleDisappearTasks.Add(new ColorChangeTask(child.gameObject, Utility.ColorWithAlpha(color, 1), Utility.ColorWithAlpha(color, 0), MapUnitAppearTime, ColorChangeType.Sprite));
         }
 
         foreach(Transform child in AllSlot.transform)
         {
             Color color = child.GetComponent<SpriteRenderer>().color;
-            SlotDisappearTasks.Add(new ColorChangeTask(child.gameObject, Utility.ColorWithAlpha(color, 1), Utility.ColorWithAlpha(color, 0), MapUnitAppearTime));
+            SlotDisappearTasks.Add(new ColorChangeTask(child.gameObject, Utility.ColorWithAlpha(color, 1), Utility.ColorWithAlpha(color, 0), MapUnitAppearTime , ColorChangeType.Sprite));
             SlotInfo Info = child.GetComponent<SlotObject>().ConnectedSlotInfo;
             SlotDisappearTasks.Add(new TransformTask(child.gameObject, Info.Location, Info.Location * MapSlotInitPosOffsetFactor, MapUnitAppearTime));
         }
 
-        return new SerialTasks();
+        MapDisappearTask.Add(BubbleDisappearTasks);
+        MapDisappearTask.Add(SlotDisappearTasks);
+
+        return MapDisappearTask;
+        
     }
 
     private void PlaceBubble(GameObject UseableBubble, Vector2Int Pos, BubbleType Type)
@@ -881,16 +887,16 @@ public class LevelManager : MonoBehaviour
 
 
         SerialTasks Slot1ColorChange = new SerialTasks();
-        Slot1ColorChange.Add(new ColorChangeTask(TeleportSlot1.Entity, TeleportSlot1.Entity.GetComponent<SlotObject>().DefaultColor, TeleportSlot1.Entity.GetComponent<SlotObject>().SelectedColor, Data.TeleportSlotBlockedRotationTime / 2));
-        Slot1ColorChange.Add(new ColorChangeTask(TeleportSlot1.Entity, TeleportSlot1.Entity.GetComponent<SlotObject>().SelectedColor, TeleportSlot1.Entity.GetComponent<SlotObject>().DefaultColor, Data.TeleportSlotBlockedRotationTime / 2));
+        Slot1ColorChange.Add(new ColorChangeTask(TeleportSlot1.Entity, TeleportSlot1.Entity.GetComponent<SlotObject>().DefaultColor, TeleportSlot1.Entity.GetComponent<SlotObject>().SelectedColor, Data.TeleportSlotBlockedRotationTime / 2, ColorChangeType.Sprite));
+        Slot1ColorChange.Add(new ColorChangeTask(TeleportSlot1.Entity, TeleportSlot1.Entity.GetComponent<SlotObject>().SelectedColor, TeleportSlot1.Entity.GetComponent<SlotObject>().DefaultColor, Data.TeleportSlotBlockedRotationTime / 2, ColorChangeType.Sprite));
 
         SerialTasks Slot2RotateBackTasks = new SerialTasks();
         Slot2RotateBackTasks.Add(new RotationTask(TeleportSlot2.Entity, Data.TeleportSlotBlockedRotationAngle, Data.TeleportSlotBlockedRotationTime / 2));
         Slot2RotateBackTasks.Add(new RotationTask(TeleportSlot2.Entity, -Data.TeleportSlotBlockedRotationAngle, Data.TeleportSlotBlockedRotationTime / 2));
 
         SerialTasks Slot2ColorChange = new SerialTasks();
-        Slot2ColorChange.Add(new ColorChangeTask(TeleportSlot2.Entity, TeleportSlot2.Entity.GetComponent<SlotObject>().DefaultColor, TeleportSlot2.Entity.GetComponent<SlotObject>().SelectedColor, Data.TeleportSlotBlockedRotationTime / 2));
-        Slot2ColorChange.Add(new ColorChangeTask(TeleportSlot2.Entity, TeleportSlot2.Entity.GetComponent<SlotObject>().SelectedColor, TeleportSlot2.Entity.GetComponent<SlotObject>().DefaultColor, Data.TeleportSlotBlockedRotationTime / 2));
+        Slot2ColorChange.Add(new ColorChangeTask(TeleportSlot2.Entity, TeleportSlot2.Entity.GetComponent<SlotObject>().DefaultColor, TeleportSlot2.Entity.GetComponent<SlotObject>().SelectedColor, Data.TeleportSlotBlockedRotationTime / 2, ColorChangeType.Sprite));
+        Slot2ColorChange.Add(new ColorChangeTask(TeleportSlot2.Entity, TeleportSlot2.Entity.GetComponent<SlotObject>().SelectedColor, TeleportSlot2.Entity.GetComponent<SlotObject>().DefaultColor, Data.TeleportSlotBlockedRotationTime / 2, ColorChangeType.Sprite));
 
         TeleportBlockedTasks.Add(Slot1RotateBackTasks);
         TeleportBlockedTasks.Add(Slot2RotateBackTasks);
@@ -972,7 +978,7 @@ public class LevelManager : MonoBehaviour
 
             Color color = ParticleList[i].Obj.GetComponent<SpriteRenderer>().color;
 
-            UnitMove.Add(new ColorChangeTask(ParticleList[i].Obj, new Color(color.r, color.g, color.b, 1), new Color(color.r, color.g, color.b, 0), TargetSlotdata.ParticleGoOutTime));
+            UnitMove.Add(new ColorChangeTask(ParticleList[i].Obj, new Color(color.r, color.g, color.b, 1), new Color(color.r, color.g, color.b, 0), TargetSlotdata.ParticleGoOutTime, ColorChangeType.Sprite));
             UnitMove.Add(new ScaleChangeTask(ParticleList[i].Obj, ParticleList[i].Obj.transform.localScale.x, ParticleList[i].Obj.transform.localScale.x*2, TargetSlotdata.ParticleGoOutTime));
 
 
@@ -1003,13 +1009,13 @@ public class LevelManager : MonoBehaviour
 
         ParallelTasks ScaleRotationChangeFirstHalf = new ParallelTasks();
         ScaleRotationChangeFirstHalf.Add(new RotationTask(Obj, 90, Data.TeleportTime / 2));
-        ScaleRotationChangeFirstHalf.Add(new ColorChangeTask(Obj, Obj.GetComponent<SlotObject>().DefaultColor, Obj.GetComponent<SlotObject>().SelectedColor, 0));
+        ScaleRotationChangeFirstHalf.Add(new ColorChangeTask(Obj, Obj.GetComponent<SlotObject>().DefaultColor, Obj.GetComponent<SlotObject>().SelectedColor, 0, ColorChangeType.Sprite));
         
         TeleportSlotTask.Add(ScaleRotationChangeFirstHalf);
 
         ParallelTasks ScaleRotationChangeSecondHalf = new ParallelTasks();
         ScaleRotationChangeSecondHalf.Add(new RotationTask(Obj, 90, Data.TeleportTime / 2));
-        ScaleRotationChangeSecondHalf.Add(new ColorChangeTask(Obj, Obj.GetComponent<SlotObject>().SelectedColor, Obj.GetComponent<SlotObject>().DefaultColor, 0));
+        ScaleRotationChangeSecondHalf.Add(new ColorChangeTask(Obj, Obj.GetComponent<SlotObject>().SelectedColor, Obj.GetComponent<SlotObject>().DefaultColor, 0, ColorChangeType.Sprite));
         TeleportSlotTask.Add(ScaleRotationChangeSecondHalf);
 
         return TeleportSlotTask;
@@ -1022,8 +1028,8 @@ public class LevelManager : MonoBehaviour
         Color TargetColor = Data.DefaultEnergyColor;
 
         SerialTasks EnergyFillTask = new SerialTasks();
-        EnergyFillTask.Add(new ColorChangeTask(Obj, Obj.GetComponent<Bubble>().NormalColor, TargetColor, Data.MotionTime / 2));
-        EnergyFillTask.Add(new ColorChangeTask(Obj, TargetColor, Obj.GetComponent<Bubble>().NormalColor,  Data.MotionTime / 2));
+        EnergyFillTask.Add(new ColorChangeTask(Obj, Obj.GetComponent<Bubble>().NormalColor, TargetColor, Data.MotionTime / 2, ColorChangeType.Sprite));
+        EnergyFillTask.Add(new ColorChangeTask(Obj, TargetColor, Obj.GetComponent<Bubble>().NormalColor,  Data.MotionTime / 2, ColorChangeType.Sprite));
 
         return EnergyFillTask;
     }
@@ -1045,7 +1051,7 @@ public class LevelManager : MonoBehaviour
             }
         }
 
-        EventManager.instance.Fire(new LevelFinish(LevelIndex));
+        EventManager.instance.Fire(new CallLoadLevel(LoadLevelType.LevelFinish, LevelIndex + 1));
     }
 
     private void OnPlace(Place P)
@@ -1110,7 +1116,7 @@ public class LevelManager : MonoBehaviour
 
                 Color color = list[i].UseableBubble.GetComponent<SpriteRenderer>().color;
                 list[i].UseableBubble.SetActive(true);
-                RollBackTask.Add(new ColorChangeTask(list[i].UseableBubble, Utility.ColorWithAlpha(color, 0), Utility.ColorWithAlpha(color, 1), RollBackTime/2));
+                RollBackTask.Add(new ColorChangeTask(list[i].UseableBubble, Utility.ColorWithAlpha(color, 0), Utility.ColorWithAlpha(color, 1), RollBackTime/2, ColorChangeType.Sprite));
             }
             else
             {

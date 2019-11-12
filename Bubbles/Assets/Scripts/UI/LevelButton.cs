@@ -47,22 +47,26 @@ public class LevelButton : MonoBehaviour
     void Start()
     {
         SetText(Text, LevelIndex.ToString());
-        EventManager.instance.AddHandler<TransferToLevelPlay>(OnTransferToLevelPlay);
+
     }
 
     private void OnDestroy()
     {
-        EventManager.instance.RemoveHandler<TransferToLevelPlay>(OnTransferToLevelPlay);
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (!LevelButtonClicked)
+        if (GameManager.gameState == GameState.Menu)
         {
             SetColor(Image, Text, 1);
             Shake();
-            MakeWave();
+            //MakeWave();
+        }
+        else
+        {
+            ShakeTimeCount = 0;
         }
     }
 
@@ -203,9 +207,11 @@ public class LevelButton : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (!Swtiching && !LevelButtonClicked)
+        if (!Swtiching && GameManager.gameState == GameState.Menu)
         {
-            EventManager.instance.Fire(new TransferToLevelPlay(gameObject));
+            ResetButton();
+            SelectedEffect.GetComponent<Image>().enabled = true;
+            EventManager.instance.Fire(new CallLoadLevel(LoadLevelType.FromSelectionMenu, LevelIndex, gameObject));
         }
     }
 
@@ -261,25 +267,66 @@ public class LevelButton : MonoBehaviour
             SetColor(Image, Text, 1 - TimeCount / SelectedDisappearTime);
             yield return null;
         }
-
-        EventManager.instance.Fire(new CallLoadLevel(LevelIndex));
-    }
-
-    private void OnTransferToLevelPlay(TransferToLevelPlay T)
-    {
-        LevelButtonClicked = true;
-        if (T.ClickedButton == gameObject)
-        {
-            StartCoroutine(SelectedDisappear());
-        }
-        else
-        {
-            StartCoroutine(UnselectedDisappeear());
-        }
     }
 
     private void OnBackToMenu(BackToMenu Back)
     {
         StartCoroutine(Appear());
+    }
+
+    public ParallelTasks GetUnselectedDisappearTask()
+    {
+        ParallelTasks UnselectedDisappearTask = new ParallelTasks();
+
+        Color ImageColor = Image.GetComponent<Image>().color;
+        Color TextColor = Text.GetComponent<Text>().color;
+
+        UnselectedDisappearTask.Add(new ColorChangeTask(Image, Utility.ColorWithAlpha(ImageColor, 1), Utility.ColorWithAlpha(ImageColor, 0), UnselectedDisappearTime, ColorChangeType.Image));
+
+        UnselectedDisappearTask.Add(new ColorChangeTask(Text, Utility.ColorWithAlpha(TextColor, 1), Utility.ColorWithAlpha(TextColor, 0), UnselectedDisappearTime, ColorChangeType.Text));
+
+        return UnselectedDisappearTask;
+    }
+
+    public SerialTasks GetSelectedDisappearTask()
+    {
+        SerialTasks SelectedDisappearTask = new SerialTasks();
+
+        ParallelTasks SelectedEffectTask = new ParallelTasks();
+
+        SelectedEffectTask.Add(new ScaleChangeTask(SelectedEffect, 1, SelectedEffectScale, SelectedEffectTime));
+
+        Color EffectColor = SelectedEffect.GetComponent<Image>().color;
+        SelectedEffectTask.Add(new ColorChangeTask(SelectedEffect, Utility.ColorWithAlpha(EffectColor, 1), Utility.ColorWithAlpha(EffectColor, 0), SelectedEffectTime, ColorChangeType.Image));
+
+        SelectedDisappearTask.Add(SelectedEffectTask);
+        SelectedDisappearTask.Add(new WaitTask(AfterSelectedEffectTime));
+
+        ParallelTasks SelfDisappearTask = new ParallelTasks();
+
+        Color ImageColor = Image.GetComponent<Image>().color;
+        Color TextColor = Text.GetComponent<Text>().color;
+
+        SelfDisappearTask.Add(new ColorChangeTask(Image, Utility.ColorWithAlpha(ImageColor, 1), Utility.ColorWithAlpha(ImageColor, 0), SelectedDisappearTime, ColorChangeType.Image));
+
+        SelfDisappearTask.Add(new ColorChangeTask(Text, Utility.ColorWithAlpha(TextColor, 1), Utility.ColorWithAlpha(TextColor, 0), SelectedDisappearTime, ColorChangeType.Text));
+
+        SelectedDisappearTask.Add(SelfDisappearTask);
+
+        return SelectedDisappearTask;
+    }
+
+    public ParallelTasks GetAppearTask()
+    {
+        ParallelTasks AppearTask = new ParallelTasks();
+
+        Color ImageColor = Image.GetComponent<Image>().color;
+        Color TextColor = Text.GetComponent<Text>().color;
+
+        AppearTask.Add(new ColorChangeTask(Image, Utility.ColorWithAlpha(ImageColor, 0), Utility.ColorWithAlpha(ImageColor, 1), AppearTime, ColorChangeType.Image));
+
+        AppearTask.Add(new ColorChangeTask(Text, Utility.ColorWithAlpha(TextColor, 0), Utility.ColorWithAlpha(TextColor, 1), AppearTime, ColorChangeType.Text));
+
+        return AppearTask;
     }
 }

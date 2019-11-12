@@ -20,14 +20,6 @@ public class Place : Event
 
 public class MotionFinish : Event { }
 
-public class LevelFinish : Event
-{
-    public int Index;
-    public LevelFinish(int num)
-    {
-        Index = num;
-    }
-}
 
 public class LevelLoaded : Event
 {
@@ -35,17 +27,6 @@ public class LevelLoaded : Event
     public LevelLoaded(int num)
     {
         Index = num;
-    }
-}
-
-public class BubbleNumSet : Event
-{
-    public BubbleType Type;
-    public int Num;
-    public BubbleNumSet(BubbleType type,int num)
-    {
-        Type = type;
-        Num = num;
     }
 }
 
@@ -67,27 +48,20 @@ public class Back : Event
     }
 }
 
-public class TransferToLevelPlay : Event
-{
-    public GameObject ClickedButton;
-    public TransferToLevelPlay(GameObject Button)
-    {
-        ClickedButton = Button;
-    }
-}
 
 public class CallLoadLevel: Event
 {
+    public LoadLevelType Type;
     public int index;
-    public CallLoadLevel(int num)
+    public GameObject SelectedLevelButton;
+
+    public CallLoadLevel(LoadLevelType type, int num, GameObject levelbutton = null)
     {
+        Type = type;
         index = num;
+        SelectedLevelButton = levelbutton;
     }
 }
-
-public class CallActivateBubbleSelectors : Event { }
-
-public class CallDeactivateBubbleSelectors : Event { }
 
 public class BackToMenu : Event { }
 

@@ -20,6 +20,14 @@ public enum LevelState
     Clear
 }
 
+public enum LoadLevelType
+{
+    FromSelectionMenu,
+    LevelJump,
+    LevelFinish
+
+}
+
 public class GameStatistics
 {
     public int time;
@@ -77,18 +85,20 @@ public class GameManager : MonoBehaviour
     public float LevelMarkHeight;
     public float LevelMarkLengthDeduction;
 
-
     public float MarkFillTime;
     public float LevelNumberAndUseableBubbleAppearTime;
-
-    public GameObject Mask;
-    public List<GameObject> Selectors;
 
     public float PerformLevelFinishEffectWaitTime;
     public float StartNewLevelWaitTime;
 
     public float LevelFinishWaitTime;
     public float MenuLoadLevelWaitTime;
+
+    public GameObject AllLevelButtons;
+    public GameObject LevelSelectionArrows;
+
+    public float BackToMenuMapDisappearGap;
+    public float BackToMenuSelectionMenuAppearGap;
 
     public GameObject CopiedLevel;
 
@@ -114,14 +124,12 @@ public class GameManager : MonoBehaviour
         Init();
 
         EventManager.instance.AddHandler<Place>(OnPlace);
-        EventManager.instance.AddHandler<LevelFinish>(OnLevelFinish);
         EventManager.instance.AddHandler<CallLoadLevel>(OnCallLoadLevel);
     }
 
     private void OnDestroy()
     {
         EventManager.instance.RemoveHandler<Place>(OnPlace);
-        EventManager.instance.RemoveHandler<LevelFinish>(OnLevelFinish);
         EventManager.instance.RemoveHandler<CallLoadLevel>(OnCallLoadLevel);
     }
 
@@ -130,11 +138,9 @@ public class GameManager : MonoBehaviour
     {
         Timer += Time.deltaTime;
 
-        if (Input.GetKey(KeyCode.Escape))
+        if (Input.GetKey(KeyCode.Escape) && gameState == GameState.Level && levelState == LevelState.Play)
         {
-            gameState = GameState.Menu;
-            StopCurrentLevel();
-            EventManager.instance.Fire(new BackToMenu());
+            StartCoroutine(BackToSelectionMenu());
         }
     }
 
@@ -216,14 +222,6 @@ public class GameManager : MonoBehaviour
         levelState = LevelState.Executing;
     }
 
-    private void OnLevelFinish(LevelFinish L)
-    {
-        levelState = LevelState.Clear;
-        StartCoroutine(LoadLevel(L.Index + 1,false));
-
-        SavePlayerData();
-    }
-
     private void SavePlayerData()
     {
         //SaveStat(new GameStatistics(Mathf.RoundToInt(Timer), LevelManager.RemainedDisappearBubble, LevelManager.RemainedNormalBubble));
@@ -231,64 +229,132 @@ public class GameManager : MonoBehaviour
         Timer = 0;
     }
 
-    private IEnumerator LoadLevel(int index,bool FromMenu)
+
+    private IEnumerator BackToSelectionMenu()
     {
-        if (!FromMenu)
+        levelState = LevelState.Clear;
+
+        SerialTasks BackToSelectionTask = new SerialTasks();
+
+        ParallelTasks ClearLevelTasks = new ParallelTasks();
+
+        SerialTasks LevelEndUITask = GetLevelEndTask();
+
+        ClearLevelTasks.Add(LevelEndUITask);
+
+        SerialTasks MapDisappearTask = ActivatedLevel.GetComponent<LevelManager>().GetMapDisappearTask();
+
+        ClearLevelTasks.Add(MapDisappearTask);
+
+        BackToSelectionTask.Add(ClearLevelTasks);
+
+        BackToSelectionTask.Add(new WaitTask(BackToMenuSelectionMenuAppearGap));
+
+        ParallelTasks LevelButtonAppearTasks = new ParallelTasks();
+
+        foreach (Transform child in AllLevelButtons.transform)
         {
-            SerialTasks LevelEndUITasks = GetLevelEndTask();
-
-            while (!LevelEndUITasks.IsFinished)
-            {
-                LevelEndUITasks.Update();
-                yield return null;
-            }
-
-            yield return new WaitForSeconds(PerformLevelFinishEffectWaitTime);
-
-            ParallelTasks BubblePowerUp = GetBubblePowerUpTasks();
-
-            while (!BubblePowerUp.IsFinished)
-            {
-                BubblePowerUp.Update();
-                yield return null;
-            }
-
-            ParallelTasks ShockWaveEmitAndFade = GetShockWaveEmitAndFadeTasks();
-
-            while (!ShockWaveEmitAndFade.IsFinished)
-            {
-                ShockWaveEmitAndFade.Update();
-                yield return null;
-            }
-
-            ParallelTasks MoveOutPrepare = GetBubbleMoveOutPrepareTasks();
-
-            while (!MoveOutPrepare.IsFinished)
-            {
-                MoveOutPrepare.Update();
-                yield return null;
-            }
-
-            ParallelTasks MoveOutEscape = GetBubbleEscapeTasks();
-
-            while (!MoveOutEscape.IsFinished)
-            {
-                MoveOutEscape.Update();
-                yield return null;
-            }
-
-            yield return new WaitForSeconds(StartNewLevelWaitTime);
+            LevelButtonAppearTasks.Add(child.GetComponent<LevelButton>().GetAppearTask());
         }
-        else
+
+        foreach (Transform child in LevelSelectionArrows.transform)
         {
-            yield return new WaitForSeconds(MenuLoadLevelWaitTime);
+            LevelButtonAppearTasks.Add(child.GetComponent<LevelSelectionArrow>().GetAppearTask());
         }
+
+        BackToSelectionTask.Add(LevelButtonAppearTasks);
+
+        while (!BackToSelectionTask.IsFinished)
+        {
+            BackToSelectionTask.Update();
+            yield return null;
+        }
+
+        ClearUseableBubbles();
+
+        SortedLevelList[CurrentSaveInfo.CurrentLevel - MinLevelIndex].SetActive(false);
+        Destroy(SortedLevelList[CurrentSaveInfo.CurrentLevel - MinLevelIndex]);
+        SortedLevelList[CurrentSaveInfo.CurrentLevel - MinLevelIndex] = CopiedLevel;
+
+        gameState = GameState.Menu;
+    }
+
+    private IEnumerator LoadLevel(int index, LoadLevelType Type, GameObject SelectedLevelButton = null)
+    {
+        switch (Type)
+        {
+            case LoadLevelType.FromSelectionMenu:
+
+                ParallelTasks LevelButtonDisappearTasks = new ParallelTasks();
+
+                foreach(Transform child in AllLevelButtons.transform)
+                {
+                    if(child.gameObject == SelectedLevelButton)
+                    {
+                        LevelButtonDisappearTasks.Add(child.GetComponent<LevelButton>().GetSelectedDisappearTask());
+                    }
+                    else
+                    {
+                        LevelButtonDisappearTasks.Add(child.GetComponent<LevelButton>().GetUnselectedDisappearTask());
+                    }
+                }
+
+                foreach (Transform child in LevelSelectionArrows.transform)
+                {
+                    LevelButtonDisappearTasks.Add(child.GetComponent<LevelSelectionArrow>().GetDisappearTask());
+                }
+
+                while (!LevelButtonDisappearTasks.IsFinished)
+                {
+                    LevelButtonDisappearTasks.Update();
+                    yield return null;
+                }
+
+                break;
+            case LoadLevelType.LevelFinish:
+
+                levelState = LevelState.Clear;
+
+                SerialTasks LevelEndTasks = new SerialTasks();
+
+                LevelEndTasks.Add(GetLevelEndTask());
+                LevelEndTasks.Add(new WaitTask(PerformLevelFinishEffectWaitTime));
+                LevelEndTasks.Add(GetBubblePowerUpTasks());
+                LevelEndTasks.Add(GetShockWaveEmitAndFadeTasks());
+                LevelEndTasks.Add(GetBubbleMoveOutPrepareTasks());
+
+                while (!LevelEndTasks.IsFinished)
+                {
+                    LevelEndTasks.Update();
+                    yield return null;
+                }
+
+                LevelEndTasks.Clear();
+
+                LevelEndTasks.Add(GetBubbleEscapeTasks());
+                LevelEndTasks.Add(new WaitTask(StartNewLevelWaitTime));
+
+                while (!LevelEndTasks.IsFinished)
+                {
+                    LevelEndTasks.Update();
+                    yield return null;
+                }
+
+                ClearUseableBubbles();
+
+                break;
+            case LoadLevelType.LevelJump:
+
+                levelState = LevelState.Clear;
+                break;
+        }
+
 
         if (index <= MaxLevelIndex)
         {
             levelState = LevelState.SetUp;
 
-            if (CurrentSaveInfo.CurrentLevel >= MinLevelIndex && !FromMenu)
+            if (CurrentSaveInfo.CurrentLevel >= MinLevelIndex && Type != LoadLevelType.FromSelectionMenu)
             {
                 SortedLevelList[CurrentSaveInfo.CurrentLevel - MinLevelIndex].SetActive(false);
                 Destroy(SortedLevelList[CurrentSaveInfo.CurrentLevel - MinLevelIndex]);
@@ -301,7 +367,7 @@ public class GameManager : MonoBehaviour
             SortedLevelList[index - MinLevelIndex].SetActive(true);
             ActivatedLevel = SortedLevelList[index - MinLevelIndex];
 
-            if (!FromMenu)
+            if (Type == LoadLevelType.LevelFinish)
             {
                 CurrentSaveInfo.LevelFinished[CurrentSaveInfo.CurrentLevel-1] = true;
             }
@@ -320,13 +386,6 @@ public class GameManager : MonoBehaviour
 
             levelState = LevelState.Play;
         }
-    }
-
-    private void SetSelector(GameObject obj, BubbleType Type, Color AvailableColor, Color UsedUpColor)
-    {
-        obj.GetComponent<BubbleSelector>().Type = Type;
-        obj.GetComponent<BubbleSelector>().AvailableColor = AvailableColor;
-        obj.GetComponent<BubbleSelector>().UsedUpColor = UsedUpColor;
     }
 
     private void GenerateUseableBubbles()
@@ -464,13 +523,20 @@ public class GameManager : MonoBehaviour
     private void OnCallLoadLevel(CallLoadLevel Call)
     {
         gameState = GameState.Level;
-        StartCoroutine(LoadLevel(Call.index,true));
-    }
 
-    private void StopCurrentLevel()
-    {
-        Destroy(SortedLevelList[CurrentSaveInfo.CurrentLevel - MinLevelIndex]);
-        SortedLevelList[CurrentSaveInfo.CurrentLevel - MinLevelIndex] = CopiedLevel;
+        switch (Call.Type)
+        {
+            case LoadLevelType.FromSelectionMenu:
+                StartCoroutine(LoadLevel(Call.index, Call.Type, Call.SelectedLevelButton));
+                break;
+            case LoadLevelType.LevelFinish:
+                StartCoroutine(LoadLevel(Call.index, Call.Type));
+                break;
+            case LoadLevelType.LevelJump:
+                StartCoroutine(LoadLevel(Call.index, Call.Type));
+                break;
+        }
+
     }
 
     private SerialTasks GetLevelStartTask()
@@ -497,7 +563,7 @@ public class GameManager : MonoBehaviour
         for(int i = 0; i < UseableBubbleList.Count; i++)
         {
             Color color = UseableBubbleList[i].GetComponent<SpriteRenderer>().color;
-            UseableBubbleAndLevelNumebrAppearTask.Add(new ColorChangeTask(UseableBubbleList[i], Utility.ColorWithAlpha(color, 0), Utility.ColorWithAlpha(color, 1), LevelNumberAndUseableBubbleAppearTime));
+            UseableBubbleAndLevelNumebrAppearTask.Add(new ColorChangeTask(UseableBubbleList[i], Utility.ColorWithAlpha(color, 0), Utility.ColorWithAlpha(color, 1), LevelNumberAndUseableBubbleAppearTime,ColorChangeType.Sprite));
         }
 
         UseableBubbleAndLevelNumebrAppearTask.Add(ActivatedLevel.GetComponent<LevelManager>().GetMapAppearTask());
@@ -510,13 +576,6 @@ public class GameManager : MonoBehaviour
 
     private SerialTasks GetLevelEndTask()
     {
-        for(int i = 0; i < UseableBubbleList.Count; i++)
-        {
-            Destroy(UseableBubbleList[i]);
-        }
-
-        UseableBubbleList.Clear();
-
         SerialTasks LevelEndUITasks = new SerialTasks();
 
         ParallelTasks AllTask = new ParallelTasks();
@@ -538,9 +597,31 @@ public class GameManager : MonoBehaviour
 
         AllTask.Add(MarkDisappear);
 
+        ParallelTasks UseableCircleDisappearTasks = new ParallelTasks();
+
+        foreach(Transform child in AllUseableBubbles.transform)
+        {
+            if (child.gameObject.activeSelf)
+            {
+                UseableCircleDisappearTasks.Add(child.GetComponent<UsableCircle>().GetDisappearTask());
+            }
+        }
+
+        AllTask.Add(UseableCircleDisappearTasks);
+
         LevelEndUITasks.Add(AllTask);
 
         return LevelEndUITasks;
+    }
+
+    private void ClearUseableBubbles()
+    {
+        for (int i = 0; i < UseableBubbleList.Count; i++)
+        {
+            Destroy(UseableBubbleList[i]);
+        }
+
+        UseableBubbleList.Clear();
     }
 
     private ParallelTasks GetBubblePowerUpTasks()

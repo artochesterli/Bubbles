@@ -16,6 +16,8 @@ public class UsableCircle : MonoBehaviour
     public float InflationTime;
     public float ColorRecoverTime;
 
+    public float DisappearTime;
+
     private Vector2 OriPos;
     private bool Selected;
     private float CurrentSize;
@@ -264,5 +266,12 @@ public class UsableCircle : MonoBehaviour
         List<List<SlotInfo>> Map = Slot.GetComponent<SlotObject>().ConnectedMap;
         Vector2Int Coordination = Slot.GetComponent<SlotObject>().ConnectedSlotInfo.Pos + Offset;
         return Map[Coordination.x][Coordination.y].Entity;
+    }
+
+    public ColorChangeTask GetDisappearTask()
+    {
+        Color color = GetComponent<SpriteRenderer>().color;
+
+        return new ColorChangeTask(gameObject, Utility.ColorWithAlpha(color, 1), Utility.ColorWithAlpha(color, 0), DisappearTime, ColorChangeType.Sprite);
     }
 }

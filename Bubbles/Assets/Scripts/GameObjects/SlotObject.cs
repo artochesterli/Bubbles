@@ -185,7 +185,7 @@ public class SlotObject : MonoBehaviour
 
     public ColorChangeTask GetFadeTask()
     {
-        return new ColorChangeTask(gameObject, DefaultColor, FinishColor, FinishTime);
+        return new ColorChangeTask(gameObject, DefaultColor, FinishColor, FinishTime, ColorChangeType.Sprite);
     }
 
 }

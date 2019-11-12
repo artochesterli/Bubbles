@@ -38,8 +38,6 @@ public class MoveOutEscapeTask : Task
         base.Update();
         TimeCount += Time.deltaTime * TimeScale;
 
-
-
         if (TimeCount < MoveOutTime * MoveOutAcTimePercentage)
         {
             TimeScale += MoveOutMaxTimeScale / (MoveOutAcTimePercentage * MoveOutTime) * Time.deltaTime;

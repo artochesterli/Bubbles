@@ -51,12 +51,10 @@ public class TargetSlotObject : MonoBehaviour
     void Start()
     {
         InsideParticles = new List<InsideParticle>();
-        EventManager.instance.AddHandler<LevelFinish>(OnLevelFinish);
     }
 
     private void OnDestroy()
     {
-        EventManager.instance.RemoveHandler<LevelFinish>(OnLevelFinish);
     }
 
     // Update is called once per frame
@@ -113,11 +111,6 @@ public class TargetSlotObject : MonoBehaviour
     {
         ParticleGenerationTimeCount = 0;
         InsideParticles.Clear();
-    }
-
-    private void OnLevelFinish(LevelFinish L)
-    {
-        Effect.GetComponent<ParticleSystem>().Stop();
     }
 
     private void GenerateParticles()
