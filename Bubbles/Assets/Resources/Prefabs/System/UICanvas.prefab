@@ -491,6 +491,7 @@ MonoBehaviour:
   TotalLevelNumber: 50
   NextLevelScene: level 41-80
   AllUseableBubbles: {fileID: 0}
+  UseableBubblesHeightGap: 1.5
   UseableBubblePrefab: {fileID: 1610107871352872130, guid: 26c36e3479cef8449be857067b5d8bae,
     type: 3}
   UseableBubblesXGap: 1
@@ -513,6 +514,7 @@ MonoBehaviour:
   BackToMenuMapDisappearGap: 0.3
   BackToMenuSelectionMenuAppearGap: 0.3
   CopiedLevel: {fileID: 0}
+  RollBackInputInterval: 0.3
 --- !u!114 &200210752
 MonoBehaviour:
   m_ObjectHideFlags: 0

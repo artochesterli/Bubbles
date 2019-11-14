@@ -8,6 +8,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 public enum GameState
 {
+    MainMenu,
     Menu,
     Level
 }
@@ -20,9 +21,16 @@ public enum LevelState
     Clear
 }
 
+public enum CursorState
+{
+    Holding,
+    Release
+}
+
 public enum LoadLevelType
 {
     FromSelectionMenu,
+    FromMainMenu,
     LevelJump,
     LevelFinish
 
@@ -62,6 +70,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameState gameState;
     public static LevelState levelState;
+    public static CursorState cursorState;
     public static BubbleType HeldBubbleType;
     public static SaveData CurrentSaveInfo;
     public static GameObject ActivatedLevel;
@@ -73,6 +82,7 @@ public class GameManager : MonoBehaviour
     public string NextLevelScene;
 
     public GameObject AllUseableBubbles;
+    public float UseableBubblesHeightGap;
     public GameObject UseableBubblePrefab;
     public float UseableBubblesXGap;
 
@@ -102,6 +112,8 @@ public class GameManager : MonoBehaviour
 
     public GameObject CopiedLevel;
 
+    public float RollBackInputInterval;
+
     private GameObject AllLevel;
     private List<GameObject> SortedLevelList;
 
@@ -109,6 +121,9 @@ public class GameManager : MonoBehaviour
 
     private List<GameStatistics> LevelFinishStat=new List<GameStatistics>();
     private float Timer;
+
+    private float RollBackInputIntervalTimeCount;
+    private bool RollBackFirstTap;
 
     private const string SaveFolderName = "PlayerSave";
     private const string SaveFileName = "PlayerSave";
@@ -138,44 +153,33 @@ public class GameManager : MonoBehaviour
     {
         Timer += Time.deltaTime;
 
-        if (Input.GetKey(KeyCode.Escape) && gameState == GameState.Level && levelState == LevelState.Play)
+        if (Input.GetKeyDown(KeyCode.Escape) && gameState == GameState.Level && levelState == LevelState.Play)
         {
             StartCoroutine(BackToSelectionMenu());
         }
+
+        GetRollBackInput();
+
     }
 
     private void Init()
     {
+        gameState = GameState.Menu;
+        levelState = LevelState.SetUp;
+        cursorState = CursorState.Release;
+
         Instance = gameObject;
 
         HeldBubbleType = BubbleType.Null;
 
         UseableBubbleList = new List<GameObject>();
 
-
         GetLevelInfo();
-
-        //SortedLevelList[CurrentLevel - MinLevelIndex].SetActive(false);
 
         if (!LoadProgress())
         {
             SaveProgress();
         }
-
-        /*if (!LoadProgress())
-        {
-            //CurrentLevel = MinLevelIndex;
-            SaveProgress();
-        }*/
-
-        //CopiedLevel = Instantiate(SortedLevelList[CurrentSaveInfo.CurrentLevel - MinLevelIndex]);
-        //CopiedLevel.transform.parent = AllLevel.transform;
-        //CopiedLevel.SetActive(false);
-       // SortedLevelList[CurrentSaveInfo.CurrentLevel - MinLevelIndex].SetActive(true);
-
-        //State = GameState.Play;
-        //EventManager.instance.Fire(new LevelLoaded(CurrentSaveInfo.CurrentLevel));
-
     }
 
     private void GetLevelInfo()
@@ -390,6 +394,11 @@ public class GameManager : MonoBehaviour
 
     private void GenerateUseableBubbles()
     {
+
+        float height = -ActivatedLevel.GetComponent<LevelManager>().GetMapSize().y * 0.5f - UseableBubblesHeightGap;
+
+        AllUseableBubbles.transform.position = new Vector2(AllUseableBubbles.transform.position.x, height);
+
         int BubbleNumber = LevelManager.RemainedDisappearBubble + LevelManager.RemainedNormalBubble;
 
         float StartX;
@@ -415,7 +424,7 @@ public class GameManager : MonoBehaviour
 
             UseableBubbleList.Add(Bubble);
         }
-
+        
         for (int i = 0; i < LevelManager.RemainedNormalBubble; i++)
         {
             GameObject Bubble = GameObject.Instantiate(UseableBubblePrefab);
@@ -427,11 +436,11 @@ public class GameManager : MonoBehaviour
             UseableBubbleList.Add(Bubble);
         }
     }
-
+    
     private void SaveProgress()
     {
         string Dic = Path.Combine(Application.dataPath, SaveFolderName);
-
+         
         if (!Directory.Exists(Dic))
         {
             Directory.CreateDirectory(Dic);
@@ -519,6 +528,38 @@ public class GameManager : MonoBehaviour
         stream.Close();
         return num;
     }*/
+
+    private void GetRollBackInput()
+    {
+        if (gameState == GameState.Level && levelState == LevelState.Play && cursorState == CursorState.Release)
+        {
+            if (RollBackFirstTap)
+            {
+                RollBackInputIntervalTimeCount += Time.deltaTime;
+                if (RollBackInputIntervalTimeCount >= RollBackInputInterval)
+                {
+                    RollBackFirstTap = false;
+                }
+            }
+            if (Input.GetMouseButtonDown(0))
+            {
+                if (!RollBackFirstTap)
+                {
+                    RollBackInputIntervalTimeCount = 0;
+                    RollBackFirstTap = true;
+                }
+                else
+                {
+                    EventManager.instance.Fire(new RollBack());
+                }
+            }
+        }
+        else
+        {
+            RollBackFirstTap = false;
+            RollBackInputIntervalTimeCount = 0;
+        }
+    }
 
     private void OnCallLoadLevel(CallLoadLevel Call)
     {

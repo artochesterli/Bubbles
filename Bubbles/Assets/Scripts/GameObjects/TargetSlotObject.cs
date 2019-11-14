@@ -15,7 +15,6 @@ public class InsideParticle
 
 public class TargetSlotObject : MonoBehaviour
 {
-    public GameObject Effect;
     public GameObject InsideParticlePrefab;
 
     public float BreathCycle;

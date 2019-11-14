@@ -129,12 +129,6 @@ public class SlotObject : MonoBehaviour
         }
     }
 
-    public bool CursorInside()
-    {
-        Vector3 CursorPos = Camera.main.ScreenToWorldPoint(Input.mousePosition+(Vector3)CursorManager.Entity.GetComponent<CursorManager>().Offset* CursorManager.Entity.transform.localScale.y);
-        return CursorPos.x >= OriPos.x - Size / 2 && CursorPos.x <= OriPos.x + Size / 2 && CursorPos.y >= OriPos.y - Size / 2 && CursorPos.y <= OriPos.y + Size / 2;
-    }
-
     public bool Inside(Vector3 CursorPos)
     {
         return CursorPos.x >= OriPos.x - Size / 2 && CursorPos.x <= OriPos.x + Size / 2 && CursorPos.y >= OriPos.y - Size / 2 && CursorPos.y <= OriPos.y + Size / 2;

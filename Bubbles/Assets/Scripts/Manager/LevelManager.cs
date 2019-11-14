@@ -67,7 +67,6 @@ public class LevelManager : MonoBehaviour
     {
         UsableCircle.AllSlot = AllSlot;
 
-        CursorManager.AllSlot = AllSlot;
         if (Map == null)
         {
             Map = new List<List<SlotInfo>>();
@@ -106,6 +105,11 @@ public class LevelManager : MonoBehaviour
         }
 
 
+    }
+
+    public Vector2 GetMapSize()
+    {
+        return new Vector2(Map.Count, Map[0].Count);
     }
 
     private void GetMapInfo()
@@ -400,7 +404,6 @@ public class LevelManager : MonoBehaviour
         Map[Pos.x][Pos.y].InsideBubbleState = BubbleState.Activated;
 
         Map[Pos.x][Pos.y].ConnectedBubble.GetComponent<Bubble>().State = BubbleState.Activated;
-        Map[Pos.x][Pos.y].ConnectedBubble.transform.Find("StableEffect").GetComponent<ParticleSystem>().Stop();
         Map[Pos.x][Pos.y].ConnectedBubble.transform.Find("ActivateEffect").GetComponent<ParticleSystem>().Play();
         Map[Pos.x][Pos.y].ConnectedBubble.transform.parent = AllBubble.transform;
 

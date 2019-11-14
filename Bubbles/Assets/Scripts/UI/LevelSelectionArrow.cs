@@ -35,28 +35,17 @@ public class LevelSelectionArrow : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (!Shaking&&GameManager.gameState == GameState.Level)
+        if (!Shaking&&GameManager.gameState == GameState.Menu)
         {
             StartCoroutine(ClickedShake());
             if (Right)
             {
-                transform.parent.GetComponent<SelectLevelMenuManager>().IncreaseLevel();
+                transform.root.GetComponent<SelectLevelMenuManager>().IncreaseLevel();
             }
             else
             {
-                transform.parent.GetComponent<SelectLevelMenuManager>().DecreaseLevel();
+                transform.root.GetComponent<SelectLevelMenuManager>().DecreaseLevel();
             }
-        }
-    }
-
-    private IEnumerator Disappeear()
-    {
-        float TimeCount = 0;
-        while (TimeCount < DisappearTime)
-        {
-            TimeCount += Time.deltaTime;
-            GetComponent<Image>().color = new Color(color.r, color.g, color.b, 1 - TimeCount / DisappearTime);
-            yield return null;
         }
     }
 

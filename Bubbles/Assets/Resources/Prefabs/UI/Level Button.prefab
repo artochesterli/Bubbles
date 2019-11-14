@@ -77,79 +77,6 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: 1
---- !u!1 &905181036547815875
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 7628252948766370727}
-  - component: {fileID: 8519947915155067993}
-  - component: {fileID: 8469640695601557203}
-  m_Layer: 5
-  m_Name: FinishWave
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!224 &7628252948766370727
-RectTransform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 905181036547815875}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
-  m_Father: {fileID: 4879707406992451528}
-  m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 0.5, y: 0.5}
-  m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 150, y: 150}
-  m_Pivot: {x: 0.5, y: 0.5}
---- !u!222 &8519947915155067993
-CanvasRenderer:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 905181036547815875}
-  m_CullTransparentMesh: 0
---- !u!114 &8469640695601557203
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 905181036547815875}
-  m_Enabled: 0
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_RaycastTarget: 1
-  m_OnCullStateChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 5e74fd2785e4c8b4598e57096042786a, type: 3}
-  m_Type: 0
-  m_PreserveAspect: 0
-  m_FillCenter: 1
-  m_FillMethod: 4
-  m_FillAmount: 1
-  m_FillClockwise: 1
-  m_FillOrigin: 0
-  m_UseSpriteMesh: 0
-  m_PixelsPerUnitMultiplier: 1
 --- !u!1 &3361251973943441330
 GameObject:
   m_ObjectHideFlags: 0
@@ -213,7 +140,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 5e74fd2785e4c8b4598e57096042786a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: aa614ab1aef11fb479a9796faf1c0f4c, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -253,7 +180,7 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4879707406992451528}
-  m_RootOrder: 5
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
@@ -286,7 +213,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 9fa446906a8ea4a49a55c2bc1c2f2811, type: 3}
+  m_Sprite: {fileID: 21300000, guid: aa614ab1aef11fb479a9796faf1c0f4c, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -408,7 +335,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 150, y: 150}
+  m_SizeDelta: {x: 158, y: 158}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5508988703220447294
 CanvasRenderer:
@@ -436,7 +363,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 5e74fd2785e4c8b4598e57096042786a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: aa614ab1aef11fb479a9796faf1c0f4c, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -479,7 +406,6 @@ RectTransform:
   - {fileID: 5109152246175151761}
   - {fileID: 2618097278348479527}
   - {fileID: 218034422594382805}
-  - {fileID: 7628252948766370727}
   - {fileID: 2252302539461931338}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -506,10 +432,6 @@ MonoBehaviour:
   FinishColor: {r: 1, g: 1, b: 1, a: 1}
   FinishShakeAmplitude: 5
   FinishShakeCycle: 3
-  FinishWaveTime: 1
-  FinishWaveInitScale: 0.8
-  FinishWaveScale: 1.2
-  FinishWaveInterval: 1.5
   SwtichOffset: 100
   SwtichAppearDelay: 0
   SwtichAppearTime: 0.2
@@ -526,7 +448,6 @@ MonoBehaviour:
   Text: {fileID: 730376744038416757}
   BackUpImage: {fileID: 3361251973943441330}
   BackUpText: {fileID: 3860975771549852229}
-  FinishWave: {fileID: 905181036547815875}
   SelectedEffect: {fileID: 3681158138178500498}
   Finished: 0
 --- !u!58 &8649535932313993458

@@ -69,8 +69,6 @@ public class BlockedTask : Task
     private void Activate()
     {
         Obj.GetComponent<Bubble>().State = BubbleState.Activated;
-        Obj.transform.Find("StableEffect").GetComponent<ParticleSystem>().Stop();
-        Obj.transform.Find("StableEffect").GetComponent<ParticleSystem>().Clear();
 
         Obj.transform.Find("ActivateEffect").GetComponent<ParticleSystem>().Play();
     }

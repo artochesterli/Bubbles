@@ -105,16 +105,18 @@ public class UsableCircle : MonoBehaviour
 
     private void CheckSelected()
     {
-        if(!Selected && CursorManager.CurrentState == CursorState.Release && Input.GetMouseButtonDown(0) && CursorInside())
+        if(!Selected && GameManager.cursorState == CursorState.Release && Input.GetMouseButtonDown(0) && CursorInside())
         {
             GameManager.HeldBubbleType = Type;
-            CursorManager.CurrentState = CursorState.Holding;
+            GameManager.cursorState = CursorState.Holding;
+
             Selected = true;
             ActivatedEffect.GetComponent<ParticleSystem>().Play();
         }
         else if (Selected && Input.GetMouseButtonUp(0))
         {
-            CursorManager.CurrentState = CursorState.Release;
+            GameManager.cursorState = CursorState.Release;
+
             Selected = false;
 
             if (SelectedSlot != null)
@@ -166,6 +168,8 @@ public class UsableCircle : MonoBehaviour
     {
         color = c;
     }
+
+
 
     private void CheckSlotSelection()
     {
