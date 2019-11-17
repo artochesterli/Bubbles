@@ -63,7 +63,11 @@ public class CallLoadLevel: Event
     }
 }
 
-public class BackToMenu : Event { }
+public class CallGoToSelectLevel : Event { }
+
+public class CallBackToSelectLevel : Event { }
+
+public class CallBackToMainMenu : Event { }
 
 public class RollBack : Event { }
 

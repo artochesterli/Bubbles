@@ -197,7 +197,7 @@ public class Utility
     }
 
     public static SerialTasks GetButtonSelectedDisappearTask(GameObject BorderImage, GameObject InsideContent, GameObject SelectedEffect,
-        bool ContentIsImage, float SelectedEffectScale, float SelectedEffectTime,float AfterSelectedEffectTime, float DisappearTime)
+        bool ContentIsImage, float SelectedEffectScale, float SelectedEffectTime, float DisappearTime)
     {
         SerialTasks SelectedDisappearTask = new SerialTasks();
 
@@ -209,7 +209,6 @@ public class Utility
         SelectedEffectTask.Add(new ColorChangeTask(SelectedEffect, ColorWithAlpha(EffectColor, 1), ColorWithAlpha(EffectColor, 0), SelectedEffectTime, ColorChangeType.Image));
 
         SelectedDisappearTask.Add(SelectedEffectTask);
-        SelectedDisappearTask.Add(new WaitTask(AfterSelectedEffectTime));
 
         ParallelTasks SelfDisappearTask = new ParallelTasks();
 

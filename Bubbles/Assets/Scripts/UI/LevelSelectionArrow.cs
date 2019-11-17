@@ -35,7 +35,7 @@ public class LevelSelectionArrow : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (!Shaking&&GameManager.gameState == GameState.Menu)
+        if (!Shaking&&GameManager.gameState == GameState.SelectLevelMenu)
         {
             StartCoroutine(ClickedShake());
             if (Right)

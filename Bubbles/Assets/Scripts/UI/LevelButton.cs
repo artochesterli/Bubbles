@@ -18,14 +18,6 @@ public class LevelButton : MonoBehaviour
 
     public int LevelGap;
 
-    public float SelectedEffectScale;
-    public float SelectedEffectTime;
-    public float AfterSelectedEffectTime;
-    public float UnselectedDisappearTime;
-    public float SelectedDisappearTime;
-    public float AppearDelay;
-    public float AppearTime;
-
     public GameObject Image;
     public GameObject Text;
     public GameObject BackUpImage;
@@ -53,7 +45,7 @@ public class LevelButton : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (GameManager.gameState == GameState.Menu)
+        /*if (GameManager.gameState == GameState.SelectLevelMenu)
         {
             SetColor(Image, Text, 1);
             Shake();
@@ -62,7 +54,7 @@ public class LevelButton : MonoBehaviour
         {
             Shake();
             ShakeTimeCount = 0;
-        }
+        }*/
     }
 
     public IEnumerator Swtich(bool Bigger)
@@ -163,7 +155,7 @@ public class LevelButton : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if (!Swtiching && GameManager.gameState == GameState.Menu)
+        if (!Swtiching && GameManager.gameState == GameState.SelectLevelMenu)
         {
             ResetButton();
             SelectedEffect.GetComponent<Image>().enabled = true;
@@ -171,17 +163,17 @@ public class LevelButton : MonoBehaviour
         }
     }
 
-    public ParallelTasks GetUnselectedDisappearTask()
+    public ParallelTasks GetUnselectedDisappearTask(float UnselectedDisappearTime)
     {
         return Utility.GetButtonUnselectedDisappearTask(Image, Text, false, UnselectedDisappearTime);
     }
 
-    public SerialTasks GetSelectedDisappearTask()
+    public SerialTasks GetSelectedDisappearTask(float SelectedEffectScale, float SelectedEffectTime,float SelectedDisappearTime)
     {
-        return Utility.GetButtonSelectedDisappearTask(Image, Text, SelectedEffect, false, SelectedEffectScale, SelectedEffectTime, AfterSelectedEffectTime, SelectedDisappearTime);
+        return Utility.GetButtonSelectedDisappearTask(Image, Text, SelectedEffect, false, SelectedEffectScale, SelectedEffectTime, SelectedDisappearTime);
     }
 
-    public ParallelTasks GetAppearTask()
+    public ParallelTasks GetAppearTask(float AppearTime)
     {
         return Utility.GetButtonAppearTask(Image, Text, false, AppearTime);
     }

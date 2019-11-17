@@ -57,12 +57,6 @@ public class RecoverTask : Task
             SetState(TaskState.Success);
         }
 
-        ActivateEffect.GetComponent<ParticleSystem>().startColor = EnergyColor;
-        EmptyEffect.GetComponent<ParticleSystem>().startColor = EnergyColor;
-        foreach(Transform child in ReleaseEffect.transform)
-        {
-            child.GetComponent<ParticleSystem>().startColor = EnergyColor;
-        }
     }
 
     internal override void Update()
