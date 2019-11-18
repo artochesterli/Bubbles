@@ -192,7 +192,6 @@ public class UsableCircle : MonoBehaviour
                             {
                                 if (SelectedSlot != null)
                                 {
-                                    Handheld.Vibrate();
                                     SelectedSlot.GetComponent<SlotObject>().Selected = false;
                                     ResetOffsetInfo();
                                 }

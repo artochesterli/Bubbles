@@ -112,7 +112,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 150, y: 150}
+  m_SizeDelta: {x: 158, y: 158}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8449194248359673690
 CanvasRenderer:
@@ -185,7 +185,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 150, y: 150}
+  m_SizeDelta: {x: 158, y: 158}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8398649234508222879
 CanvasRenderer:
@@ -437,13 +437,6 @@ MonoBehaviour:
   SwtichAppearTime: 0.2
   SwtichMoveTime: 0.2
   LevelGap: 10
-  SelectedEffectScale: 3
-  SelectedEffectTime: 0.2
-  AfterSelectedEffectTime: 0
-  UnselectedDisappearTime: 0.2
-  SelectedDisappearTime: 0.3
-  AppearDelay: 0
-  AppearTime: 0.5
   Image: {fileID: 6568668063794388292}
   Text: {fileID: 730376744038416757}
   BackUpImage: {fileID: 3361251973943441330}
