@@ -191,10 +191,15 @@ public class GameManager : MonoBehaviour
 
         GetLevelInfo();
 
-        if (!LoadProgress())
+        CurrentSaveInfo = new SaveData(TotalLevelNumber, 1, new List<bool>());
+        for (int i = 0; i < CurrentSaveInfo.TotalLevelNumber; i++)
+        {
+            CurrentSaveInfo.LevelFinished.Add(false);
+        }
+        /*if (!LoadProgress())
         {
             SaveProgress();
-        }
+        }*/
     }
 
     private void GetLevelInfo()
@@ -507,7 +512,7 @@ public class GameManager : MonoBehaviour
                 CurrentSaveInfo.LevelFinished[CurrentSaveInfo.CurrentLevel-1] = true;
             }
             CurrentSaveInfo.CurrentLevel = index;
-            SaveProgress();
+            //SaveProgress();
             
             EventManager.instance.Fire(new LevelLoaded(CurrentSaveInfo.CurrentLevel));
 
