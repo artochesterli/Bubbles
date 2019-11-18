@@ -256,13 +256,13 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator BackToSelectionMenu()
     {
-        levelState = LevelState.Clear;
+        BackButton.GetComponent<BoxCollider2D>().enabled = false;
 
-        SerialTasks BackToSelectionTask = new SerialTasks();
+        levelState = LevelState.Clear;
 
         ParallelTasks ClearLevelTasks = new ParallelTasks();
 
-        SerialTasks LevelEndUITask = GetLevelEndTask();
+        SerialTasks LevelEndUITask = GetLevelEndUITask();
 
         ClearLevelTasks.Add(LevelEndUITask);
 
@@ -270,9 +270,13 @@ public class GameManager : MonoBehaviour
 
         ClearLevelTasks.Add(MapDisappearTask);
 
-        BackToSelectionTask.Add(ClearLevelTasks);
+        while (!ClearLevelTasks.IsFinished)
+        {
+            ClearLevelTasks.Update();
+            yield return null;
+        }
 
-        BackToSelectionTask.Add(new WaitTask(BackToMenuSelectionMenuAppearGap));
+        yield return new WaitForSeconds(BackToMenuSelectionMenuAppearGap);
 
         ParallelTasks LevelButtonAppearTasks = new ParallelTasks();
 
@@ -286,13 +290,16 @@ public class GameManager : MonoBehaviour
             LevelButtonAppearTasks.Add(child.GetComponent<LevelSelectionArrow>().GetAppearTask());
         }
 
-        BackToSelectionTask.Add(LevelButtonAppearTasks);
+        LevelButtonAppearTasks.Add(BackButton.GetComponent<BackButton>().GetAppearTask(ButtonAppearTime));
 
-        while (!BackToSelectionTask.IsFinished)
+        while (!LevelButtonAppearTasks.IsFinished)
         {
-            BackToSelectionTask.Update();
+            LevelButtonAppearTasks.Update();
             yield return null;
         }
+
+        BackButton.GetComponent<BoxCollider2D>().enabled = true;
+
 
         ClearUseableBubbles();
 
@@ -380,6 +387,8 @@ public class GameManager : MonoBehaviour
             SelectLevelAppearTasks.Add(child.GetComponent<LevelSelectionArrow>().GetAppearTask());
         }
 
+        SelectLevelAppearTasks.Add(BackButton.GetComponent<BackButton>().GetAppearTask(ButtonAppearTime));
+
         while (!SelectLevelAppearTasks.IsFinished)
         {
             SelectLevelAppearTasks.Update();
@@ -387,14 +396,6 @@ public class GameManager : MonoBehaviour
         }
 
         SetSelectLevelEnable(true);
-
-        ColorChangeTask BackButtonAppearTask = BackButton.GetComponent<BackButton>().GetAppearTask(ButtonAppearTime);
-
-        while (!BackButtonAppearTask.IsFinished)
-        {
-            BackButtonAppearTask.Update();
-            yield return null;
-        }
 
         BackButton.GetComponent<BoxCollider2D>().enabled = true;
     }
@@ -427,6 +428,7 @@ public class GameManager : MonoBehaviour
 
             case LoadLevelType.FromSelectionMenu:
 
+                BackButton.GetComponent<BoxCollider2D>().enabled = false;
                 SetSelectLevelEnable(false);
 
                 ParallelTasks LevelButtonDisappearTasks = new ParallelTasks();
@@ -448,6 +450,8 @@ public class GameManager : MonoBehaviour
                     LevelButtonDisappearTasks.Add(child.GetComponent<LevelSelectionArrow>().GetDisappearTask());
                 }
 
+                LevelButtonDisappearTasks.Add(BackButton.GetComponent<BackButton>().GetDisappearTask(ButtonUnselectedDisappearTime));
+
                 while (!LevelButtonDisappearTasks.IsFinished)
                 {
                     LevelButtonDisappearTasks.Update();
@@ -457,11 +461,13 @@ public class GameManager : MonoBehaviour
                 break;
             case LoadLevelType.LevelFinish:
 
+                BackButton.GetComponent<BoxCollider2D>().enabled = false;
+
                 levelState = LevelState.Clear;
 
                 SerialTasks LevelEndTasks = new SerialTasks();
 
-                LevelEndTasks.Add(GetLevelEndTask());
+                LevelEndTasks.Add(GetLevelEndUITask());
                 LevelEndTasks.Add(new WaitTask(PerformLevelFinishEffectWaitTime));
                 LevelEndTasks.Add(GetBubblePowerUpTasks());
                 LevelEndTasks.Add(GetShockWaveEmitAndFadeTasks());
@@ -526,18 +532,15 @@ public class GameManager : MonoBehaviour
 
             levelState = LevelState.Play;
 
-            if (Type == LoadLevelType.FromMainMenu)
+            ColorChangeTask BackButtonAppearTask = BackButton.GetComponent<BackButton>().GetAppearTask(ButtonAppearTime);
+
+            while (!BackButtonAppearTask.IsFinished)
             {
-                ColorChangeTask BackButtonAppearTask = BackButton.GetComponent<BackButton>().GetAppearTask(ButtonAppearTime);
-
-                while (!BackButtonAppearTask.IsFinished)
-                {
-                    BackButtonAppearTask.Update();
-                    yield return null;
-                }
-
-                BackButton.GetComponent<BoxCollider2D>().enabled = true;
+                BackButtonAppearTask.Update();
+                yield return null;
             }
+
+            BackButton.GetComponent<BoxCollider2D>().enabled = true;
         }
     }
 
@@ -805,7 +808,7 @@ public class GameManager : MonoBehaviour
         return LevelStartUITasks;
     }
 
-    private SerialTasks GetLevelEndTask()
+    private SerialTasks GetLevelEndUITask()
     {
         SerialTasks LevelEndUITasks = new SerialTasks();
 
@@ -819,6 +822,7 @@ public class GameManager : MonoBehaviour
 
         ParallelTasks MarkDisappearTask = new ParallelTasks();
 
+        MarkDisappearTask.Add(BackButton.GetComponent<BackButton>().GetDisappearTask(ButtonUnselectedDisappearTime));
         MarkDisappearTask.Add(new UIFillTask(LevelMarkLeft, 1, 0, MarkFillTime));
         MarkDisappearTask.Add(new UIFillTask(LevelMarkRight, 1, 0, MarkFillTime));
         MarkDisappearTask.Add(new UIFillTask(UseableAreaMarkLeft, 1, 0, MarkFillTime));
