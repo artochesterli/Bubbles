@@ -59,6 +59,7 @@ SpriteRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -96,7 +97,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   MapPivotOffset: {x: 0, y: 0}
   Size: 0.92
-  SelectedColor: {r: 1, g: 0.87304014, b: 0.5707547, a: 1}
+  SelectedColor: {r: 1, g: 0.8906007, b: 0.6273585, a: 1}
   NearBySelectedColor: {r: 0.8773585, g: 0.76679647, b: 0.5007565, a: 1}
   DefaultColor: {r: 0.6784314, g: 0.59607846, b: 0.4, a: 1}
   SelectedSprite: {fileID: 21300000, guid: a2e511f5c9b50624ebfc7ac167552d6b, type: 3}
@@ -104,7 +105,6 @@ MonoBehaviour:
   Type: 2
   Selected: 0
   NearBySelected: 0
-  FinishWaitTime: 2.1
   FinishTime: 0.3
   FinishColor: {r: 0.6784314, g: 0.59607846, b: 0.4, a: 0}
   FinishRotationSpeed: 0
@@ -192,6 +192,7 @@ SpriteRenderer:
   m_ProbeAnchor: {fileID: 0}
   m_LightProbeVolumeOverride: {fileID: 0}
   m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
   m_PreserveUVs: 0
   m_IgnoreNormalsForChartDetection: 0
   m_ImportantGI: 0
@@ -212,6 +213,6 @@ SpriteRenderer:
   m_Size: {x: 0.95, y: 0.95}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
-  m_WasSpriteAssigned: 1
+  m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0

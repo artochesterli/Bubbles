@@ -81,7 +81,8 @@ public class SlotObject : MonoBehaviour
 
     private void SetAppearance()
     {
-        if (GameManager.levelState !=LevelState.SetUp && GameManager.levelState!=LevelState.Clear)
+
+        if (GameManager.levelState == LevelState.Play)
         {
             if (Selected)
             {

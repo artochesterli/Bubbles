@@ -1005,21 +1005,35 @@ public class LevelManager : MonoBehaviour
         var Data = GetComponent<BubbleMotionData>();
         SerialTasks TeleportSlotTask = new SerialTasks();
 
+
+
         if (DuringBubbleMovement)
         {
             TeleportSlotTask.Add(new WaitTask(Data.MotionTime));
         }
 
+        ParallelTasks Teleport = new ParallelTasks();
+
+        SerialTasks ColorChangeTasks = new SerialTasks();
+
+        ColorChangeTasks.Add(new ColorChangeTask(Obj, Obj.GetComponent<SlotObject>().DefaultColor, Obj.GetComponent<SlotObject>().SelectedColor, Data.TeleportTime / 2, ColorChangeType.Sprite));
+        ColorChangeTasks.Add(new ColorChangeTask(Obj, Obj.GetComponent<SlotObject>().SelectedColor, Obj.GetComponent<SlotObject>().DefaultColor, Data.TeleportTime / 2, ColorChangeType.Sprite));
+
+        Teleport.Add(ColorChangeTasks);
+        Teleport.Add(new RotationTask(Obj, 90, Data.TeleportTime));
+
+        TeleportSlotTask.Add(Teleport);
+
         ParallelTasks ScaleRotationChangeFirstHalf = new ParallelTasks();
         ScaleRotationChangeFirstHalf.Add(new RotationTask(Obj, 90, Data.TeleportTime / 2));
-        ScaleRotationChangeFirstHalf.Add(new ColorChangeTask(Obj, Obj.GetComponent<SlotObject>().DefaultColor, Obj.GetComponent<SlotObject>().SelectedColor, 0, ColorChangeType.Sprite));
+        //ScaleRotationChangeFirstHalf.Add();
         
-        TeleportSlotTask.Add(ScaleRotationChangeFirstHalf);
+        //TeleportSlotTask.Add(ScaleRotationChangeFirstHalf);
 
         ParallelTasks ScaleRotationChangeSecondHalf = new ParallelTasks();
         ScaleRotationChangeSecondHalf.Add(new RotationTask(Obj, 90, Data.TeleportTime / 2));
         ScaleRotationChangeSecondHalf.Add(new ColorChangeTask(Obj, Obj.GetComponent<SlotObject>().SelectedColor, Obj.GetComponent<SlotObject>().DefaultColor, 0, ColorChangeType.Sprite));
-        TeleportSlotTask.Add(ScaleRotationChangeSecondHalf);
+        //TeleportSlotTask.Add(ScaleRotationChangeSecondHalf);
 
         return TeleportSlotTask;
     }

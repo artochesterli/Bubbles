@@ -190,6 +190,8 @@ public class UsableCircle : MonoBehaviour
                         {
                             if (child.gameObject != SelectedSlot)
                             {
+                                Taptic.Light();
+
                                 if (SelectedSlot != null)
                                 {
                                     SelectedSlot.GetComponent<SlotObject>().Selected = false;
