@@ -44,10 +44,14 @@ public class UsableCircle : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (GameManager.levelState == LevelState.Play || GameManager.levelState == LevelState.Executing)
+        if(GameManager.levelState == LevelState.Play || GameManager.levelState == LevelState.Executing || GameManager.levelState == LevelState.SetUp)
         {
             CheckSelected();
             SetTransform();
+        }
+
+        if (GameManager.levelState == LevelState.Play || GameManager.levelState == LevelState.Executing)
+        {
             SetColor();
         }
 
