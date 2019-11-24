@@ -35,6 +35,8 @@ public class LevelButton : MonoBehaviour
     {
         SetText(Text, LevelIndex.ToString());
 
+        SetColor(Image, Text, 0);
+
     }
 
     private void OnDestroy()
