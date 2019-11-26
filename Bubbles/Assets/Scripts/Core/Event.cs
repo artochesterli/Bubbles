@@ -63,6 +63,16 @@ public class CallLoadLevel: Event
     }
 }
 
+public class FinishLoadLevel : Event
+{
+    public int index;
+    public FinishLoadLevel(int i)
+    {
+        index = i;
+    }
+}
+
+public class CallGoToHelp : Event { }
 public class CallGoToSelectLevel : Event { }
 
 public class CallBackToSelectLevel : Event { }

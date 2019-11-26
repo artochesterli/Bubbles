@@ -10,7 +10,8 @@ public enum GameState
 {
     MainMenu,
     SelectLevelMenu,
-    Level
+    Level,
+    HelpText
 }
 
 public enum LevelState
@@ -80,6 +81,7 @@ public class GameManager : MonoBehaviour
     public GameObject SettingButton;
     public GameObject CreditButton;
     public GameObject BackButton;
+    public GameObject HelpText;
 
     public float ButtonUnselectedDisappearTime;
     public float ButtonSelectedDisappearTime;
@@ -90,7 +92,6 @@ public class GameManager : MonoBehaviour
     public int MinLevelIndex;
     public int MaxLevelIndex;
     public int TotalLevelNumber;
-    public string NextLevelScene;
 
     public GameObject AllUseableBubbles;
     public float UseableBubblesHeightGap;
@@ -151,6 +152,7 @@ public class GameManager : MonoBehaviour
 
         EventManager.instance.AddHandler<Place>(OnPlace);
         EventManager.instance.AddHandler<CallLoadLevel>(OnCallLoadLevel);
+        EventManager.instance.AddHandler<CallGoToHelp>(OnCallGoToHelp);
         EventManager.instance.AddHandler<CallGoToSelectLevel>(OnCallGoToSelectLevel);
         EventManager.instance.AddHandler<CallBackToMainMenu>(OnCallBackToMainMenu);
         EventManager.instance.AddHandler<CallBackToSelectLevel>(OnCallBackToSelectLevel);
@@ -160,6 +162,7 @@ public class GameManager : MonoBehaviour
     {
         EventManager.instance.RemoveHandler<Place>(OnPlace);
         EventManager.instance.RemoveHandler<CallLoadLevel>(OnCallLoadLevel);
+        EventManager.instance.RemoveHandler<CallGoToHelp>(OnCallGoToHelp);
         EventManager.instance.RemoveHandler<CallGoToSelectLevel>(OnCallGoToSelectLevel);
         EventManager.instance.RemoveHandler<CallBackToMainMenu>(OnCallBackToMainMenu);
         EventManager.instance.RemoveHandler<CallBackToSelectLevel>(OnCallBackToSelectLevel);
@@ -256,13 +259,15 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator BackToSelectionMenu()
     {
+        gameState = GameState.SelectLevelMenu;
+
         BackButton.GetComponent<BoxCollider2D>().enabled = false;
 
         levelState = LevelState.Clear;
 
         ParallelTasks ClearLevelTasks = new ParallelTasks();
 
-        SerialTasks LevelEndUITask = GetLevelEndUITask();
+        SerialTasks LevelEndUITask = GetLevelEndUITask(true);
 
         ClearLevelTasks.Add(LevelEndUITask);
 
@@ -312,35 +317,57 @@ public class GameManager : MonoBehaviour
         SetSelectLevelEnable(true);
     }
 
-    private IEnumerator BackToMainMenu()
+    private IEnumerator BackToMainMenu(GameState OriginalState)
     {
+        gameState = GameState.MainMenu;
+
         BackButton.GetComponent<BoxCollider2D>().enabled = false;
 
-        SetSelectLevelEnable(false);
-
-        ParallelTasks SelectLevelDisappearTask = new ParallelTasks();
-
-        foreach(Transform child in AllLevelButtons.transform)
+        switch (OriginalState)
         {
-            SelectLevelDisappearTask.Add(child.GetComponent<LevelButton>().GetUnselectedDisappearTask(ButtonUnselectedDisappearTime));
+            case GameState.SelectLevelMenu:
+                SetSelectLevelEnable(false);
+
+                ParallelTasks SelectLevelDisappearTask = new ParallelTasks();
+
+                foreach (Transform child in AllLevelButtons.transform)
+                {
+                    SelectLevelDisappearTask.Add(child.GetComponent<LevelButton>().GetUnselectedDisappearTask(ButtonUnselectedDisappearTime));
+                }
+
+                foreach (Transform child in LevelSelectionArrows.transform)
+                {
+                    SelectLevelDisappearTask.Add(child.GetComponent<LevelSelectionArrow>().GetDisappearTask());
+                }
+
+                SelectLevelDisappearTask.Add(BackButton.GetComponent<BackButton>().GetDisappearTask(ButtonUnselectedDisappearTime,true));
+
+                while (!SelectLevelDisappearTask.IsFinished)
+                {
+                    SelectLevelDisappearTask.Update();
+                    yield return null;
+                }
+                break;
+            case GameState.HelpText:
+                ParallelTasks HelpDisappearTask = new ParallelTasks();
+
+                HelpDisappearTask.Add(BackButton.GetComponent<BackButton>().GetDisappearTask(ButtonUnselectedDisappearTime,true));
+                HelpDisappearTask.Add(HelpText.GetComponent<HelpText>().GetDisappearTask(ButtonUnselectedDisappearTime));
+
+                while (!HelpDisappearTask.IsFinished)
+                {
+                    HelpDisappearTask.Update();
+                    yield return null;
+                }
+
+                break;
         }
 
-        foreach(Transform child in LevelSelectionArrows.transform)
-        {
-            SelectLevelDisappearTask.Add(child.GetComponent<LevelSelectionArrow>().GetDisappearTask());
-        }
 
-        SelectLevelDisappearTask.Add(BackButton.GetComponent<BackButton>().GetDisappearTask(ButtonUnselectedDisappearTime));
-
-        while (!SelectLevelDisappearTask.IsFinished)
-        {
-            SelectLevelDisappearTask.Update();
-            yield return null;
-        }
 
         ParallelTasks MainMenuAppearTask = new ParallelTasks();
 
-        MainMenuAppearTask.Add(Title.GetComponent<Title>().GetAppearTask());
+        MainMenuAppearTask.Add(Title.GetComponent<Title>().GetAppearTask(ButtonAppearTime));
         MainMenuAppearTask.Add(PlayButton.GetComponent<MainMenuButton>().GetAppearTask(ButtonAppearTime));
         MainMenuAppearTask.Add(SelectLevelButton.GetComponent<MainMenuButton>().GetAppearTask(ButtonAppearTime));
         MainMenuAppearTask.Add(SettingButton.GetComponent<MainMenuButton>().GetAppearTask(ButtonAppearTime));
@@ -356,14 +383,49 @@ public class GameManager : MonoBehaviour
 
     }
 
+    private IEnumerator GoToHelp()
+    {
+        gameState = GameState.HelpText;
+
+        SetMainMenuEnable(false);
+
+        ParallelTasks MainMenuDisappearTask = new ParallelTasks();
+
+        MainMenuDisappearTask.Add(Title.GetComponent<Title>().GetDisappearTask(ButtonUnselectedDisappearTime));
+        MainMenuDisappearTask.Add(PlayButton.GetComponent<MainMenuButton>().GetUnselectedDisappearTask(ButtonUnselectedDisappearTime));
+        MainMenuDisappearTask.Add(SelectLevelButton.GetComponent<MainMenuButton>().GetUnselectedDisappearTask(ButtonUnselectedDisappearTime));
+        MainMenuDisappearTask.Add(SettingButton.GetComponent<MainMenuButton>().GetUnselectedDisappearTask(ButtonUnselectedDisappearTime));
+        MainMenuDisappearTask.Add(CreditButton.GetComponent<MainMenuButton>().GetSelectedDisappearTask(ButtonSelectedEffectScale, ButtonSelectedEffectTime, ButtonSelectedDisappearTime));
+
+        while (!MainMenuDisappearTask.IsFinished)
+        {
+            MainMenuDisappearTask.Update();
+            yield return null;
+        }
+
+        ParallelTasks HelpAppearTask = new ParallelTasks();
+
+        HelpAppearTask.Add(HelpText.GetComponent<HelpText>().GetAppearTask(ButtonAppearTime));
+        HelpAppearTask.Add(BackButton.GetComponent<BackButton>().GetAppearTask(ButtonAppearTime));
+
+        while (!HelpAppearTask.IsFinished)
+        {
+            HelpAppearTask.Update();
+            yield return null;
+        }
+
+        BackButton.GetComponent<BoxCollider2D>().enabled = true;
+    }
+
     private IEnumerator GoToSelectedLevel()
     {
+        gameState = GameState.SelectLevelMenu;
         SetMainMenuEnable(false);
 
         ParallelTasks MainMenuDisappearTask = new ParallelTasks();
 
         
-        MainMenuDisappearTask.Add(Title.GetComponent<Title>().GetDisappearTask());
+        MainMenuDisappearTask.Add(Title.GetComponent<Title>().GetDisappearTask(ButtonUnselectedDisappearTime));
         MainMenuDisappearTask.Add(PlayButton.GetComponent<MainMenuButton>().GetUnselectedDisappearTask(ButtonUnselectedDisappearTime));
         MainMenuDisappearTask.Add(SelectLevelButton.GetComponent<MainMenuButton>().GetSelectedDisappearTask(ButtonSelectedEffectScale,ButtonSelectedEffectTime,ButtonSelectedDisappearTime));
         MainMenuDisappearTask.Add(SettingButton.GetComponent<MainMenuButton>().GetUnselectedDisappearTask(ButtonUnselectedDisappearTime));
@@ -411,7 +473,7 @@ public class GameManager : MonoBehaviour
                 ParallelTasks MainMenuDisappearTask = new ParallelTasks();
 
 
-                MainMenuDisappearTask.Add(Title.GetComponent<Title>().GetDisappearTask());
+                MainMenuDisappearTask.Add(Title.GetComponent<Title>().GetDisappearTask(ButtonUnselectedDisappearTime));
                 MainMenuDisappearTask.Add(PlayButton.GetComponent<MainMenuButton>().GetSelectedDisappearTask(ButtonSelectedEffectScale,ButtonSelectedEffectTime,ButtonSelectedDisappearTime));
                 MainMenuDisappearTask.Add(SelectLevelButton.GetComponent<MainMenuButton>().GetUnselectedDisappearTask(ButtonUnselectedDisappearTime));
                 MainMenuDisappearTask.Add(SettingButton.GetComponent<MainMenuButton>().GetUnselectedDisappearTask(ButtonUnselectedDisappearTime));
@@ -450,7 +512,7 @@ public class GameManager : MonoBehaviour
                     LevelButtonDisappearTasks.Add(child.GetComponent<LevelSelectionArrow>().GetDisappearTask());
                 }
 
-                LevelButtonDisappearTasks.Add(BackButton.GetComponent<BackButton>().GetDisappearTask(ButtonUnselectedDisappearTime));
+                LevelButtonDisappearTasks.Add(BackButton.GetComponent<BackButton>().GetDisappearTask(ButtonUnselectedDisappearTime,false));
 
                 while (!LevelButtonDisappearTasks.IsFinished)
                 {
@@ -467,7 +529,7 @@ public class GameManager : MonoBehaviour
 
                 SerialTasks LevelEndTasks = new SerialTasks();
 
-                LevelEndTasks.Add(GetLevelEndUITask());
+                LevelEndTasks.Add(GetLevelEndUITask(false));
                 LevelEndTasks.Add(new WaitTask(PerformLevelFinishEffectWaitTime));
                 LevelEndTasks.Add(GetBubblePowerUpTasks());
                 LevelEndTasks.Add(GetShockWaveEmitAndFadeTasks());
@@ -531,6 +593,8 @@ public class GameManager : MonoBehaviour
             }
 
             levelState = LevelState.Play;
+
+            EventManager.instance.Fire(new FinishLoadLevel(CurrentSaveInfo.CurrentLevel));
 
             ColorChangeTask BackButtonAppearTask = BackButton.GetComponent<BackButton>().GetAppearTask(ButtonAppearTime);
 
@@ -656,51 +720,6 @@ public class GameManager : MonoBehaviour
         return true;
     }
 
-    /*private void SaveStat(GameStatistics S)
-    {
-        string Dic = Path.Combine(Application.dataPath, DataFolderName);
-
-        if (!Directory.Exists(Dic))
-        {
-            Directory.CreateDirectory(Dic);
-        }
-
-        string file = Path.Combine(Application.dataPath, DataFolderName, DataFileName + DataFileExtension);
-
-        if (!File.Exists(file))
-        {
-            StreamWriter f=File.CreateText(file);
-            f.Close();
-        }
-
-        StreamWriter stream = new StreamWriter(file, true);
-
-        stream.WriteLine(CurrentSaveInfo.CurrentLevel.ToString()+" "+ S.time.ToString() + " " + S.RemainedDisappearBubble.ToString() + " " + S.RemainedNormalBubble);
-        stream.Close();
-    }
-
-    private int LoadStat()
-    {
-        int num = 0;
-
-        string file = Path.Combine(Application.dataPath, DataFolderName, DataFileName + DataFileExtension);
-
-        if (!File.Exists(file))
-        {
-            return num;
-        }
-
-        StreamReader stream = new StreamReader(file, true);
-        while (!stream.EndOfStream)
-        {
-            stream.ReadLine();
-            num++;
-        }
-
-        stream.Close();
-        return num;
-    }*/
-
     private void GetRollBackInput()
     {
         if (gameState == GameState.Level && levelState == LevelState.Play && cursorState == CursorState.Release)
@@ -752,25 +771,24 @@ public class GameManager : MonoBehaviour
 
     }
 
+    private void OnCallGoToHelp(CallGoToHelp e)
+    {
+        StartCoroutine(GoToHelp());
+    }
+
     private void OnCallGoToSelectLevel(CallGoToSelectLevel e)
     {
-        gameState = GameState.SelectLevelMenu;
-
         StartCoroutine(GoToSelectedLevel());
     }
 
     private void OnCallBackToSelectLevel(CallBackToSelectLevel e)
     {
-        gameState = GameState.SelectLevelMenu;
-
         StartCoroutine(BackToSelectionMenu());
     }
 
     private void OnCallBackToMainMenu(CallBackToMainMenu e)
     {
-        gameState = GameState.MainMenu;
-
-        StartCoroutine(BackToMainMenu());
+        StartCoroutine(BackToMainMenu(gameState));
     }
 
     private SerialTasks GetLevelStartTask()
@@ -793,7 +811,7 @@ public class GameManager : MonoBehaviour
         Color levelnumbercolor = LevelNumber.GetComponent<Text>().color;
         
 
-        UseableBubbleAndLevelNumebrAppearTask.Add(new UITextColorChangeTask(LevelNumber, Utility.ColorWithAlpha(levelnumbercolor, 0), Utility.ColorWithAlpha(levelnumbercolor,1), LevelNumberAndUseableBubbleAppearTime));
+        UseableBubbleAndLevelNumebrAppearTask.Add(new ColorChangeTask(LevelNumber, Utility.ColorWithAlpha(levelnumbercolor, 0), Utility.ColorWithAlpha(levelnumbercolor,1), LevelNumberAndUseableBubbleAppearTime,ColorChangeType.Text));
         for(int i = 0; i < UseableBubbleList.Count; i++)
         {
             Color color = UseableBubbleList[i].GetComponent<SpriteRenderer>().color;
@@ -808,13 +826,16 @@ public class GameManager : MonoBehaviour
         return LevelStartUITasks;
     }
 
-    private SerialTasks GetLevelEndUITask()
+    private SerialTasks GetLevelEndUITask(bool ClickBackButton)
     {
         SerialTasks LevelEndUITasks = new SerialTasks();
 
         ParallelTasks AllTask = new ParallelTasks();
         Color levelnumbercolor = LevelNumber.GetComponent<Text>().color;
-        AllTask.Add(new UITextColorChangeTask(LevelNumber, Utility.ColorWithAlpha(levelnumbercolor, 1), Utility.ColorWithAlpha(levelnumbercolor, 0), LevelNumberAndUseableBubbleAppearTime));
+
+        AllTask.Add(BackButton.GetComponent<BackButton>().GetDisappearTask(ButtonUnselectedDisappearTime, ClickBackButton));
+
+        AllTask.Add(new ColorChangeTask(LevelNumber, Utility.ColorWithAlpha(levelnumbercolor, 1), Utility.ColorWithAlpha(levelnumbercolor, 0), LevelNumberAndUseableBubbleAppearTime,ColorChangeType.Text));
 
         SerialTasks MarkDisappear = new SerialTasks();
 
@@ -822,7 +843,6 @@ public class GameManager : MonoBehaviour
 
         ParallelTasks MarkDisappearTask = new ParallelTasks();
 
-        MarkDisappearTask.Add(BackButton.GetComponent<BackButton>().GetDisappearTask(ButtonUnselectedDisappearTime));
         MarkDisappearTask.Add(new UIFillTask(LevelMarkLeft, 1, 0, MarkFillTime));
         MarkDisappearTask.Add(new UIFillTask(LevelMarkRight, 1, 0, MarkFillTime));
         MarkDisappearTask.Add(new UIFillTask(UseableAreaMarkLeft, 1, 0, MarkFillTime));

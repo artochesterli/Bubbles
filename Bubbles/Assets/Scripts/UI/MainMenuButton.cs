@@ -7,7 +7,7 @@ public enum MainMenuButtonType
     PlayButton,
     SelectLevelButton,
     SettingButton,
-    CreditButton
+    HelpButton
 }
 
 public class MainMenuButton : MonoBehaviour
@@ -41,6 +41,9 @@ public class MainMenuButton : MonoBehaviour
                     break;
                 case MainMenuButtonType.SelectLevelButton:
                     EventManager.instance.Fire(new CallGoToSelectLevel());
+                    break;
+                case MainMenuButtonType.HelpButton:
+                    EventManager.instance.Fire(new CallGoToHelp());
                     break;
             }
 

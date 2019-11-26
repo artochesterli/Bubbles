@@ -27,7 +27,6 @@ public class LevelButton : MonoBehaviour
     public bool Finished;
     private bool Swtiching;
     private float ShakeTimeCount;
-    private float WaveTimeCount;
 
     private bool LevelButtonClicked;
     // Start is called before the first frame update
@@ -141,7 +140,6 @@ public class LevelButton : MonoBehaviour
         Image.GetComponent<RectTransform>().localPosition = Vector3.zero;
         Text.GetComponent<RectTransform>().localPosition = Vector3.zero;
         ShakeTimeCount = 0;
-        WaveTimeCount = 0;
     }
 
     private void Shake()

@@ -5,8 +5,6 @@ using UnityEngine.UI;
 
 public class Title : MonoBehaviour
 {
-    public float AppearTime;
-    public float DisappearTime;
     // Start is called before the first frame update
     void Start()
     {
@@ -19,7 +17,7 @@ public class Title : MonoBehaviour
         
     }
 
-    public ColorChangeTask GetDisappearTask()
+    public ColorChangeTask GetDisappearTask(float DisappearTime)
     {
         Color color = GetComponent<Text>().color;
 
@@ -27,7 +25,7 @@ public class Title : MonoBehaviour
     }
 
 
-    public ColorChangeTask GetAppearTask()
+    public ColorChangeTask GetAppearTask(float AppearTime)
     {
         Color color = GetComponent<Text>().color;
 
