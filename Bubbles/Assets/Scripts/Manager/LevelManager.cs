@@ -1109,7 +1109,7 @@ public class LevelManager : MonoBehaviour
     private IEnumerator RollBack()
     {
 
-        GameManager.levelState = LevelState.Executing;
+        GameManager.levelState = LevelState.RollBack;
 
         List<BubbleChangeInfo> list = ChangeInfoList[ChangeInfoList.Count - 1];
 

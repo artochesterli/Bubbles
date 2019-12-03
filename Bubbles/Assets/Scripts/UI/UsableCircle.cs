@@ -44,7 +44,10 @@ public class UsableCircle : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(GameManager.levelState == LevelState.Play || GameManager.levelState == LevelState.Executing || GameManager.levelState == LevelState.SetUp)
+
+
+
+        if (GameManager.levelState == LevelState.Play || GameManager.levelState == LevelState.Executing || GameManager.levelState == LevelState.SetUp)
         {
             CheckSelected();
             SetTransform();
@@ -59,6 +62,7 @@ public class UsableCircle : MonoBehaviour
         {
             CheckSlotSelection();
         }
+
     }
 
     private void SetTransform()
@@ -78,25 +82,11 @@ public class UsableCircle : MonoBehaviour
                 CurrentOffset = SelectedOffset;
             }
 
-            Vector3 WorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector3 WorldPos = Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position);
             WorldPos.z = 0;
             transform.position = WorldPos + Vector3.up * CurrentOffset * CurrentSize;
 
         }
-        /*else
-        {
-            CurrentOffset -= OffsetChangeSpeed * Time.deltaTime;
-            CurrentSize -= SizeChangeSpeed * Time.deltaTime;
-            if(CurrentSize < DefaultSize)
-            {
-                CurrentSize = DefaultSize;
-            }
-
-            if(CurrentOffset < 0)
-            {
-                CurrentOffset = 0;
-            }
-        }*/
 
         transform.localScale = Vector3.one * CurrentSize;
     }
@@ -109,7 +99,7 @@ public class UsableCircle : MonoBehaviour
 
     private void CheckSelected()
     {
-        if(!Selected && GameManager.cursorState == CursorState.Release && Input.GetMouseButtonDown(0) && CursorInside())
+        if(!Selected && GameManager.cursorState == CursorState.Release && Input.touchCount > 0 && CursorInside())
         {
             GameManager.HeldBubbleType = Type;
             GameManager.cursorState = CursorState.Holding;
@@ -117,7 +107,8 @@ public class UsableCircle : MonoBehaviour
             Selected = true;
             ActivatedEffect.GetComponent<ParticleSystem>().Play();
         }
-        else if (Selected && Input.GetMouseButtonUp(0))
+
+        if (Selected && Input.touchCount == 0)
         {
             GameManager.cursorState = CursorState.Release;
 
@@ -132,6 +123,8 @@ public class UsableCircle : MonoBehaviour
                 transform.localScale = Vector3.one * DefaultSize;
                 CurrentOffset = 0;
                 CurrentSize = DefaultSize;
+                ColorRecoverTimeCount = ColorRecoverTime;
+                GetComponent<SpriteRenderer>().color = Utility.ColorWithAlpha(GetComponent<SpriteRenderer>().color, 0);
 
                 GameManager.HeldBubbleType = BubbleType.Null;
 
@@ -162,7 +155,7 @@ public class UsableCircle : MonoBehaviour
 
     private bool CursorInside()
     {
-        Vector3 WorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector3 WorldPos = Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position);
         return WorldPos.x > OriPos.x - DefaultSize / 2 && WorldPos.x < OriPos.x + DefaultSize / 2
             && WorldPos.y > OriPos.y - DefaultSize / 2 && WorldPos.y < OriPos.y + DefaultSize / 2;
 
@@ -179,83 +172,81 @@ public class UsableCircle : MonoBehaviour
     {
         if (GameManager.gameState == GameState.Level)
         {
-            if (GameManager.levelState == LevelState.Play)
+            if (Selected)
             {
-                if (Selected)
+                foreach (Transform child in AllSlot.transform)
                 {
-                    foreach (Transform child in AllSlot.transform)
+                    List<GameObject> NearByCircleList = new List<GameObject>();
+                    for (int i = 0; i < 4; i++)
                     {
-                        List<GameObject> NearByCircleList = new List<GameObject>();
-                        for (int i = 0; i < 4; i++)
+                        NearByCircleList.Add(null);
+                    }
+                    if (child.GetComponent<SlotObject>().Inside(transform.position) && child.GetComponent<SlotObject>().AvailablePos(NearByCircleList))
+                    {
+                        if (child.gameObject != SelectedSlot)
                         {
-                            NearByCircleList.Add(null);
-                        }
-                        if (child.GetComponent<SlotObject>().Inside(transform.position) && child.GetComponent<SlotObject>().AvailablePos(NearByCircleList))
-                        {
-                            if (child.gameObject != SelectedSlot)
+                            Taptic.Light();
+
+                            if (SelectedSlot != null)
                             {
-                                Taptic.Light();
+                                SelectedSlot.GetComponent<SlotObject>().Selected = false;
+                                ResetOffsetInfo();
+                            }
+                            child.GetComponent<SlotObject>().Selected = true;
+                            SelectedSlot = child.gameObject;
+                            for (int i = 0; i < NearByCircleList.Count; i++)
+                            {
+                                if (NearByCircleList[i] != null)
+                                {
+                                    GameObject Slot = null;
 
-                                if (SelectedSlot != null)
-                                {
-                                    SelectedSlot.GetComponent<SlotObject>().Selected = false;
-                                    ResetOffsetInfo();
-                                }
-                                child.GetComponent<SlotObject>().Selected = true;
-                                SelectedSlot = child.gameObject;
-                                for (int i = 0; i < NearByCircleList.Count; i++)
-                                {
-                                    if (NearByCircleList[i] != null)
+                                    switch (i)
                                     {
-                                        GameObject Slot = null;
+                                        case 0:
+                                            Slot = GetNearBySlot(child.gameObject, Vector2Int.right);
+                                            Slot.GetComponent<SlotObject>().NearBySelected = true;
+                                            break;
+                                        case 1:
+                                            Slot = GetNearBySlot(child.gameObject, Vector2Int.left);
+                                            Slot.GetComponent<SlotObject>().NearBySelected = true;
+                                            break;
+                                        case 2:
+                                            Slot = GetNearBySlot(child.gameObject, Vector2Int.up);
+                                            Slot.GetComponent<SlotObject>().NearBySelected = true;
+                                            break;
+                                        case 3:
+                                            Slot = GetNearBySlot(child.gameObject, Vector2Int.down);
+                                            Slot.GetComponent<SlotObject>().NearBySelected = true;
+                                            break;
+                                        default:
+                                            break;
 
-                                        switch (i)
-                                        {
-                                            case 0:
-                                                Slot = GetNearBySlot(child.gameObject, Vector2Int.right);
-                                                Slot.GetComponent<SlotObject>().NearBySelected = true;
-                                                break;
-                                            case 1:
-                                                Slot = GetNearBySlot(child.gameObject, Vector2Int.left);
-                                                Slot.GetComponent<SlotObject>().NearBySelected = true;
-                                                break;
-                                            case 2:
-                                                Slot = GetNearBySlot(child.gameObject, Vector2Int.up);
-                                                Slot.GetComponent<SlotObject>().NearBySelected = true;
-                                                break;
-                                            case 3:
-                                                Slot = GetNearBySlot(child.gameObject, Vector2Int.down);
-                                                Slot.GetComponent<SlotObject>().NearBySelected = true;
-                                                break;
-                                            default:
-                                                break;
-
-                                        }
-
-                                        NearBySelectedSlots.Add(Slot);
                                     }
+
+                                    NearBySelectedSlots.Add(Slot);
                                 }
                             }
-                            return;
                         }
-                    }
-                    if (SelectedSlot != null)
-                    {
-                        SelectedSlot.GetComponent<SlotObject>().Selected = false;
-                        SelectedSlot = null;
-                        ResetOffsetInfo();
+                        return;
                     }
                 }
-                else
+                if (SelectedSlot != null)
                 {
-                    if (SelectedSlot != null)
-                    {
-                        SelectedSlot.GetComponent<SlotObject>().Selected = false;
-                        SelectedSlot = null;
-                        ResetOffsetInfo();
-                    }
+                    SelectedSlot.GetComponent<SlotObject>().Selected = false;
+                    SelectedSlot = null;
+                    ResetOffsetInfo();
                 }
             }
+            else
+            {
+                if (SelectedSlot != null)
+                {
+                    SelectedSlot.GetComponent<SlotObject>().Selected = false;
+                    SelectedSlot = null;
+                    ResetOffsetInfo();
+                }
+            }
+
         }
 
     }

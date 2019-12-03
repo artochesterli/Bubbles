@@ -5,8 +5,9 @@ using UnityEngine.UI;
 
 public class InLevelHelpText : MonoBehaviour
 {
-    public string DragHint = "DRAG AND RELEASE TO PUSH";
-    public string RollBackHint = "DOUBLE TAP TO ROLL BACK IF NEEDED";
+    public string DragHint = "Drag the circles to the grid";
+    public string RollBackHint = "Double tap to go back if needed";
+    public string ExhaustHint = "Exhausted circles won't be pushed";
     public float ShowHideTime;
 
     private bool InTutorial;
@@ -17,7 +18,6 @@ public class InLevelHelpText : MonoBehaviour
     {
         EventManager.instance.AddHandler<FinishLoadLevel>(OnFinishLoadLevel);
         EventManager.instance.AddHandler<Place>(OnPlace);
-        EventManager.instance.AddHandler<RollBack>(OnRollBack);
         EventManager.instance.AddHandler<MotionFinish>(OnMotionFinish);
         EventManager.instance.AddHandler<CallBackToSelectLevel>(OnCallBackToSelectLevel);
     }
@@ -26,7 +26,6 @@ public class InLevelHelpText : MonoBehaviour
     {
         EventManager.instance.RemoveHandler<FinishLoadLevel>(OnFinishLoadLevel);
         EventManager.instance.RemoveHandler<Place>(OnPlace);
-        EventManager.instance.RemoveHandler<RollBack>(OnRollBack);
         EventManager.instance.RemoveHandler<MotionFinish>(OnMotionFinish);
         EventManager.instance.RemoveHandler<CallBackToSelectLevel>(OnCallBackToSelectLevel);
     }
@@ -55,26 +54,24 @@ public class InLevelHelpText : MonoBehaviour
             GetComponent<Text>().text = CurrentText;
             StartCoroutine(ShowText());
         }
+        else if(e.index == 11)
+        {
+            InTutorial = true;
+            CurrentText = ExhaustHint;
+            GetComponent<Text>().text = CurrentText;
+            StartCoroutine(ShowText());
+        }
     }
 
     private void OnPlace(Place e)
     {
         if (InTutorial)
         {
-            StartCoroutine(HideText());
-            if(CurrentText == RollBackHint)
+            if(CurrentText == DragHint)
             {
+                StartCoroutine(HideText());
                 InTutorial = false;
             }
-        }
-    }
-
-    private void OnRollBack(RollBack e)
-    {
-        if(InTutorial && CurrentText == RollBackHint)
-        {
-            StartCoroutine(HideText());
-            InTutorial = false;
         }
     }
 

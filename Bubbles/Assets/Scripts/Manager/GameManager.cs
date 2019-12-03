@@ -19,6 +19,7 @@ public enum LevelState
     SetUp,
     Play,
     Executing,
+    RollBack,
     Clear
 }
 
@@ -173,10 +174,6 @@ public class GameManager : MonoBehaviour
     {
         Timer += Time.deltaTime;
 
-        if (Input.GetKeyDown(KeyCode.Escape) && gameState == GameState.Level && levelState == LevelState.Play)
-        {
-            StartCoroutine(BackToSelectionMenu());
-        }
 
         GetRollBackInput();
 
