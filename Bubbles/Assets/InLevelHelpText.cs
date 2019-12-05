@@ -20,6 +20,7 @@ public class InLevelHelpText : MonoBehaviour
         EventManager.instance.AddHandler<Place>(OnPlace);
         EventManager.instance.AddHandler<MotionFinish>(OnMotionFinish);
         EventManager.instance.AddHandler<CallBackToSelectLevel>(OnCallBackToSelectLevel);
+        EventManager.instance.AddHandler<CallLoadLevel>(OnLevelFinish);
     }
 
     private void OnDestroy()
@@ -28,12 +29,22 @@ public class InLevelHelpText : MonoBehaviour
         EventManager.instance.RemoveHandler<Place>(OnPlace);
         EventManager.instance.RemoveHandler<MotionFinish>(OnMotionFinish);
         EventManager.instance.RemoveHandler<CallBackToSelectLevel>(OnCallBackToSelectLevel);
+        EventManager.instance.RemoveHandler<CallLoadLevel>(OnLevelFinish);
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+    private void OnLevelFinish(CallLoadLevel e)
+    {
+        if(e.Type == LoadLevelType.LevelFinish)
+        {
+            InTutorial = false;
+            StartCoroutine(HideText());
+        }
     }
 
     private void OnCallBackToSelectLevel(CallBackToSelectLevel e)
@@ -70,14 +81,13 @@ public class InLevelHelpText : MonoBehaviour
             if(CurrentText == DragHint)
             {
                 StartCoroutine(HideText());
-                InTutorial = false;
             }
         }
     }
 
     private void OnMotionFinish(MotionFinish e)
     {
-        if (InTutorial)
+        if (InTutorial && CurrentText == DragHint)
         {
             CurrentText = RollBackHint;
             GetComponent<Text>().text = CurrentText;
