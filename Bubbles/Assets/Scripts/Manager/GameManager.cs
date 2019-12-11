@@ -392,7 +392,8 @@ public class GameManager : MonoBehaviour
         MainMenuDisappearTask.Add(PlayButton.GetComponent<MainMenuButton>().GetUnselectedDisappearTask(ButtonUnselectedDisappearTime));
         MainMenuDisappearTask.Add(SelectLevelButton.GetComponent<MainMenuButton>().GetUnselectedDisappearTask(ButtonUnselectedDisappearTime));
         MainMenuDisappearTask.Add(SettingButton.GetComponent<MainMenuButton>().GetUnselectedDisappearTask(ButtonUnselectedDisappearTime));
-        MainMenuDisappearTask.Add(CreditButton.GetComponent<MainMenuButton>().GetSelectedDisappearTask(ButtonSelectedEffectScale, ButtonSelectedEffectTime, ButtonSelectedDisappearTime));
+        MainMenuDisappearTask.Add(CreditButton.GetComponent<MainMenuButton>().GetSelectedDisappearTask(ButtonSelectedEffectTime, ButtonSelectedDisappearTime));
+        //MainMenuDisappearTask.Add(CreditButton.GetComponent<MainMenuButton>().GetSelectedDisappearTask(ButtonSelectedEffectScale, ));
 
         while (!MainMenuDisappearTask.IsFinished)
         {
@@ -424,7 +425,9 @@ public class GameManager : MonoBehaviour
         
         MainMenuDisappearTask.Add(Title.GetComponent<Title>().GetDisappearTask(ButtonUnselectedDisappearTime));
         MainMenuDisappearTask.Add(PlayButton.GetComponent<MainMenuButton>().GetUnselectedDisappearTask(ButtonUnselectedDisappearTime));
-        MainMenuDisappearTask.Add(SelectLevelButton.GetComponent<MainMenuButton>().GetSelectedDisappearTask(ButtonSelectedEffectScale,ButtonSelectedEffectTime,ButtonSelectedDisappearTime));
+
+        MainMenuDisappearTask.Add(SelectLevelButton.GetComponent<MainMenuButton>().GetSelectedDisappearTask(ButtonSelectedEffectTime, ButtonSelectedDisappearTime));
+        //MainMenuDisappearTask.Add(SelectLevelButton.GetComponent<MainMenuButton>().GetSelectedDisappearTask(ButtonSelectedEffectScale,ButtonSelectedEffectTime,ButtonSelectedDisappearTime));
         MainMenuDisappearTask.Add(SettingButton.GetComponent<MainMenuButton>().GetUnselectedDisappearTask(ButtonUnselectedDisappearTime));
         MainMenuDisappearTask.Add(CreditButton.GetComponent<MainMenuButton>().GetUnselectedDisappearTask(ButtonUnselectedDisappearTime));
 
@@ -471,7 +474,8 @@ public class GameManager : MonoBehaviour
 
 
                 MainMenuDisappearTask.Add(Title.GetComponent<Title>().GetDisappearTask(ButtonUnselectedDisappearTime));
-                MainMenuDisappearTask.Add(PlayButton.GetComponent<MainMenuButton>().GetSelectedDisappearTask(ButtonSelectedEffectScale,ButtonSelectedEffectTime,ButtonSelectedDisappearTime));
+                MainMenuDisappearTask.Add(PlayButton.GetComponent<MainMenuButton>().GetSelectedDisappearTask(ButtonSelectedEffectTime, ButtonSelectedDisappearTime));
+                //MainMenuDisappearTask.Add(PlayButton.GetComponent<MainMenuButton>().GetSelectedDisappearTask(ButtonSelectedEffectScale,ButtonSelectedEffectTime,ButtonSelectedDisappearTime));
                 MainMenuDisappearTask.Add(SelectLevelButton.GetComponent<MainMenuButton>().GetUnselectedDisappearTask(ButtonUnselectedDisappearTime));
                 MainMenuDisappearTask.Add(SettingButton.GetComponent<MainMenuButton>().GetUnselectedDisappearTask(ButtonUnselectedDisappearTime));
                 MainMenuDisappearTask.Add(CreditButton.GetComponent<MainMenuButton>().GetUnselectedDisappearTask(ButtonUnselectedDisappearTime));
@@ -496,7 +500,7 @@ public class GameManager : MonoBehaviour
                 {
                     if(child.gameObject == LevelButton)
                     {
-                        LevelButtonDisappearTasks.Add(child.GetComponent<LevelButton>().GetSelectedDisappearTask(ButtonSelectedEffectScale,ButtonSelectedEffectTime,ButtonSelectedDisappearTime));
+                        LevelButtonDisappearTasks.Add(child.GetComponent<LevelButton>().GetSelectedDisappearTask(ButtonSelectedEffectTime,ButtonSelectedDisappearTime));
                     }
                     else
                     {

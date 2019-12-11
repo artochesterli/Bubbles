@@ -8,8 +8,8 @@ public class LevelButton : MonoBehaviour
     public int LevelIndex;
     public Color UnfinishColor;
     public Color FinishColor;
-    public float FinishShakeAmplitude;
-    public float FinishShakeCycle;
+
+    public float SelectInflationScale;
 
     public float SwtichOffset;
     public float SwtichAppearDelay;
@@ -142,21 +142,13 @@ public class LevelButton : MonoBehaviour
         ShakeTimeCount = 0;
     }
 
-    private void Shake()
-    {
-        if (Finished && !Swtiching)
-        {
-            ShakeTimeCount += Time.deltaTime;
-            float Offset = Mathf.Sin(ShakeTimeCount / FinishShakeCycle * 2 * Mathf.PI) * FinishShakeAmplitude;
-            Image.GetComponent<RectTransform>().localPosition = Vector3.up * Offset;
-            Text.GetComponent<RectTransform>().localPosition = Vector3.up * Offset;
-        }
-    }
-
     private void OnMouseDown()
     {
         if (!Swtiching && GameManager.gameState == GameState.SelectLevelMenu)
         {
+            Taptic.Light();
+            GetComponent<AudioSource>().Play();
+
             ResetButton();
             SelectedEffect.GetComponent<Image>().enabled = true;
             EventManager.instance.Fire(new CallLoadLevel(LoadLevelType.FromSelectionMenu, LevelIndex, gameObject));
@@ -168,9 +160,9 @@ public class LevelButton : MonoBehaviour
         return Utility.GetButtonUnselectedDisappearTask(Image, Text, false, UnselectedDisappearTime);
     }
 
-    public SerialTasks GetSelectedDisappearTask(float SelectedEffectScale, float SelectedEffectTime,float SelectedDisappearTime)
+    public SerialTasks GetSelectedDisappearTask( float SelectedEffectTime, float SelectedDisappearTime)
     {
-        return Utility.GetButtonSelectedDisappearTask(Image, Text, SelectedEffect, false, SelectedEffectScale, SelectedEffectTime, SelectedDisappearTime);
+        return Utility.GetButtonSelectedDisappearTask(Image, Text, 1, SelectInflationScale, SelectedEffectTime, SelectedDisappearTime, false);
     }
 
     public ParallelTasks GetAppearTask(float AppearTime)

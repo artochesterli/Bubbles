@@ -37,6 +37,9 @@ public class LevelSelectionArrow : MonoBehaviour
     {
         if (!Shaking&&GameManager.gameState == GameState.SelectLevelMenu)
         {
+            Taptic.Light();
+            GetComponent<AudioSource>().Play();
+
             StartCoroutine(ClickedShake());
             if (Right)
             {

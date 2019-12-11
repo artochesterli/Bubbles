@@ -196,12 +196,51 @@ public class Utility
         return Pos;
     }
 
+    public static SerialTasks GetButtonSelectedDisappearTask(GameObject BorderImage, GameObject InsideContent, float StartScale, float EndScale, float InflationTime, float DeflationTime, bool ContentImage)
+    {
+        SerialTasks DisappearTask = new SerialTasks();
+
+        ParallelTasks InflationTask = new ParallelTasks();
+
+        InflationTask.Add(new ScaleChangeTask(BorderImage, StartScale, EndScale, InflationTime));
+        InflationTask.Add(new ScaleChangeTask(InsideContent, StartScale, EndScale, InflationTime));
+
+        DisappearTask.Add(InflationTask);
+
+        ParallelTasks DeflationTask = new ParallelTasks();
+
+        DeflationTask.Add(new ScaleChangeTask(BorderImage, EndScale, StartScale,  DeflationTime));
+        DeflationTask.Add(new ScaleChangeTask(InsideContent, EndScale, StartScale,  DeflationTime));
+
+        Color BorderImageColor = BorderImage.GetComponent<Image>().color;
+        Color InsideContentColor;
+        ColorChangeType InsideContentChangeType;
+        if (ContentImage)
+        {
+            InsideContentChangeType = ColorChangeType.Image;
+            InsideContentColor = InsideContent.GetComponent<Image>().color;
+        }
+        else
+        {
+            InsideContentChangeType = ColorChangeType.Text;
+            InsideContentColor = InsideContent.GetComponent<Text>().color;
+        }
+
+        DeflationTask.Add(new ColorChangeTask(BorderImage, ColorWithAlpha(BorderImageColor, 1), ColorWithAlpha(BorderImageColor, 0), DeflationTime, ColorChangeType.Image));
+        DeflationTask.Add(new ColorChangeTask(InsideContent, ColorWithAlpha(InsideContentColor, 1), ColorWithAlpha(InsideContentColor, 0), DeflationTime, InsideContentChangeType));
+
+        DisappearTask.Add(DeflationTask);
+
+        return DisappearTask;
+    }
+
     public static SerialTasks GetButtonSelectedDisappearTask(GameObject BorderImage, GameObject InsideContent, GameObject SelectedEffect,
         bool ContentIsImage, float SelectedEffectScale, float SelectedEffectTime, float DisappearTime)
     {
         SerialTasks SelectedDisappearTask = new SerialTasks();
 
         ParallelTasks SelectedEffectTask = new ParallelTasks();
+
 
         SelectedEffectTask.Add(new ScaleChangeTask(SelectedEffect, 1, SelectedEffectScale, SelectedEffectTime));
 

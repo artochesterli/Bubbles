@@ -21,6 +21,8 @@ public class BackButton : MonoBehaviour
 
     private void OnMouseDown()
     {
+        GetComponent<AudioSource>().Play();
+        Taptic.Light();
         switch (GameManager.gameState)
         {
             case GameState.Level:
