@@ -262,6 +262,8 @@ public class GameManager : MonoBehaviour
 
         levelState = LevelState.Clear;
 
+        SetLevelButtonColor();
+
         ParallelTasks ClearLevelTasks = new ParallelTasks();
 
         SerialTasks LevelEndUITask = GetLevelEndUITask(true);
@@ -312,6 +314,15 @@ public class GameManager : MonoBehaviour
         gameState = GameState.SelectLevelMenu;
 
         SetSelectLevelEnable(true);
+    }
+
+
+    private void SetLevelButtonColor()
+    {
+        foreach(Transform child in AllLevelButtons.transform)
+        {
+            child.GetComponent<LevelButton>().SetColor(child.GetComponent<LevelButton>().Image, child.GetComponent<LevelButton>().Text, 0);
+        }
     }
 
     private IEnumerator BackToMainMenu(GameState OriginalState)
@@ -419,6 +430,8 @@ public class GameManager : MonoBehaviour
     {
         gameState = GameState.SelectLevelMenu;
         SetMainMenuEnable(false);
+
+        SetLevelButtonColor();
 
         ParallelTasks MainMenuDisappearTask = new ParallelTasks();
 

@@ -46,16 +46,7 @@ public class LevelButton : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        /*if (GameManager.gameState == GameState.SelectLevelMenu)
-        {
-            SetColor(Image, Text, 1);
-            Shake();
-        }
-        else
-        {
-            Shake();
-            ShakeTimeCount = 0;
-        }*/
+
     }
 
     public IEnumerator Swtich(bool Bigger)
@@ -116,7 +107,7 @@ public class LevelButton : MonoBehaviour
 
     }
 
-    private void SetColor(GameObject Image,GameObject Text,float Alpha)
+    public void SetColor(GameObject Image,GameObject Text,float Alpha)
     {
         if (Finished)
         {
