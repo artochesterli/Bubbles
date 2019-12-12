@@ -40,7 +40,7 @@ public class InLevelHelpText : MonoBehaviour
 
     private void OnLevelFinish(CallLoadLevel e)
     {
-        if(e.Type == LoadLevelType.LevelFinish)
+        if(e.Type == LoadLevelType.LevelFinish && InTutorial)
         {
             InTutorial = false;
             StartCoroutine(HideText());
