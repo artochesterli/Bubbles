@@ -5,9 +5,9 @@ using UnityEngine.UI;
 
 public class InLevelHelpText : MonoBehaviour
 {
-    public string DragHint = "Drag the circles to the grid";
+    public string DragHint = "Drag the bottom spheres to the grid";
     public string RollBackHint = "Double tap to go back if needed";
-    public string ExhaustHint = "Exhausted circles won't be pushed";
+    public string ExhaustHint = "";
     public float ShowHideTime;
 
     private bool InTutorial;
