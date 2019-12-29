@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class InLevelHelpText : MonoBehaviour
 {
-    public string DragHint = "Drag the bottom spheres to the grid";
+    public string DragHint = "Drag the white spheres to the grid";
     public string RollBackHint = "Double tap to go back if needed";
     public string ExhaustHint = "";
     public float ShowHideTime;
