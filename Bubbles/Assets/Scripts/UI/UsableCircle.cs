@@ -82,7 +82,17 @@ public class UsableCircle : MonoBehaviour
                 CurrentOffset = SelectedOffset;
             }
 
-            Vector3 WorldPos = Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position);
+            Vector3 WorldPos;
+
+            if(SystemInfo.deviceType == DeviceType.Handheld)
+            {
+                WorldPos = Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position);
+            }
+            else
+            {
+                WorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            }
+
             WorldPos.z = 0;
             transform.position = WorldPos + Vector3.up * CurrentOffset * CurrentSize;
 
@@ -97,9 +107,15 @@ public class UsableCircle : MonoBehaviour
         GetComponent<SpriteRenderer>().color = new Color(color.r, color.g, color.b, Mathf.Lerp(0, 1, ColorRecoverTimeCount / ColorRecoverTime));
     }
 
+    
+
     private void CheckSelected()
     {
-        if(!Selected && GameManager.cursorState == CursorState.Release && Input.touchCount > 0 && CursorInside())
+
+        bool PressDown = Input.touchCount > 0 && SystemInfo.deviceType == DeviceType.Handheld || Input.GetMouseButtonDown(0) && SystemInfo.deviceType == DeviceType.Desktop;
+        bool Release = Input.touchCount == 0 && SystemInfo.deviceType == DeviceType.Handheld || Input.GetMouseButtonUp(0)&& SystemInfo.deviceType == DeviceType.Desktop;
+
+        if (!Selected && GameManager.cursorState == CursorState.Release && PressDown && CursorInside())
         {
             GameManager.HeldBubbleType = Type;
             GameManager.cursorState = CursorState.Holding;
@@ -108,7 +124,7 @@ public class UsableCircle : MonoBehaviour
             ActivatedEffect.GetComponent<ParticleSystem>().Play();
         }
 
-        if (Selected && Input.touchCount == 0)
+        if (Selected && Release)
         {
             GameManager.cursorState = CursorState.Release;
 
@@ -155,7 +171,16 @@ public class UsableCircle : MonoBehaviour
 
     private bool CursorInside()
     {
-        Vector3 WorldPos = Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position);
+        Vector3 WorldPos;
+
+        if (SystemInfo.deviceType == DeviceType.Handheld)
+        {
+            WorldPos = Camera.main.ScreenToWorldPoint(Input.GetTouch(0).position);
+        }
+        else
+        {
+            WorldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        }
         return WorldPos.x > OriPos.x - DefaultSize / 2 && WorldPos.x < OriPos.x + DefaultSize / 2
             && WorldPos.y > OriPos.y - DefaultSize / 2 && WorldPos.y < OriPos.y + DefaultSize / 2;
 
