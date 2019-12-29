@@ -200,6 +200,14 @@ public class GameManager : MonoBehaviour
         {
             SaveProgress();
         }*/
+
+        if (SystemInfo.deviceType == DeviceType.Desktop)
+        {
+            int height = Screen.currentResolution.height*3/4;
+            int width = height * 9 / 16;
+
+            Screen.SetResolution(width, height, false);
+        }
     }
 
     private void GetLevelInfo()
