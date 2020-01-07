@@ -3,15 +3,38 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+public enum LevelTiming
+{
+    Enter,
+    Place,
+    MotionFinish,
+    Leave
+}
+
+public class TutorialText
+{
+    public string Text;
+    public int Level;
+    public LevelTiming AppearTiming;
+    public LevelTiming DisappearTiming;
+
+    public TutorialText(string s,int level, LevelTiming appear,LevelTiming disappear)
+    {
+        Text = s;
+        Level = level;
+        AppearTiming = appear;
+        DisappearTiming = disappear;
+    }
+}
+
 public class InLevelHelpText : MonoBehaviour
 {
-    public string DragHint = "Drag the white spheres to the grid";
-    public string RollBackHint = "Double tap to go back if needed";
-    public string ExhaustHint = "";
     public float ShowHideTime;
 
     private bool InTutorial;
     private string CurrentText;
+
+    private List<TutorialText> TutorialTextList;
 
     // Start is called before the first frame update
     void Start()
@@ -21,6 +44,12 @@ public class InLevelHelpText : MonoBehaviour
         EventManager.instance.AddHandler<MotionFinish>(OnMotionFinish);
         EventManager.instance.AddHandler<CallBackToSelectLevel>(OnCallBackToSelectLevel);
         EventManager.instance.AddHandler<CallLoadLevel>(OnLevelFinish);
+
+        TutorialTextList = new List<TutorialText>();
+
+        TutorialTextList.Add(new TutorialText("Drag the white orbs to the grid", 1, LevelTiming.Enter, LevelTiming.Place));
+        TutorialTextList.Add(new TutorialText("Double tap to go back if needed", 1, LevelTiming.MotionFinish, LevelTiming.Leave));
+        TutorialTextList.Add(new TutorialText("Energy can be passed between the orbs", 4, LevelTiming.Enter, LevelTiming.Leave));
     }
 
     private void OnDestroy()
@@ -40,58 +69,68 @@ public class InLevelHelpText : MonoBehaviour
 
     private void OnLevelFinish(CallLoadLevel e)
     {
-        if(e.Type == LoadLevelType.LevelFinish && InTutorial)
+        if(e.Type == LoadLevelType.LevelFinish)
         {
-            InTutorial = false;
-            StartCoroutine(HideText());
+            for (int i = 0; i < TutorialTextList.Count; i++)
+            {
+                if (GameManager.ActivatedLevel.GetComponent<LevelManager>().LevelIndex == TutorialTextList[i].Level && TutorialTextList[i].Text == CurrentText && TutorialTextList[i].DisappearTiming == LevelTiming.Leave)
+                {
+                    StartCoroutine(HideText());
+                    break;
+                }
+            }
         }
     }
 
     private void OnCallBackToSelectLevel(CallBackToSelectLevel e)
     {
-        if (InTutorial)
+        for(int i = 0; i < TutorialTextList.Count; i++)
         {
-            InTutorial = false;
-            StartCoroutine(HideText());
+            if(GameManager.ActivatedLevel.GetComponent<LevelManager>().LevelIndex == TutorialTextList[i].Level && TutorialTextList[i].Text == CurrentText && TutorialTextList[i].DisappearTiming == LevelTiming.Leave)
+            {
+                StartCoroutine(HideText());
+                break;
+            }
         }
     }
 
     private void OnFinishLoadLevel(FinishLoadLevel e)
     {
-        if (e.index == 1)
+        for (int i = 0; i < TutorialTextList.Count; i++)
         {
-            InTutorial = true;
-            CurrentText = DragHint;
-            GetComponent<Text>().text = CurrentText;
-            StartCoroutine(ShowText());
-        }
-        else if(e.index == 11)
-        {
-            InTutorial = true;
-            CurrentText = ExhaustHint;
-            GetComponent<Text>().text = CurrentText;
-            StartCoroutine(ShowText());
+            if (GameManager.ActivatedLevel.GetComponent<LevelManager>().LevelIndex == TutorialTextList[i].Level && TutorialTextList[i].Text != CurrentText && TutorialTextList[i].AppearTiming == LevelTiming.Enter)
+            {
+                CurrentText = TutorialTextList[i].Text;
+                GetComponent<Text>().text = CurrentText;
+                StartCoroutine(ShowText());
+                break;
+            }
         }
     }
 
     private void OnPlace(Place e)
     {
-        if (InTutorial)
+        for (int i = 0; i < TutorialTextList.Count; i++)
         {
-            if(CurrentText == DragHint)
+            if (GameManager.ActivatedLevel.GetComponent<LevelManager>().LevelIndex == TutorialTextList[i].Level && TutorialTextList[i].Text == CurrentText && TutorialTextList[i].DisappearTiming == LevelTiming.Place)
             {
                 StartCoroutine(HideText());
+                break;
             }
         }
     }
 
     private void OnMotionFinish(MotionFinish e)
     {
-        if (InTutorial && CurrentText == DragHint)
+        for (int i = 0; i < TutorialTextList.Count; i++)
         {
-            CurrentText = RollBackHint;
-            GetComponent<Text>().text = CurrentText;
-            StartCoroutine(ShowText());
+            if (GameManager.ActivatedLevel.GetComponent<LevelManager>().LevelIndex == TutorialTextList[i].Level && TutorialTextList[i].Text != CurrentText && TutorialTextList[i].AppearTiming == LevelTiming.MotionFinish)
+            {
+                CurrentText = TutorialTextList[i].Text;
+                GetComponent<Text>().text = CurrentText;
+                StartCoroutine(ShowText());
+                break;
+            }
         }
     }
 
