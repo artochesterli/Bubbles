@@ -30,6 +30,8 @@ public class ShockWaveEmitTask : Task
         base.Init();
         color = ShockWave.GetComponent<SpriteRenderer>().color;
         InflateTime = ShockWaveTime * (PowerUpSelfInflatedScale - PowerUpSelfScale) / (ShockWaveEndSize - PowerUpSelfScale);
+
+        GameManager.ActivatedLevel.GetComponent<AudioSource>().Play();
     }
 
     internal override void Update()

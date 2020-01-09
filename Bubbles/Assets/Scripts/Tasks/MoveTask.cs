@@ -51,6 +51,10 @@ public class MoveTask : Task
             Obj.transform.localPosition = TargetPos;
             SetState(TaskState.Success);
         }
+        else
+        {
+            Obj.GetComponent<AudioSource>().Play();
+        }
     }
 
     internal override void Update()

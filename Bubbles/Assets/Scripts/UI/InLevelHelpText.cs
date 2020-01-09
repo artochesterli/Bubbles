@@ -75,6 +75,7 @@ public class InLevelHelpText : MonoBehaviour
             {
                 if (GameManager.ActivatedLevel.GetComponent<LevelManager>().LevelIndex == TutorialTextList[i].Level && TutorialTextList[i].Text == CurrentText && TutorialTextList[i].DisappearTiming == LevelTiming.Leave)
                 {
+                    CurrentText = "";
                     StartCoroutine(HideText());
                     break;
                 }
@@ -86,8 +87,9 @@ public class InLevelHelpText : MonoBehaviour
     {
         for(int i = 0; i < TutorialTextList.Count; i++)
         {
-            if(GameManager.ActivatedLevel.GetComponent<LevelManager>().LevelIndex == TutorialTextList[i].Level && TutorialTextList[i].Text == CurrentText && TutorialTextList[i].DisappearTiming == LevelTiming.Leave)
+            if(GameManager.ActivatedLevel.GetComponent<LevelManager>().LevelIndex == TutorialTextList[i].Level && TutorialTextList[i].Text == CurrentText)
             {
+                CurrentText = "";
                 StartCoroutine(HideText());
                 break;
             }
@@ -114,6 +116,7 @@ public class InLevelHelpText : MonoBehaviour
         {
             if (GameManager.ActivatedLevel.GetComponent<LevelManager>().LevelIndex == TutorialTextList[i].Level && TutorialTextList[i].Text == CurrentText && TutorialTextList[i].DisappearTiming == LevelTiming.Place)
             {
+                CurrentText = "";
                 StartCoroutine(HideText());
                 break;
             }

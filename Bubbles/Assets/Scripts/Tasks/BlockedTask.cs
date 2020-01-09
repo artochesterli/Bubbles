@@ -35,6 +35,8 @@ public class BlockedTask : Task
         Obj.transform.localPosition = Pos;
 
         forward = true;
+
+        Obj.GetComponent<AudioSource>().Play();
     }
 
     internal override void Update()
