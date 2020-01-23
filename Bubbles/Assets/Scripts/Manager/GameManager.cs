@@ -82,7 +82,8 @@ public class GameManager : MonoBehaviour
     public GameObject SettingButton;
     public GameObject CreditButton;
     public GameObject BackButton;
-    public GameObject HelpText;
+    public GameObject InfoText;
+    public GameObject ContactButton;
 
     public float ButtonUnselectedDisappearTime;
     public float ButtonSelectedDisappearTime;
@@ -99,8 +100,6 @@ public class GameManager : MonoBehaviour
     public GameObject UseableBubblePrefab;
     public float UseableBubblesXGap;
 
-    public GameObject UseableAreaMarkLeft;
-    public GameObject UseableAreaMarkRight;
     public GameObject LevelMarkLeft;
     public GameObject LevelMarkRight;
     public GameObject LevelNumber;
@@ -338,6 +337,7 @@ public class GameManager : MonoBehaviour
         gameState = GameState.MainMenu;
 
         BackButton.GetComponent<BoxCollider2D>().enabled = false;
+        ContactButton.GetComponent<BoxCollider2D>().enabled = false;
 
         switch (OriginalState)
         {
@@ -368,7 +368,8 @@ public class GameManager : MonoBehaviour
                 ParallelTasks HelpDisappearTask = new ParallelTasks();
 
                 HelpDisappearTask.Add(BackButton.GetComponent<BackButton>().GetDisappearTask(ButtonUnselectedDisappearTime,true));
-                HelpDisappearTask.Add(HelpText.GetComponent<HelpText>().GetDisappearTask(ButtonUnselectedDisappearTime));
+                HelpDisappearTask.Add(InfoText.GetComponent<HelpText>().GetDisappearTask(ButtonUnselectedDisappearTime));
+                HelpDisappearTask.Add(ContactButton.GetComponent<ContactButton>().GetDisappearTask(ButtonUnselectedDisappearTime));
 
                 while (!HelpDisappearTask.IsFinished)
                 {
@@ -422,7 +423,8 @@ public class GameManager : MonoBehaviour
 
         ParallelTasks HelpAppearTask = new ParallelTasks();
 
-        HelpAppearTask.Add(HelpText.GetComponent<HelpText>().GetAppearTask(ButtonAppearTime));
+        HelpAppearTask.Add(InfoText.GetComponent<HelpText>().GetAppearTask(ButtonAppearTime));
+        HelpAppearTask.Add(ContactButton.GetComponent<ContactButton>().GetAppearTask(ButtonAppearTime));
         HelpAppearTask.Add(BackButton.GetComponent<BackButton>().GetAppearTask(ButtonAppearTime));
 
         while (!HelpAppearTask.IsFinished)
@@ -432,6 +434,7 @@ public class GameManager : MonoBehaviour
         }
 
         BackButton.GetComponent<BoxCollider2D>().enabled = true;
+        ContactButton.GetComponent<BoxCollider2D>().enabled = true;
     }
 
     private IEnumerator GoToSelectedLevel()
@@ -827,8 +830,6 @@ public class GameManager : MonoBehaviour
 
         MarkAppearTask.Add(new UIFillTask(LevelMarkLeft, 0, 1, MarkFillTime));
         MarkAppearTask.Add(new UIFillTask(LevelMarkRight, 0, 1, MarkFillTime));
-        MarkAppearTask.Add(new UIFillTask(UseableAreaMarkLeft, 0, 1, MarkFillTime));
-        MarkAppearTask.Add(new UIFillTask(UseableAreaMarkRight, 0, 1, MarkFillTime));
 
         Color levelnumbercolor = LevelNumber.GetComponent<Text>().color;
         
@@ -867,8 +868,6 @@ public class GameManager : MonoBehaviour
 
         MarkDisappearTask.Add(new UIFillTask(LevelMarkLeft, 1, 0, MarkFillTime));
         MarkDisappearTask.Add(new UIFillTask(LevelMarkRight, 1, 0, MarkFillTime));
-        MarkDisappearTask.Add(new UIFillTask(UseableAreaMarkLeft, 1, 0, MarkFillTime));
-        MarkDisappearTask.Add(new UIFillTask(UseableAreaMarkRight, 1, 0, MarkFillTime));
 
         MarkDisappear.Add(MarkDisappearTask);
 

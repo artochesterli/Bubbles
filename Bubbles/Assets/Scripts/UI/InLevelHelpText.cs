@@ -48,7 +48,7 @@ public class InLevelHelpText : MonoBehaviour
         TutorialTextList = new List<TutorialText>();
 
         TutorialTextList.Add(new TutorialText("Drag the white orbs to the grid", 1, LevelTiming.Enter, LevelTiming.Place));
-        TutorialTextList.Add(new TutorialText("Double tap to go back if needed", 1, LevelTiming.MotionFinish, LevelTiming.Leave));
+        TutorialTextList.Add(new TutorialText("Double tap to undo if need", 1, LevelTiming.MotionFinish, LevelTiming.Leave));
         TutorialTextList.Add(new TutorialText("Energy can be passed between the orbs", 4, LevelTiming.Enter, LevelTiming.Leave));
     }
 
