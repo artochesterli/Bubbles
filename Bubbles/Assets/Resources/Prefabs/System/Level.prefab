@@ -86,7 +86,7 @@ MonoBehaviour:
   BlinkTime: 0.25
   MoveDis: 1
   NormalScale: 1
-  ExhaustScale: 0.8
+  ExhaustScale: 0.7
   BlockedDis: 0.2
   ConflictBlockedDis: 0.5
   TeleportSlotBlockedRotationAngle: 45
