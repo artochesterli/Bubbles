@@ -202,7 +202,7 @@ public class GameManager : MonoBehaviour
 
         if (SystemInfo.deviceType == DeviceType.Desktop)
         {
-            int height = Screen.currentResolution.height*3/4;
+            int height = Screen.currentResolution.height*4/5;
             int width = height * 9 / 16;
 
             Screen.SetResolution(width, height, false);
