@@ -429,7 +429,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   LevelIndex: 1
-  UnfinishColor: {r: 0.69803923, g: 0.69803923, b: 0.69803923, a: 1}
+  UnfinishColor: {r: 0.5566038, g: 0.5566038, b: 0.5566038, a: 1}
   FinishColor: {r: 1, g: 1, b: 1, a: 1}
   SelectInflationScale: 1.3
   SwtichOffset: 100
