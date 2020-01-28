@@ -117,7 +117,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 3
       scalar: 0.3
-      minScalar: 1.2
+      minScalar: 1.4
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -976,7 +976,7 @@ ParticleSystem:
       countCurve:
         serializedVersion: 2
         minMaxState: 0
-        scalar: 1
+        scalar: 12
         minScalar: 30
         maxCurve:
           serializedVersion: 2
@@ -1026,7 +1026,7 @@ ParticleSystem:
           m_PreInfinity: 2
           m_PostInfinity: 2
           m_RotationOrder: 4
-      cycleCount: 8
+      cycleCount: 1
       repeatInterval: 0.01
       probability: 1
   SizeModule:
@@ -4824,8 +4824,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b4c599c62155394d893f0160594c463, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Target: {x: -2, y: 0, z: 0}
-  Force: 0.95
+  Target: {x: -1, y: 0, z: 0}
+  Force: 0.9
 --- !u!1 &4160336901268122774
 GameObject:
   m_ObjectHideFlags: 0
@@ -4943,7 +4943,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 3
       scalar: 0.3
-      minScalar: 1.2
+      minScalar: 1.4
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -5802,7 +5802,7 @@ ParticleSystem:
       countCurve:
         serializedVersion: 2
         minMaxState: 0
-        scalar: 1
+        scalar: 12
         minScalar: 30
         maxCurve:
           serializedVersion: 2
@@ -5852,7 +5852,7 @@ ParticleSystem:
           m_PreInfinity: 2
           m_PostInfinity: 2
           m_RotationOrder: 4
-      cycleCount: 8
+      cycleCount: 1
       repeatInterval: 0.01
       probability: 1
   SizeModule:
@@ -9650,8 +9650,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b4c599c62155394d893f0160594c463, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Target: {x: 0, y: -2, z: 0}
-  Force: 0.95
+  Target: {x: 0, y: -1, z: 0}
+  Force: 0.9
 --- !u!1 &4178100714138610568
 GameObject:
   m_ObjectHideFlags: 0
@@ -9803,7 +9803,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 3
       scalar: 0.3
-      minScalar: 1.2
+      minScalar: 1.4
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -10662,7 +10662,7 @@ ParticleSystem:
       countCurve:
         serializedVersion: 2
         minMaxState: 0
-        scalar: 1
+        scalar: 12
         minScalar: 30
         maxCurve:
           serializedVersion: 2
@@ -10712,7 +10712,7 @@ ParticleSystem:
           m_PreInfinity: 2
           m_PostInfinity: 2
           m_RotationOrder: 4
-      cycleCount: 8
+      cycleCount: 1
       repeatInterval: 0.01
       probability: 1
   SizeModule:
@@ -14510,8 +14510,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b4c599c62155394d893f0160594c463, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Target: {x: 0, y: 2, z: 0}
-  Force: 0.95
+  Target: {x: 0, y: 1, z: 0}
+  Force: 0.9
 --- !u!1 &6992619520885442231
 GameObject:
   m_ObjectHideFlags: 0
@@ -14629,7 +14629,7 @@ ParticleSystem:
       serializedVersion: 2
       minMaxState: 3
       scalar: 0.3
-      minScalar: 1.2
+      minScalar: 1.4
       maxCurve:
         serializedVersion: 2
         m_Curve:
@@ -15488,7 +15488,7 @@ ParticleSystem:
       countCurve:
         serializedVersion: 2
         minMaxState: 0
-        scalar: 1
+        scalar: 12
         minScalar: 30
         maxCurve:
           serializedVersion: 2
@@ -15538,7 +15538,7 @@ ParticleSystem:
           m_PreInfinity: 2
           m_PostInfinity: 2
           m_RotationOrder: 4
-      cycleCount: 8
+      cycleCount: 1
       repeatInterval: 0.01
       probability: 1
   SizeModule:
@@ -19336,5 +19336,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b4c599c62155394d893f0160594c463, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Target: {x: 2, y: 0, z: 0}
-  Force: 0.95
+  Target: {x: 1, y: 0, z: 0}
+  Force: 0.9
