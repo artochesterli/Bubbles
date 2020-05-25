@@ -23,10 +23,10 @@ public class ContactButton : MonoBehaviour
 
     private void OnMouseDown()
     {
-        if(GameManager.gameState == GameState.HelpText)
+        /*if(GameManager.gameState == GameState.HelpText)
         {
             Application.OpenURL("https://cl4929.myportfolio.com/work");
-        }
+        }*/
     }
 
     public ParallelTasks GetAppearTask(float AppearTime)
