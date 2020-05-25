@@ -9,10 +9,10 @@ PlayerSettings:
   AndroidFilterTouchesWhenObscured: 0
   AndroidEnableSustainedPerformanceMode: 0
   defaultScreenOrientation: 0
-  targetDevice: 2
+  targetDevice: 0
   useOnDemandResources: 0
   accelerometerFrequency: 60
-  companyName: DefaultCompany
+  companyName: Lichgames
   productName: Oosh
   defaultCursor: {fileID: 0}
   cursorHotspot: {x: 0, y: 0}
@@ -167,7 +167,7 @@ PlayerSettings:
     Android: com.Company.ProductName
     Standalone: unity.DefaultCompany.FPS2
     Tizen: com.Company.ProductName
-    iPhone: com.Company.ProductName
+    iPhone: com.chang.simplecircle
     tvOS: com.Company.ProductName
   buildNumber:
     iPhone: 0
@@ -470,7 +470,7 @@ PlayerSettings:
   actionOnDotNetUnhandledException: 1
   enableInternalProfiler: 0
   logObjCUncaughtExceptions: 1
-  enableCrashReportAPI: 0
+  enableCrashReportAPI: 1
   cameraUsageDescription: 
   locationUsageDescription: 
   microphoneUsageDescription: 
