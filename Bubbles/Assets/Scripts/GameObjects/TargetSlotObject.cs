@@ -18,7 +18,7 @@ public class TargetSlotObject : MonoBehaviour
     public GameObject InsideParticlePrefab;
 
     public float BreathCycle;
-    public float BreathMaxSize;
+    public float BreathOffset;
 
 
     public float ParticleGenerateIntervalMin;
@@ -67,14 +67,16 @@ public class TargetSlotObject : MonoBehaviour
 
         if(GameManager.levelState == LevelState.Play || GameManager.levelState == LevelState.Executing)
         {
-            //Breath();
+            Breath();
         }
     }
 
     private void Breath()
     {
         BreathTimer += Time.deltaTime;
-        if (BreathInflate)
+
+        transform.localScale = Mathf.Sin(BreathTimer / BreathCycle) * Vector3.one * BreathOffset + Vector3.one;
+        /*if (BreathInflate)
         {
             transform.localScale = Vector3.Lerp(Vector3.one, Vector3.one * BreathMaxSize, BreathTimer / (BreathCycle / 2));
             if(BreathTimer >= BreathCycle / 2)
@@ -91,7 +93,7 @@ public class TargetSlotObject : MonoBehaviour
                 BreathTimer = 0;
                 BreathInflate = true;
             }
-        }
+        }*/
 
         //transform.localScale = Vector3.one * (1 + (BreathMaxSize - 1)/2 + (BreathMaxSize - 1) / 2 * Mathf.Sin(BreathTimer / BreathCycle * 2 * Mathf.PI));
     }

@@ -49,6 +49,9 @@ public class MainMenuButton : MonoBehaviour
                 case MainMenuButtonType.HelpButton:
                     EventManager.instance.Fire(new CallGoToHelp());
                     break;
+                case MainMenuButtonType.SettingButton:
+                    EventManager.instance.Fire(new CallGoToSetting());
+                    break;
             }
 
         }

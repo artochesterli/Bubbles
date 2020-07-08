@@ -195,10 +195,10 @@ public class GameManager : MonoBehaviour
         {
             CurrentSaveInfo.LevelFinished.Add(false);
         }
-        /*if (!LoadProgress())
+        if (!LoadProgress())
         {
             SaveProgress();
-        }*/
+        }
 
         if (SystemInfo.deviceType == DeviceType.Desktop)
         {
@@ -605,7 +605,7 @@ public class GameManager : MonoBehaviour
                 CurrentSaveInfo.LevelFinished[CurrentSaveInfo.CurrentLevel-1] = true;
             }
             CurrentSaveInfo.CurrentLevel = index;
-            //SaveProgress();
+            SaveProgress();
             
             EventManager.instance.Fire(new LevelLoaded(CurrentSaveInfo.CurrentLevel));
 
@@ -698,27 +698,48 @@ public class GameManager : MonoBehaviour
             UseableBubbleList.Add(Bubble);
         }
     }
-    
+
     private void SaveProgress()
     {
-        string Dic = Path.Combine(Application.dataPath, SaveFolderName);
-         
-        if (!Directory.Exists(Dic))
-        {
-            Directory.CreateDirectory(Dic);
-        }
-
-        string file = Path.Combine(Application.dataPath, SaveFolderName, SaveFileName + SaveFileExtension);
 
         FileStream stream;
+        string file;
 
-        if (!File.Exists(file))
+        if(Application.platform == RuntimePlatform.IPhonePlayer)
         {
-            stream = File.Open(file, FileMode.Create);
+
+            file = Path.Combine(Application.persistentDataPath, SaveFileName + SaveFileExtension);
+
+            if (!File.Exists(file))
+            {
+                stream = File.Open(file, FileMode.Create);
+            }
+            else
+            {
+                stream = File.Open(file, FileMode.Open);
+            }
         }
         else
         {
-            stream = File.Open(file, FileMode.Open);
+            string Dic = Path.Combine(Application.dataPath, SaveFolderName);
+
+            if (!Directory.Exists(Dic))
+            {
+                Directory.CreateDirectory(Dic);
+            }
+
+            file = Path.Combine(Application.dataPath, SaveFolderName, SaveFileName + SaveFileExtension);
+
+            if (!File.Exists(file))
+            {
+                stream = File.Open(file, FileMode.Create);
+            }
+            else
+            {
+                stream = File.Open(file, FileMode.Open);
+            }
+
+
         }
 
         BinaryFormatter binaryFormatter = new BinaryFormatter();
@@ -726,23 +747,56 @@ public class GameManager : MonoBehaviour
         stream.Close();
     }
 
+
+
     private bool LoadProgress()
     {
-        string file = Path.Combine(Application.dataPath, SaveFolderName, SaveFileName + SaveFileExtension);
-        if (!File.Exists(file))
+
+        FileStream stream;
+        string file;
+
+        if (Application.platform == RuntimePlatform.IPhonePlayer)
         {
-            CurrentSaveInfo = new SaveData(TotalLevelNumber, 0, new List<bool>());
-            for(int i = 0; i < CurrentSaveInfo.TotalLevelNumber; i++)
+            file = Path.Combine(Application.persistentDataPath, SaveFileName + SaveFileExtension);
+
+            if (!File.Exists(file))
             {
-                CurrentSaveInfo.LevelFinished.Add(false);
+                CurrentSaveInfo = new SaveData(TotalLevelNumber, 1, new List<bool>());
+                for (int i = 0; i < CurrentSaveInfo.TotalLevelNumber; i++)
+                {
+                    CurrentSaveInfo.LevelFinished.Add(false);
+                }
+                return false;
             }
-            return false;
+
+            stream = File.Open(file, FileMode.Open);
+
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
+            CurrentSaveInfo = (SaveData)binaryFormatter.Deserialize(stream);
+            stream.Close();
+            return true;
         }
-        FileStream stream = File.Open(file, FileMode.Open);
-        BinaryFormatter binaryFormatter = new BinaryFormatter();
-        CurrentSaveInfo = (SaveData)binaryFormatter.Deserialize(stream);
-        stream.Close();
-        return true;
+        else
+        {
+            file = Path.Combine(Application.dataPath, SaveFolderName, SaveFileName + SaveFileExtension);
+
+            if (!File.Exists(file))
+            {
+                CurrentSaveInfo = new SaveData(TotalLevelNumber, 1, new List<bool>());
+                for (int i = 0; i < CurrentSaveInfo.TotalLevelNumber; i++)
+                {
+                    CurrentSaveInfo.LevelFinished.Add(false);
+                }
+                return false;
+            }
+
+            stream = File.Open(file, FileMode.Open);
+
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
+            CurrentSaveInfo = (SaveData)binaryFormatter.Deserialize(stream);
+            stream.Close();
+            return true;
+        }
     }
 
     private void GetRollBackInput()

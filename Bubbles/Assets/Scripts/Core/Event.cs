@@ -72,7 +72,10 @@ public class FinishLoadLevel : Event
     }
 }
 
+public class CallGoToSetting : Event { }
+
 public class CallGoToHelp : Event { }
+
 public class CallGoToSelectLevel : Event { }
 
 public class CallBackToSelectLevel : Event { }

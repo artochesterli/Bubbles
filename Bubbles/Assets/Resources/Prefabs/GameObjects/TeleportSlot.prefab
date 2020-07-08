@@ -48,6 +48,7 @@ SpriteRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -72,7 +73,7 @@ SpriteRenderer:
   m_SortingLayerID: -474039353
   m_SortingLayer: 1
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 1e1dcce533e33a54a899e361fdd5f95a, type: 3}
+  m_Sprite: {fileID: 21300000, guid: e2ec592a158998b4d9609bcee07adb19, type: 3}
   m_Color: {r: 0.6784314, g: 0.5959842, b: 0.4, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -100,8 +101,8 @@ MonoBehaviour:
   SelectedColor: {r: 1, g: 0.8906007, b: 0.6273585, a: 1}
   NearBySelectedColor: {r: 0.8773585, g: 0.76679647, b: 0.5007565, a: 1}
   DefaultColor: {r: 0.6784314, g: 0.59607846, b: 0.4, a: 1}
-  SelectedSprite: {fileID: 21300000, guid: a2e511f5c9b50624ebfc7ac167552d6b, type: 3}
-  DefaultSprite: {fileID: 21300000, guid: 1e1dcce533e33a54a899e361fdd5f95a, type: 3}
+  SelectedSprite: {fileID: 21300000, guid: e2ec592a158998b4d9609bcee07adb19, type: 3}
+  DefaultSprite: {fileID: 21300000, guid: e2ec592a158998b4d9609bcee07adb19, type: 3}
   Type: 2
   Selected: 0
   NearBySelected: 0
@@ -127,7 +128,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.94, y: 0.94}
+    oldSize: {x: 0.98, y: 0.98}
     newSize: {x: 0.94, y: 0.94}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -181,6 +182,7 @@ SpriteRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:

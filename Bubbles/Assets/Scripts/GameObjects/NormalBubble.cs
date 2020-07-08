@@ -40,17 +40,22 @@ public class NormalBubble : MonoBehaviour
 
     private void OnEnable()
     {
-
+        EventManager.instance.AddHandler<CallBackToSelectLevel>(OnBackToSelectLevel);
     }
 
     private void OnDisable()
     {
-
+        EventManager.instance.RemoveHandler<CallBackToSelectLevel>(OnBackToSelectLevel);
     }
 
     private void Update()
     {
 
+    }
+
+    private void OnBackToSelectLevel(CallBackToSelectLevel e)
+    {
+        transform.Find("ActivateEffect").GetComponent<ParticleSystem>().Stop();
     }
 
     public SerialTasks GetShockWavePowerUpTask()
