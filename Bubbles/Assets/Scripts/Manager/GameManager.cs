@@ -84,7 +84,16 @@ public class GameManager : MonoBehaviour
     public GameObject CreditButton;
     public GameObject BackButton;
     public GameObject InfoText;
-    public GameObject ContactButton;
+
+    public GameObject MusicText;
+    public GameObject MusicMeter;
+    public GameObject MusicMeterCursor;
+    public GameObject SoundEffectText;
+    public GameObject SoundEffectMeter;
+    public GameObject SoundEffectMeterCursor;
+    public GameObject VibrationText;
+    public GameObject VibrationCheckBox;
+    public GameObject VibrationCheckMark;
 
     public float ButtonUnselectedDisappearTime;
     public float ButtonSelectedDisappearTime;
@@ -340,7 +349,6 @@ public class GameManager : MonoBehaviour
         gameState = GameState.MainMenu;
 
         BackButton.GetComponent<BoxCollider2D>().enabled = false;
-        ContactButton.GetComponent<BoxCollider2D>().enabled = false;
 
         switch (OriginalState)
         {
@@ -373,7 +381,6 @@ public class GameManager : MonoBehaviour
 
                 InfoDisappearTask.Add(BackButton.GetComponent<BackButton>().GetDisappearTask(ButtonUnselectedDisappearTime,true));
                 InfoDisappearTask.Add(InfoText.GetComponent<InfoText>().GetDisappearTask(ButtonUnselectedDisappearTime));
-                InfoDisappearTask.Add(ContactButton.GetComponent<ContactButton>().GetDisappearTask(ButtonUnselectedDisappearTime));
 
                 while (!InfoDisappearTask.IsFinished)
                 {
@@ -388,6 +395,17 @@ public class GameManager : MonoBehaviour
 
                 SettingDisappearTask.Add(BackButton.GetComponent<BackButton>().GetDisappearTask(ButtonUnselectedDisappearTime, true));
 
+                SettingDisappearTask.Add(Utility.GetTextDisappearTask(MusicText, ButtonUnselectedDisappearTime));
+                SettingDisappearTask.Add(Utility.GetTextDisappearTask(SoundEffectText, ButtonUnselectedDisappearTime));
+                SettingDisappearTask.Add(Utility.GetTextDisappearTask(VibrationText, ButtonUnselectedDisappearTime));
+
+                SettingDisappearTask.Add(Utility.GetImageDisappearTask(MusicMeter, ButtonUnselectedDisappearTime));
+                SettingDisappearTask.Add(Utility.GetImageDisappearTask(MusicMeterCursor, ButtonUnselectedDisappearTime));
+                SettingDisappearTask.Add(Utility.GetImageDisappearTask(SoundEffectMeter, ButtonUnselectedDisappearTime));
+                SettingDisappearTask.Add(Utility.GetImageDisappearTask(SoundEffectMeterCursor, ButtonUnselectedDisappearTime));
+                SettingDisappearTask.Add(Utility.GetImageDisappearTask(VibrationCheckBox, ButtonUnselectedDisappearTime));
+                SettingDisappearTask.Add(Utility.GetImageDisappearTask(VibrationCheckMark, ButtonUnselectedDisappearTime));
+
                 while (!SettingDisappearTask.IsFinished)
                 {
                     SettingDisappearTask.Update();
@@ -401,7 +419,8 @@ public class GameManager : MonoBehaviour
 
         ParallelTasks MainMenuAppearTask = new ParallelTasks();
 
-        MainMenuAppearTask.Add(Title.GetComponent<Title>().GetAppearTask(ButtonAppearTime));
+        MainMenuAppearTask.Add(Utility.GetTextAppearTask(Title, ButtonAppearTime));
+
         MainMenuAppearTask.Add(PlayButton.GetComponent<MainMenuButton>().GetAppearTask(ButtonAppearTime));
         MainMenuAppearTask.Add(SelectLevelButton.GetComponent<MainMenuButton>().GetAppearTask(ButtonAppearTime));
         MainMenuAppearTask.Add(SettingButton.GetComponent<MainMenuButton>().GetAppearTask(ButtonAppearTime));
@@ -428,8 +447,7 @@ public class GameManager : MonoBehaviour
         AllMainMenuButton.Add(SettingButton);
         AllMainMenuButton.Add(CreditButton);
 
-
-        MainMenuDisappearTask.Add(Title.GetComponent<Title>().GetDisappearTask(ButtonUnselectedDisappearTime));
+        MainMenuDisappearTask.Add(Utility.GetTextDisappearTask(Title, ButtonUnselectedDisappearTime));
 
         for(int i = 0; i < AllMainMenuButton.Count; i++)
         {
@@ -464,6 +482,18 @@ public class GameManager : MonoBehaviour
 
         SettingAppearTask.Add(BackButton.GetComponent<BackButton>().GetAppearTask(ButtonAppearTime));
 
+        SettingAppearTask.Add(Utility.GetTextAppearTask(MusicText, ButtonAppearTime));
+        SettingAppearTask.Add(Utility.GetTextAppearTask(SoundEffectText, ButtonAppearTime));
+        SettingAppearTask.Add(Utility.GetTextAppearTask(VibrationText, ButtonAppearTime));
+
+        SettingAppearTask.Add(Utility.GetImageAppearTask(MusicMeter, ButtonAppearTime));
+        SettingAppearTask.Add(Utility.GetImageAppearTask(MusicMeterCursor, ButtonAppearTime));
+        SettingAppearTask.Add(Utility.GetImageAppearTask(SoundEffectMeter, ButtonAppearTime));
+        SettingAppearTask.Add(Utility.GetImageAppearTask(SoundEffectMeterCursor, ButtonAppearTime));
+        SettingAppearTask.Add(Utility.GetImageAppearTask(VibrationCheckBox, ButtonAppearTime));
+        SettingAppearTask.Add(Utility.GetImageAppearTask(VibrationCheckMark, ButtonAppearTime));
+
+
         while (!SettingAppearTask.IsFinished)
         {
             SettingAppearTask.Update();
@@ -490,7 +520,6 @@ public class GameManager : MonoBehaviour
         ParallelTasks InfoAppearTask = new ParallelTasks();
 
         InfoAppearTask.Add(InfoText.GetComponent<InfoText>().GetAppearTask(ButtonAppearTime));
-        InfoAppearTask.Add(ContactButton.GetComponent<ContactButton>().GetAppearTask(ButtonAppearTime));
         InfoAppearTask.Add(BackButton.GetComponent<BackButton>().GetAppearTask(ButtonAppearTime));
 
         while (!InfoAppearTask.IsFinished)
@@ -500,7 +529,6 @@ public class GameManager : MonoBehaviour
         }
 
         BackButton.GetComponent<BoxCollider2D>().enabled = true;
-        ContactButton.GetComponent<BoxCollider2D>().enabled = true;
     }
 
     private IEnumerator GoToSelectedLevel()

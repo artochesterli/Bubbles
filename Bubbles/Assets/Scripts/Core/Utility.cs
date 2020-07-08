@@ -324,5 +324,49 @@ public class Utility
 
         return AppearTask;
     }
+
+    public static ParallelTasks GetTextAppearTask(GameObject Text,float AppearTime)
+    {
+        Color color = Text.GetComponent<Text>().color;
+
+        ParallelTasks Tasks = new ParallelTasks();
+
+        Tasks.Add(new ColorChangeTask(Text, Utility.ColorWithAlpha(color, 0), Utility.ColorWithAlpha(color, 1), AppearTime, ColorChangeType.Text));
+
+        return Tasks;
+    }
+
+    public static ParallelTasks GetTextDisappearTask(GameObject Text,float DisappearTime)
+    {
+        Color color = Text.GetComponent<Text>().color;
+
+        ParallelTasks Tasks = new ParallelTasks();
+
+        Tasks.Add(new ColorChangeTask(Text, Utility.ColorWithAlpha(color, 1), Utility.ColorWithAlpha(color, 0), DisappearTime, ColorChangeType.Text));
+
+        return Tasks;
+    }
+
+    public static ParallelTasks GetImageAppearTask(GameObject Image, float AppearTime)
+    {
+        Color color = Image.GetComponent<Image>().color;
+
+        ParallelTasks Tasks = new ParallelTasks();
+
+        Tasks.Add(new ColorChangeTask(Image, Utility.ColorWithAlpha(color, 0), Utility.ColorWithAlpha(color, 1), AppearTime, ColorChangeType.Image));
+
+        return Tasks;
+    }
+
+    public static ParallelTasks GetImageDisappearTask(GameObject Image, float DisappearTime)
+    {
+        Color color = Image.GetComponent<Image>().color;
+
+        ParallelTasks Tasks = new ParallelTasks();
+
+        Tasks.Add(new ColorChangeTask(Image, Utility.ColorWithAlpha(color, 1), Utility.ColorWithAlpha(color, 0), DisappearTime, ColorChangeType.Image));
+
+        return Tasks;
+    }
 }
 
