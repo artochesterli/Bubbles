@@ -31,7 +31,10 @@ public class BackButton : MonoBehaviour
             case GameState.SelectLevelMenu:
                 EventManager.instance.Fire(new CallBackToMainMenu());
                 break;
-            case GameState.HelpText:
+            case GameState.Info:
+                EventManager.instance.Fire(new CallBackToMainMenu());
+                break;
+            case GameState.Setting:
                 EventManager.instance.Fire(new CallBackToMainMenu());
                 break;
         }

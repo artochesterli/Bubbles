@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class HelpText : MonoBehaviour
+public class InfoText : MonoBehaviour
 {
     public string DragText;
     public string GoalTextBegin;
