@@ -210,7 +210,10 @@ public class UsableCircle : MonoBehaviour
                     {
                         if (child.gameObject != SelectedSlot)
                         {
-                            Taptic.Light();
+                            if (GameManager.CurrentConfig.Vibration)
+                            {
+                                Taptic.Light();
+                            }
 
                             if (SelectedSlot != null)
                             {

@@ -109,8 +109,8 @@ MonoBehaviour:
   FinishTime: 0.3
   FinishColor: {r: 0.6784314, g: 0.59607846, b: 0.4, a: 0}
   FinishRotationSpeed: 0
-  ShakeSpeed: 0.3
-  MaxShakeDis: 0.03
+  ShakeSpeed: 0.75
+  MaxShakeDis: 0.05
 --- !u!61 &3222680958257903505
 BoxCollider2D:
   m_ObjectHideFlags: 0

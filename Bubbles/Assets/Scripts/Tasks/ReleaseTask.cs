@@ -53,7 +53,7 @@ public class ReleaseTask : Task
         {
             if (ShootParticles[i])
             {
-                ReleaseEffect.transform.GetChild(i).GetComponent<ParticleSystem>().Play();
+                ReleaseEffect.transform.GetChild(i).GetComponent<ParticleSystem>().Play(true);
                 Push = true;
             }
         }

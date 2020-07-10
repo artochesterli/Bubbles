@@ -136,8 +136,8 @@ MonoBehaviour:
   FinishTime: 0.3
   FinishColor: {r: 0.44313726, g: 0.7019608, b: 0.7294118, a: 0}
   FinishRotationSpeed: 180
-  ShakeSpeed: 0.3
-  MaxShakeDis: 0.03
+  ShakeSpeed: 0.75
+  MaxShakeDis: 0.05
 --- !u!114 &4841008710686151484
 MonoBehaviour:
   m_ObjectHideFlags: 0

@@ -72,6 +72,8 @@ public class FinishLoadLevel : Event
     }
 }
 
+public class UpdateConfig : Event { }
+
 public class CallGoToSetting : Event { }
 
 public class CallGoToInfo : Event { }

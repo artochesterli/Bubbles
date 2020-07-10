@@ -45,6 +45,7 @@ SpriteRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -185,6 +186,7 @@ SpriteRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -419,11 +421,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 6318222624647526203}
     m_Modifications:
-    - target: {fileID: 8715271769703966393, guid: 9a86b160d8f9c1640be894f6b81aa6d9,
-        type: 3}
-      propertyPath: m_Name
-      value: EmptyReleaseEffect
-      objectReference: {fileID: 0}
     - target: {fileID: 8715271769703966374, guid: 9a86b160d8f9c1640be894f6b81aa6d9,
         type: 3}
       propertyPath: m_LocalPosition.x
@@ -479,6 +476,11 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 8715271769703966393, guid: 9a86b160d8f9c1640be894f6b81aa6d9,
+        type: 3}
+      propertyPath: m_Name
+      value: EmptyReleaseEffect
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9a86b160d8f9c1640be894f6b81aa6d9, type: 3}
 --- !u!4 &4265196555555626587 stripped
@@ -494,6 +496,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 6318222624647526203}
     m_Modifications:
+    - target: {fileID: 785921311788001644, guid: a008bf6fab1d6fc4aad95a669e92f88c,
+        type: 3}
+      propertyPath: EmissionModule.enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 1512520165396805815, guid: a008bf6fab1d6fc4aad95a669e92f88c,
         type: 3}
       propertyPath: m_Name
@@ -552,26 +559,6 @@ PrefabInstance:
     - target: {fileID: 5064356284384993140, guid: a008bf6fab1d6fc4aad95a669e92f88c,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 802542856508961835, guid: a008bf6fab1d6fc4aad95a669e92f88c,
-        type: 3}
-      propertyPath: looping
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 785921311788001644, guid: a008bf6fab1d6fc4aad95a669e92f88c,
-        type: 3}
-      propertyPath: looping
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 1253116070087940531, guid: a008bf6fab1d6fc4aad95a669e92f88c,
-        type: 3}
-      propertyPath: looping
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2658368352526054622, guid: a008bf6fab1d6fc4aad95a669e92f88c,
-        type: 3}
-      propertyPath: looping
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

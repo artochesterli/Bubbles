@@ -68,6 +68,21 @@ public class SaveData
     }
 }
 
+[System.Serializable]
+public class Config
+{
+    public float MusicVol;
+    public float SoundEffectVol;
+    public bool Vibration;
+
+    public Config(float musicVol,float soundEffectVol, bool vibration)
+    {
+        MusicVol = musicVol;
+        SoundEffectVol = soundEffectVol;
+        Vibration = vibration;
+    }
+}
+
 public class GameManager : MonoBehaviour
 {
     public static GameState gameState;
@@ -75,6 +90,7 @@ public class GameManager : MonoBehaviour
     public static CursorState cursorState;
     public static BubbleType HeldBubbleType;
     public static SaveData CurrentSaveInfo;
+    public static Config CurrentConfig;
     public static GameObject ActivatedLevel;
 
     public GameObject Title;
@@ -96,10 +112,11 @@ public class GameManager : MonoBehaviour
     public GameObject VibrationCheckMark;
 
     public float ButtonUnselectedDisappearTime;
+    public float ButtonSelectedInflationTime;
     public float ButtonSelectedDisappearTime;
+    public float ButtonSelectedMaxScale;
     public float ButtonAppearTime;
-    public float ButtonSelectedEffectTime;
-    public float ButtonSelectedEffectScale;
+
 
     public int MinLevelIndex;
     public int MaxLevelIndex;
@@ -150,6 +167,11 @@ public class GameManager : MonoBehaviour
     private const string SaveFolderName = "PlayerSave";
     private const string SaveFileName = "PlayerSave";
     private const string SaveFileExtension = ".dat";
+
+    private const string ConfigFolderName = "PlayerConfig";
+    private const string ConfigFileName = "PlayerConfig";
+    private const string ConfigFileExtension = ".con";
+
     private const string DataFolderName = "PlayerData";
     private const string DataFileName = "PlayerData";
     private const string DataFileExtension = ".txt";
@@ -185,9 +207,19 @@ public class GameManager : MonoBehaviour
     {
         Timer += Time.deltaTime;
 
-
         GetRollBackInput();
 
+        SetConfig();
+    }
+
+    private void SetConfig()
+    {
+        if(gameState == GameState.Setting)
+        {
+            CurrentConfig.MusicVol = MusicMeterCursor.GetComponent<SettingMeterCursor>().GetValue();
+            CurrentConfig.SoundEffectVol = SoundEffectMeterCursor.GetComponent<SettingMeterCursor>().GetValue();
+        }
+        Camera.main.GetComponent<AudioSource>().volume = CurrentConfig.MusicVol;
     }
 
     private void Init()
@@ -202,14 +234,18 @@ public class GameManager : MonoBehaviour
 
         GetLevelInfo();
 
-        CurrentSaveInfo = new SaveData(TotalLevelNumber, 1, new List<bool>());
-        for (int i = 0; i < CurrentSaveInfo.TotalLevelNumber; i++)
-        {
-            CurrentSaveInfo.LevelFinished.Add(false);
-        }
         if (!LoadProgress())
         {
             SaveProgress();
+        }
+
+        if (!LoadConfig())
+        {
+            SaveConfig();
+        }
+        else
+        {
+            EventManager.instance.Fire(new UpdateConfig());
         }
 
         if (SystemInfo.deviceType == DeviceType.Desktop)
@@ -305,15 +341,15 @@ public class GameManager : MonoBehaviour
 
         foreach (Transform child in AllLevelButtons.transform)
         {
-            LevelButtonAppearTasks.Add(child.GetComponent<LevelButton>().GetAppearTask(ButtonAppearTime));
+            LevelButtonAppearTasks.Add(child.GetComponent<GameButton>().GetAppearTask());
         }
 
         foreach (Transform child in LevelSelectionArrows.transform)
         {
-            LevelButtonAppearTasks.Add(child.GetComponent<LevelSelectionArrow>().GetAppearTask());
+            LevelButtonAppearTasks.Add(child.GetComponent<GameButton>().GetAppearTask());
         }
 
-        LevelButtonAppearTasks.Add(BackButton.GetComponent<BackButton>().GetAppearTask(ButtonAppearTime));
+        LevelButtonAppearTasks.Add(BackButton.GetComponent<GameButton>().GetAppearTask());
 
         while (!LevelButtonAppearTasks.IsFinished)
         {
@@ -359,15 +395,15 @@ public class GameManager : MonoBehaviour
 
                 foreach (Transform child in AllLevelButtons.transform)
                 {
-                    SelectLevelDisappearTask.Add(child.GetComponent<LevelButton>().GetUnselectedDisappearTask(ButtonUnselectedDisappearTime));
+                    SelectLevelDisappearTask.Add(child.GetComponent<GameButton>().GetUnselectedDisappearTask());
                 }
 
                 foreach (Transform child in LevelSelectionArrows.transform)
                 {
-                    SelectLevelDisappearTask.Add(child.GetComponent<LevelSelectionArrow>().GetDisappearTask());
+                    SelectLevelDisappearTask.Add(child.GetComponent<GameButton>().GetUnselectedDisappearTask());
                 }
 
-                SelectLevelDisappearTask.Add(BackButton.GetComponent<BackButton>().GetDisappearTask(ButtonUnselectedDisappearTime,true));
+                SelectLevelDisappearTask.Add(BackButton.GetComponent<GameButton>().GetSelectedDisappearTask());
 
                 while (!SelectLevelDisappearTask.IsFinished)
                 {
@@ -379,8 +415,8 @@ public class GameManager : MonoBehaviour
             case GameState.Info:
                 ParallelTasks InfoDisappearTask = new ParallelTasks();
 
-                InfoDisappearTask.Add(BackButton.GetComponent<BackButton>().GetDisappearTask(ButtonUnselectedDisappearTime,true));
-                InfoDisappearTask.Add(InfoText.GetComponent<InfoText>().GetDisappearTask(ButtonUnselectedDisappearTime));
+                InfoDisappearTask.Add(BackButton.GetComponent<GameButton>().GetSelectedDisappearTask());
+                InfoDisappearTask.Add(Utility.GetTextDisappearTask(InfoText,ButtonUnselectedDisappearTime));
 
                 while (!InfoDisappearTask.IsFinished)
                 {
@@ -391,9 +427,17 @@ public class GameManager : MonoBehaviour
                 break;
 
             case GameState.Setting:
+
+                MusicMeterCursor.GetComponent<CircleCollider2D>().enabled = false;
+                SoundEffectMeterCursor.GetComponent<CircleCollider2D>().enabled = false;
+                VibrationCheckBox.GetComponent<BoxCollider2D>().enabled = false;
+
+                SaveConfig();
+
+
                 ParallelTasks SettingDisappearTask = new ParallelTasks();
 
-                SettingDisappearTask.Add(BackButton.GetComponent<BackButton>().GetDisappearTask(ButtonUnselectedDisappearTime, true));
+                SettingDisappearTask.Add(BackButton.GetComponent<GameButton>().GetSelectedDisappearTask());
 
                 SettingDisappearTask.Add(Utility.GetTextDisappearTask(MusicText, ButtonUnselectedDisappearTime));
                 SettingDisappearTask.Add(Utility.GetTextDisappearTask(SoundEffectText, ButtonUnselectedDisappearTime));
@@ -421,10 +465,10 @@ public class GameManager : MonoBehaviour
 
         MainMenuAppearTask.Add(Utility.GetTextAppearTask(Title, ButtonAppearTime));
 
-        MainMenuAppearTask.Add(PlayButton.GetComponent<MainMenuButton>().GetAppearTask(ButtonAppearTime));
-        MainMenuAppearTask.Add(SelectLevelButton.GetComponent<MainMenuButton>().GetAppearTask(ButtonAppearTime));
-        MainMenuAppearTask.Add(SettingButton.GetComponent<MainMenuButton>().GetAppearTask(ButtonAppearTime));
-        MainMenuAppearTask.Add(CreditButton.GetComponent<MainMenuButton>().GetAppearTask(ButtonAppearTime));
+        MainMenuAppearTask.Add(PlayButton.GetComponent<GameButton>().GetAppearTask());
+        MainMenuAppearTask.Add(SelectLevelButton.GetComponent<GameButton>().GetAppearTask());
+        MainMenuAppearTask.Add(SettingButton.GetComponent<GameButton>().GetAppearTask());
+        MainMenuAppearTask.Add(CreditButton.GetComponent<GameButton>().GetAppearTask());
 
         while (!MainMenuAppearTask.IsFinished)
         {
@@ -453,11 +497,11 @@ public class GameManager : MonoBehaviour
         {
             if(AllMainMenuButton[i] == SelectedButton)
             {
-                MainMenuDisappearTask.Add(AllMainMenuButton[i].GetComponent<MainMenuButton>().GetSelectedDisappearTask(ButtonSelectedEffectTime, ButtonSelectedDisappearTime));
+                MainMenuDisappearTask.Add(AllMainMenuButton[i].GetComponent<GameButton>().GetSelectedDisappearTask());
             }
             else
             {
-                MainMenuDisappearTask.Add(AllMainMenuButton[i].GetComponent<MainMenuButton>().GetUnselectedDisappearTask(ButtonUnselectedDisappearTime));
+                MainMenuDisappearTask.Add(AllMainMenuButton[i].GetComponent<GameButton>().GetUnselectedDisappearTask());
             }
         }
 
@@ -470,6 +514,8 @@ public class GameManager : MonoBehaviour
 
         SetMainMenuEnable(false);
 
+        SettingMatchConfig();
+
         ParallelTasks MainMenuDisappearTask = GetMainMenuDisappearTask(SettingButton);
 
         while (!MainMenuDisappearTask.IsFinished)
@@ -480,7 +526,7 @@ public class GameManager : MonoBehaviour
 
         ParallelTasks SettingAppearTask = new ParallelTasks();
 
-        SettingAppearTask.Add(BackButton.GetComponent<BackButton>().GetAppearTask(ButtonAppearTime));
+        SettingAppearTask.Add(BackButton.GetComponent<GameButton>().GetAppearTask());
 
         SettingAppearTask.Add(Utility.GetTextAppearTask(MusicText, ButtonAppearTime));
         SettingAppearTask.Add(Utility.GetTextAppearTask(SoundEffectText, ButtonAppearTime));
@@ -501,6 +547,16 @@ public class GameManager : MonoBehaviour
         }
 
         BackButton.GetComponent<BoxCollider2D>().enabled = true;
+        MusicMeterCursor.GetComponent<CircleCollider2D>().enabled = true;
+        SoundEffectMeterCursor.GetComponent<CircleCollider2D>().enabled = true;
+        VibrationCheckBox.GetComponent<BoxCollider2D>().enabled = true;
+    }
+
+    private void SettingMatchConfig()
+    {
+        MusicMeterCursor.GetComponent<SettingMeterCursor>().SetPos(CurrentConfig.MusicVol);
+        SoundEffectMeterCursor.GetComponent<SettingMeterCursor>().SetPos(CurrentConfig.SoundEffectVol);
+        VibrationCheckBox.GetComponent<VibrationCheckBox>().Set();
     }
 
     private IEnumerator GoToInfo()
@@ -519,8 +575,9 @@ public class GameManager : MonoBehaviour
 
         ParallelTasks InfoAppearTask = new ParallelTasks();
 
-        InfoAppearTask.Add(InfoText.GetComponent<InfoText>().GetAppearTask(ButtonAppearTime));
-        InfoAppearTask.Add(BackButton.GetComponent<BackButton>().GetAppearTask(ButtonAppearTime));
+        InfoAppearTask.Add(Utility.GetTextAppearTask(InfoText,ButtonAppearTime));
+
+        InfoAppearTask.Add(BackButton.GetComponent<GameButton>().GetAppearTask());
 
         while (!InfoAppearTask.IsFinished)
         {
@@ -551,15 +608,15 @@ public class GameManager : MonoBehaviour
 
         foreach(Transform child in AllLevelButtons.transform)
         {
-            SelectLevelAppearTasks.Add(child.GetComponent<LevelButton>().GetAppearTask(ButtonAppearTime));
+            SelectLevelAppearTasks.Add(child.GetComponent<GameButton>().GetAppearTask());
         }
 
         foreach(Transform child in LevelSelectionArrows.transform)
         {
-            SelectLevelAppearTasks.Add(child.GetComponent<LevelSelectionArrow>().GetAppearTask());
+            SelectLevelAppearTasks.Add(child.GetComponent<GameButton>().GetAppearTask());
         }
 
-        SelectLevelAppearTasks.Add(BackButton.GetComponent<BackButton>().GetAppearTask(ButtonAppearTime));
+        SelectLevelAppearTasks.Add(BackButton.GetComponent<GameButton>().GetAppearTask());
 
         while (!SelectLevelAppearTasks.IsFinished)
         {
@@ -602,20 +659,20 @@ public class GameManager : MonoBehaviour
                 {
                     if(child.gameObject == LevelButton)
                     {
-                        LevelButtonDisappearTasks.Add(child.GetComponent<LevelButton>().GetSelectedDisappearTask(ButtonSelectedEffectTime,ButtonSelectedDisappearTime));
+                        LevelButtonDisappearTasks.Add(child.GetComponent<GameButton>().GetSelectedDisappearTask());
                     }
                     else
                     {
-                        LevelButtonDisappearTasks.Add(child.GetComponent<LevelButton>().GetUnselectedDisappearTask(ButtonUnselectedDisappearTime));
+                        LevelButtonDisappearTasks.Add(child.GetComponent<GameButton>().GetUnselectedDisappearTask());
                     }
                 }
 
                 foreach (Transform child in LevelSelectionArrows.transform)
                 {
-                    LevelButtonDisappearTasks.Add(child.GetComponent<LevelSelectionArrow>().GetDisappearTask());
+                    LevelButtonDisappearTasks.Add(child.GetComponent<GameButton>().GetUnselectedDisappearTask());
                 }
 
-                LevelButtonDisappearTasks.Add(BackButton.GetComponent<BackButton>().GetDisappearTask(ButtonUnselectedDisappearTime,false));
+                LevelButtonDisappearTasks.Add(BackButton.GetComponent<GameButton>().GetUnselectedDisappearTask());
 
                 while (!LevelButtonDisappearTasks.IsFinished)
                 {
@@ -699,7 +756,7 @@ public class GameManager : MonoBehaviour
 
             EventManager.instance.Fire(new FinishLoadLevel(CurrentSaveInfo.CurrentLevel));
 
-            ColorChangeTask BackButtonAppearTask = BackButton.GetComponent<BackButton>().GetAppearTask(ButtonAppearTime);
+            ParallelTasks BackButtonAppearTask = BackButton.GetComponent<GameButton>().GetAppearTask();
 
             while (!BackButtonAppearTask.IsFinished)
             {
@@ -774,6 +831,96 @@ public class GameManager : MonoBehaviour
             Bubble.GetComponent<SpriteRenderer>().color = Utility.ColorWithAlpha(ColorData.NormalBubble,0);
 
             UseableBubbleList.Add(Bubble);
+        }
+    }
+
+    private void SaveConfig()
+    {
+        FileStream stream;
+        string file;
+
+        if (Application.platform == RuntimePlatform.IPhonePlayer)
+        {
+
+            file = Path.Combine(Application.persistentDataPath, ConfigFileName + ConfigFileExtension);
+
+            if (!File.Exists(file))
+            {
+                stream = File.Open(file, FileMode.Create);
+            }
+            else
+            {
+                stream = File.Open(file, FileMode.Open);
+            }
+        }
+        else
+        {
+            string Dic = Path.Combine(Application.dataPath, ConfigFolderName);
+
+            if (!Directory.Exists(Dic))
+            {
+                Directory.CreateDirectory(Dic);
+            }
+
+            file = Path.Combine(Application.dataPath, ConfigFolderName, ConfigFileName + ConfigFileExtension);
+
+            if (!File.Exists(file))
+            {
+                stream = File.Open(file, FileMode.Create);
+            }
+            else
+            {
+                stream = File.Open(file, FileMode.Open);
+            }
+
+
+        }
+
+        BinaryFormatter binaryFormatter = new BinaryFormatter();
+        binaryFormatter.Serialize(stream, CurrentConfig);
+        stream.Close();
+
+        EventManager.instance.Fire(new UpdateConfig());
+    }
+
+    private bool LoadConfig()
+    {
+        FileStream stream;
+        string file;
+
+        if (Application.platform == RuntimePlatform.IPhonePlayer)
+        {
+            file = Path.Combine(Application.persistentDataPath, ConfigFileName + ConfigFileExtension);
+
+            if (!File.Exists(file))
+            {
+                CurrentConfig = new Config(1, 1, true);
+                return false;
+            }
+
+            stream = File.Open(file, FileMode.Open);
+
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
+            CurrentConfig = (Config)binaryFormatter.Deserialize(stream);
+            stream.Close();
+            return true;
+        }
+        else
+        {
+            file = Path.Combine(Application.dataPath, ConfigFolderName, ConfigFileName + ConfigFileExtension);
+
+            if (!File.Exists(file))
+            {
+                CurrentConfig = new Config(1, 1, true);
+                return false;
+            }
+
+            stream = File.Open(file, FileMode.Open);
+
+            BinaryFormatter binaryFormatter = new BinaryFormatter();
+            CurrentConfig = (Config)binaryFormatter.Deserialize(stream);
+            stream.Close();
+            return true;
         }
     }
 
@@ -993,7 +1140,15 @@ public class GameManager : MonoBehaviour
         ParallelTasks AllTask = new ParallelTasks();
         Color levelnumbercolor = LevelNumber.GetComponent<Text>().color;
 
-        AllTask.Add(BackButton.GetComponent<BackButton>().GetDisappearTask(ButtonUnselectedDisappearTime, ClickBackButton));
+        if (ClickBackButton)
+        {
+            AllTask.Add(BackButton.GetComponent<GameButton>().GetSelectedDisappearTask());
+        }
+        else
+        {
+            AllTask.Add(BackButton.GetComponent<GameButton>().GetUnselectedDisappearTask());
+        }
+
 
         AllTask.Add(new ColorChangeTask(LevelNumber, Utility.ColorWithAlpha(levelnumbercolor, 1), Utility.ColorWithAlpha(levelnumbercolor, 0), LevelNumberAndUseableBubbleAppearTime,ColorChangeType.Text));
 

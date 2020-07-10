@@ -21,16 +21,23 @@ public class LevelSelectionArrow : MonoBehaviour
     void Start()
     {
         OriPos = GetComponent<RectTransform>().localPosition;
+        EventManager.instance.AddHandler<UpdateConfig>(OnUpdateConfig);
     }
 
     private void OnDestroy()
     {
+        EventManager.instance.RemoveHandler<UpdateConfig>(OnUpdateConfig);
     }
 
     // Update is called once per frame
     void Update()
     {
         
+    }
+
+    private void OnUpdateConfig(UpdateConfig e)
+    {
+        GetComponent<AudioSource>().volume = GameManager.CurrentConfig.SoundEffectVol;
     }
 
     private void OnMouseDown()
@@ -86,19 +93,5 @@ public class LevelSelectionArrow : MonoBehaviour
         }
 
         Shaking = false;
-    }
-
-    public ColorChangeTask GetDisappearTask()
-    {
-        Color color = GetComponent<Image>().color;
-
-        return new ColorChangeTask(gameObject, Utility.ColorWithAlpha(color, 1), Utility.ColorWithAlpha(color, 0), DisappearTime, ColorChangeType.Image);
-    }
-
-    public ColorChangeTask GetAppearTask()
-    {
-        Color color = GetComponent<Image>().color;
-
-        return new ColorChangeTask(gameObject, Utility.ColorWithAlpha(color, 0), Utility.ColorWithAlpha(color, 1), AppearTime, ColorChangeType.Image);
     }
 }

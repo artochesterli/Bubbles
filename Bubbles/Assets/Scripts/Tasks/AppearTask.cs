@@ -26,6 +26,7 @@ public class AppearTask : Task
 
     protected override void Init()
     {
+
         color = Obj.GetComponent<SpriteRenderer>().color;
         Obj.GetComponent<SpriteRenderer>().color = new Color(color.r, color.g, color.b, 0);
 

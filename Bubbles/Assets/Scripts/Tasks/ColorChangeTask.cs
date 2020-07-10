@@ -7,7 +7,8 @@ public enum ColorChangeType
 {
     Sprite,
     Image,
-    Text
+    Text,
+    Null
 }
 
 public class ColorChangeTask : Task
@@ -42,6 +43,9 @@ public class ColorChangeTask : Task
                 break;
             case ColorChangeType.Text:
                 Obj.GetComponent<Text>().color = Start;
+                break;
+            case ColorChangeType.Null:
+                SetState(TaskState.Success);
                 break;
         }
     }

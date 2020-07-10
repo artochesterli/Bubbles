@@ -22,7 +22,11 @@ public class BackButton : MonoBehaviour
     private void OnMouseDown()
     {
         GetComponent<AudioSource>().Play();
-        Taptic.Light();
+
+        if (GameManager.CurrentConfig.Vibration)
+        {
+            Taptic.Light();
+        }
         switch (GameManager.gameState)
         {
             case GameState.Level:
@@ -38,34 +42,5 @@ public class BackButton : MonoBehaviour
                 EventManager.instance.Fire(new CallBackToMainMenu());
                 break;
         }
-    }
-
-    public ColorChangeTask GetAppearTask(float AppearTime)
-    {
-        Color color = GetComponent<Image>().color;
-
-        return new ColorChangeTask(gameObject, Utility.ColorWithAlpha(color, 0), Utility.ColorWithAlpha(color, 1), AppearTime, ColorChangeType.Image);
-    }
-
-    public ParallelTasks GetDisappearTask(float DisappearTime, bool Click)
-    {
-        ParallelTasks DisappearTask = new ParallelTasks();
-
-
-        Color color = GetComponent<Image>().color;
-
-        DisappearTask.Add(new ColorChangeTask(gameObject, Utility.ColorWithAlpha(color, 1), Utility.ColorWithAlpha(color, 0), DisappearTime, ColorChangeType.Image));
-
-        SerialTasks ScaleTasks = new SerialTasks();
-
-        ScaleTasks.Add(new ScaleChangeTask(gameObject, 1, MaxScale, DisappearTime / 2));
-        ScaleTasks.Add(new ScaleChangeTask(gameObject, MaxScale, 1, DisappearTime / 2));
-
-        if (Click)
-        {
-            DisappearTask.Add(ScaleTasks);
-        }
-
-        return DisappearTask;
     }
 }

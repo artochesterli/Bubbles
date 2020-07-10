@@ -196,131 +196,95 @@ public class Utility
         return Pos;
     }
 
-    public static SerialTasks GetButtonSelectedDisappearTask(GameObject BorderImage, GameObject InsideContent, float StartScale, float EndScale, float InflationTime, float DeflationTime, bool ContentImage)
+    public static SerialTasks GetButtonSelectedDisappearTask(GameObject BorderImage, GameObject InsideContent, float StartScale, float EndScale, float InflationTime, float DeflationTime,ColorChangeType Type)
     {
         SerialTasks DisappearTask = new SerialTasks();
 
         ParallelTasks InflationTask = new ParallelTasks();
 
         InflationTask.Add(new ScaleChangeTask(BorderImage, StartScale, EndScale, InflationTime));
-        InflationTask.Add(new ScaleChangeTask(InsideContent, StartScale, EndScale, InflationTime));
+        if (InsideContent != null)
+        {
+            InflationTask.Add(new ScaleChangeTask(InsideContent, StartScale, EndScale, InflationTime));
+        }
 
         DisappearTask.Add(InflationTask);
 
         ParallelTasks DeflationTask = new ParallelTasks();
 
         DeflationTask.Add(new ScaleChangeTask(BorderImage, EndScale, StartScale,  DeflationTime));
-        DeflationTask.Add(new ScaleChangeTask(InsideContent, EndScale, StartScale,  DeflationTime));
+        if (InsideContent != null)
+        {
+            DeflationTask.Add(new ScaleChangeTask(InsideContent, EndScale, StartScale, DeflationTime));
+        }
 
         Color BorderImageColor = BorderImage.GetComponent<Image>().color;
         Color InsideContentColor;
-        ColorChangeType InsideContentChangeType;
-        if (ContentImage)
+
+        if (Type == ColorChangeType.Image)
         {
-            InsideContentChangeType = ColorChangeType.Image;
             InsideContentColor = InsideContent.GetComponent<Image>().color;
+            DeflationTask.Add(new ColorChangeTask(InsideContent, ColorWithAlpha(InsideContentColor, 1), ColorWithAlpha(InsideContentColor, 0), DeflationTime, Type));
         }
-        else
+        else if(Type == ColorChangeType.Text)
         {
-            InsideContentChangeType = ColorChangeType.Text;
             InsideContentColor = InsideContent.GetComponent<Text>().color;
+            DeflationTask.Add(new ColorChangeTask(InsideContent, ColorWithAlpha(InsideContentColor, 1), ColorWithAlpha(InsideContentColor, 0), DeflationTime, Type));
         }
 
         DeflationTask.Add(new ColorChangeTask(BorderImage, ColorWithAlpha(BorderImageColor, 1), ColorWithAlpha(BorderImageColor, 0), DeflationTime, ColorChangeType.Image));
-        DeflationTask.Add(new ColorChangeTask(InsideContent, ColorWithAlpha(InsideContentColor, 1), ColorWithAlpha(InsideContentColor, 0), DeflationTime, InsideContentChangeType));
+        
 
         DisappearTask.Add(DeflationTask);
 
         return DisappearTask;
     }
 
-    public static SerialTasks GetButtonSelectedDisappearTask(GameObject BorderImage, GameObject InsideContent, GameObject SelectedEffect,
-        bool ContentIsImage, float SelectedEffectScale, float SelectedEffectTime, float DisappearTime)
-    {
-        SerialTasks SelectedDisappearTask = new SerialTasks();
 
-        ParallelTasks SelectedEffectTask = new ParallelTasks();
-
-
-        SelectedEffectTask.Add(new ScaleChangeTask(SelectedEffect, 1, SelectedEffectScale, SelectedEffectTime));
-
-        Color EffectColor = SelectedEffect.GetComponent<Image>().color;
-        SelectedEffectTask.Add(new ColorChangeTask(SelectedEffect, ColorWithAlpha(EffectColor, 1), ColorWithAlpha(EffectColor, 0), SelectedEffectTime, ColorChangeType.Image));
-
-        SelectedDisappearTask.Add(SelectedEffectTask);
-
-        ParallelTasks SelfDisappearTask = new ParallelTasks();
-
-        Color BorderImageColor = BorderImage.GetComponent<Image>().color;
-        Color InsideContentColor;
-        ColorChangeType InsideContentChangeType;
-        if (ContentIsImage)
-        {
-            InsideContentColor = InsideContent.GetComponent<Image>().color;
-            InsideContentChangeType = ColorChangeType.Image;
-        }
-        else
-        {
-            InsideContentColor = InsideContent.GetComponent<Text>().color;
-            InsideContentChangeType = ColorChangeType.Text;
-        }
-
-
-        SelfDisappearTask.Add(new ColorChangeTask(BorderImage, ColorWithAlpha(BorderImageColor, 1), ColorWithAlpha(BorderImageColor, 0), DisappearTime, ColorChangeType.Image));
-
-        SelfDisappearTask.Add(new ColorChangeTask(InsideContent, ColorWithAlpha(InsideContentColor, 1), ColorWithAlpha(InsideContentColor, 0), DisappearTime, InsideContentChangeType));
-
-        SelectedDisappearTask.Add(SelfDisappearTask);
-
-        return SelectedDisappearTask;
-    }
-
-    public static ParallelTasks GetButtonUnselectedDisappearTask(GameObject BorderImage, GameObject InsideContent, bool ContentIsImage, float DisappearTime)
+    public static ParallelTasks GetButtonUnselectedDisappearTask(GameObject BorderImage, GameObject InsideContent, ColorChangeType Type, float DisappearTime)
     {
         ParallelTasks UnselectedDisappearTask = new ParallelTasks();
 
         Color BorderImageColor = BorderImage.GetComponent<Image>().color;
         Color InsideContentColor;
-        ColorChangeType InsideContentChangeType;
-        if (ContentIsImage)
+
+        if (Type == ColorChangeType.Image)
         {
             InsideContentColor = InsideContent.GetComponent<Image>().color;
-            InsideContentChangeType = ColorChangeType.Image;
+            UnselectedDisappearTask.Add(new ColorChangeTask(InsideContent, ColorWithAlpha(InsideContentColor, 1), ColorWithAlpha(InsideContentColor, 0), DisappearTime, Type));
         }
-        else
+        else if (Type == ColorChangeType.Text)
         {
             InsideContentColor = InsideContent.GetComponent<Text>().color;
-            InsideContentChangeType = ColorChangeType.Text;
+            UnselectedDisappearTask.Add(new ColorChangeTask(InsideContent, ColorWithAlpha(InsideContentColor, 1), ColorWithAlpha(InsideContentColor, 0), DisappearTime, Type));
+
         }
 
         UnselectedDisappearTask.Add(new ColorChangeTask(BorderImage, ColorWithAlpha(BorderImageColor, 1), ColorWithAlpha(BorderImageColor, 0), DisappearTime, ColorChangeType.Image));
 
-        UnselectedDisappearTask.Add(new ColorChangeTask(InsideContent, ColorWithAlpha(InsideContentColor, 1), ColorWithAlpha(InsideContentColor, 0), DisappearTime, InsideContentChangeType));
 
         return UnselectedDisappearTask;
     }
 
-    public static ParallelTasks GetButtonAppearTask(GameObject BorderImage, GameObject InsideContent, bool ContentIsImage, float AppearTime)
+    public static ParallelTasks GetButtonAppearTask(GameObject BorderImage, GameObject InsideContent, ColorChangeType Type, float AppearTime)
     {
         ParallelTasks AppearTask = new ParallelTasks();
 
         Color BorderImageColor = BorderImage.GetComponent<Image>().color;
         Color InsideContentColor;
-        ColorChangeType InsideContentChangeType;
-        if (ContentIsImage)
+
+        if (Type == ColorChangeType.Image)
         {
             InsideContentColor = InsideContent.GetComponent<Image>().color;
-            InsideContentChangeType = ColorChangeType.Image;
+            AppearTask.Add(new ColorChangeTask(InsideContent, ColorWithAlpha(InsideContentColor, 0), ColorWithAlpha(InsideContentColor, 1), AppearTime, Type));
         }
-        else
+        else if (Type == ColorChangeType.Text)
         {
             InsideContentColor = InsideContent.GetComponent<Text>().color;
-            InsideContentChangeType = ColorChangeType.Text;
+            AppearTask.Add(new ColorChangeTask(InsideContent, ColorWithAlpha(InsideContentColor, 0), ColorWithAlpha(InsideContentColor, 1), AppearTime, Type));
         }
 
         AppearTask.Add(new ColorChangeTask(BorderImage, ColorWithAlpha(BorderImageColor, 0), ColorWithAlpha(BorderImageColor, 1), AppearTime, ColorChangeType.Image));
-
-        AppearTask.Add(new ColorChangeTask(InsideContent, ColorWithAlpha(InsideContentColor, 0), ColorWithAlpha(InsideContentColor, 1), AppearTime, InsideContentChangeType));
 
         return AppearTask;
     }

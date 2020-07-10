@@ -47,6 +47,7 @@ SpriteRenderer:
   m_MotionVectors: 1
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -111,6 +112,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 7725572988115245943}
     m_Modifications:
+    - target: {fileID: 5293294766338912154, guid: 6ae823cf643d20349a8e28892a935fc8,
+        type: 3}
+      propertyPath: scalingMode
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5293294766338912155, guid: 6ae823cf643d20349a8e28892a935fc8,
         type: 3}
       propertyPath: m_LocalRotation.x
@@ -154,11 +160,6 @@ PrefabInstance:
     - target: {fileID: 5293294766338912155, guid: 6ae823cf643d20349a8e28892a935fc8,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5293294766338912154, guid: 6ae823cf643d20349a8e28892a935fc8,
-        type: 3}
-      propertyPath: scalingMode
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []

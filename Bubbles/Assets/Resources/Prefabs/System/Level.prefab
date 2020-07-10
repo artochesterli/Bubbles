@@ -56,8 +56,8 @@ MonoBehaviour:
   NormalBubbleInitNum: 0
   AllSlot: {fileID: 8357767004902170851}
   AllBubble: {fileID: 5579169563043507166}
-  MotionInterval: 0.2
-  RoundEndInterval: 0.3
+  MotionInterval: 0.3
+  RoundEndInterval: 0.4
   RollBackTime: 0.2
   PlaceScale: 1.5
   MapAppearUnitGapProbability: 0.3
@@ -82,7 +82,7 @@ MonoBehaviour:
   MotionTime: 0.4
   RecoverTime: 0.2
   TeleportTime: 0.2
-  TeleportWaitTime: 0.1
+  TeleportWaitTime: 0.2
   BlinkTime: 0.25
   MoveDis: 1
   NormalScale: 1

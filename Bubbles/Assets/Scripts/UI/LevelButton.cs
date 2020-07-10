@@ -38,11 +38,6 @@ public class LevelButton : MonoBehaviour
 
     }
 
-    private void OnDestroy()
-    {
-
-    }
-
     // Update is called once per frame
     void Update()
     {
@@ -137,27 +132,15 @@ public class LevelButton : MonoBehaviour
     {
         if (!Swtiching && GameManager.gameState == GameState.SelectLevelMenu)
         {
-            Taptic.Light();
+            if (GameManager.CurrentConfig.Vibration)
+            {
+                Taptic.Light();
+            }
             GetComponent<AudioSource>().Play();
 
             ResetButton();
             SelectedEffect.GetComponent<Image>().enabled = true;
             EventManager.instance.Fire(new CallLoadLevel(LoadLevelType.FromSelectionMenu, LevelIndex, gameObject));
         }
-    }
-
-    public ParallelTasks GetUnselectedDisappearTask(float UnselectedDisappearTime)
-    {
-        return Utility.GetButtonUnselectedDisappearTask(Image, Text, false, UnselectedDisappearTime);
-    }
-
-    public SerialTasks GetSelectedDisappearTask( float SelectedEffectTime, float SelectedDisappearTime)
-    {
-        return Utility.GetButtonSelectedDisappearTask(Image, Text, 1, SelectInflationScale, SelectedEffectTime, SelectedDisappearTime, false);
-    }
-
-    public ParallelTasks GetAppearTask(float AppearTime)
-    {
-        return Utility.GetButtonAppearTask(Image, Text, false, AppearTime);
     }
 }

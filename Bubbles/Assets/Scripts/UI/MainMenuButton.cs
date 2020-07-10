@@ -15,14 +15,14 @@ public class MainMenuButton : MonoBehaviour
     public MainMenuButtonType Type;
     public GameObject BorderImage;
     public GameObject InsideImage;
-    public GameObject SelectedEffect;
+    //public GameObject SelectedEffect;
 
     public float InflationScale;
 
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
@@ -35,7 +35,10 @@ public class MainMenuButton : MonoBehaviour
     {
         if (GameManager.gameState == GameState.MainMenu)
         {
-            Taptic.Light();
+            if (GameManager.CurrentConfig.Vibration)
+            {
+                Taptic.Light();
+            }
             GetComponent<AudioSource>().Play();
 
             switch (Type)
@@ -55,20 +58,5 @@ public class MainMenuButton : MonoBehaviour
             }
 
         }
-    }
-
-    public SerialTasks GetSelectedDisappearTask(float InflationTime, float DeflationTime)
-    {
-        return Utility.GetButtonSelectedDisappearTask(BorderImage, InsideImage, 1, InflationScale, InflationTime, DeflationTime, true);
-    }
-
-    public ParallelTasks GetUnselectedDisappearTask(float UnselectedDisappearTime)
-    {
-        return Utility.GetButtonUnselectedDisappearTask(BorderImage, InsideImage, true, UnselectedDisappearTime);
-    }
-
-    public ParallelTasks GetAppearTask(float AppearTime)
-    {
-        return Utility.GetButtonAppearTask(BorderImage, InsideImage, true, AppearTime);
     }
 }

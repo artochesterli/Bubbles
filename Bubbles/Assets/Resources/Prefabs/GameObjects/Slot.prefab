@@ -108,8 +108,8 @@ MonoBehaviour:
   FinishTime: 0.3
   FinishColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0}
   FinishRotationSpeed: 0
-  ShakeSpeed: 0.3
-  MaxShakeDis: 0.03
+  ShakeSpeed: 0.75
+  MaxShakeDis: 0.05
 --- !u!61 &8344971114956251629
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -127,7 +127,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.98, y: 0.98}
+    oldSize: {x: 0.9607843, y: 0.9607843}
     newSize: {x: 0.98, y: 0.98}
     adaptiveTilingThreshold: 0.5
     drawMode: 0

@@ -1068,6 +1068,11 @@ public class LevelManager : MonoBehaviour
             }
         }
 
+        if (GameManager.CurrentConfig.Vibration)
+        {
+            Taptic.Light();
+        }
+
         EventManager.instance.Fire(new CallLoadLevel(LoadLevelType.LevelFinish, LevelIndex + 1));
     }
 
