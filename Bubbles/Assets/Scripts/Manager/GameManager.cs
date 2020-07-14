@@ -111,6 +111,9 @@ public class GameManager : MonoBehaviour
     public GameObject VibrationCheckBox;
     public GameObject VibrationCheckMark;
 
+    public float DefaultMusicVol;
+    public float DefaultSFXVol;
+
     public float ButtonUnselectedDisappearTime;
     public float ButtonSelectedInflationTime;
     public float ButtonSelectedDisappearTime;
@@ -894,7 +897,8 @@ public class GameManager : MonoBehaviour
 
             if (!File.Exists(file))
             {
-                CurrentConfig = new Config(1, 1, true);
+                CurrentConfig = new Config(DefaultMusicVol, DefaultSFXVol, true);
+                EventManager.instance.Fire(new UpdateConfig());
                 return false;
             }
 
@@ -911,7 +915,8 @@ public class GameManager : MonoBehaviour
 
             if (!File.Exists(file))
             {
-                CurrentConfig = new Config(1, 1, true);
+                CurrentConfig = new Config(DefaultMusicVol, DefaultSFXVol, true);
+                EventManager.instance.Fire(new UpdateConfig());
                 return false;
             }
 
