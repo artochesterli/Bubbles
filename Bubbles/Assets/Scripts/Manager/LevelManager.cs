@@ -73,6 +73,11 @@ public class LevelManager : MonoBehaviour
             GetMapInfo();
         }
 
+        foreach(AudioSource child in GetComponents<AudioSource>())
+        {
+            child.volume = GameManager.CurrentConfig.SoundEffectVol;
+        }
+
         EventManager.instance.AddHandler<Place>(OnPlace);
         EventManager.instance.AddHandler<MotionFinish>(OnMotionFinish);
         EventManager.instance.AddHandler<LevelLoaded>(OnLevelLoaded);
@@ -619,6 +624,11 @@ public class LevelManager : MonoBehaviour
 
         Dictionary<GameObject, Vector2Int> AffectedBubblePosDic = new Dictionary<GameObject, Vector2Int>();
 
+
+        if(Moves.Count > 0)
+        {
+            BubbleInflateMoveBlocked.Add(new PlaySoundTask(gameObject, GetComponents<AudioSource>()[1]));
+        }
 
         for (int k = 0; k < Moves.Count; k++)
         {

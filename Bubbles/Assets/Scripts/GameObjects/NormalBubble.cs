@@ -41,16 +41,25 @@ public class NormalBubble : MonoBehaviour
     private void OnEnable()
     {
         EventManager.instance.AddHandler<CallBackToSelectLevel>(OnBackToSelectLevel);
+        EventManager.instance.AddHandler<UpdateConfig>(OnUpdateConfig);
+
+        GetComponent<AudioSource>().volume = GameManager.CurrentConfig.SoundEffectVol;
     }
 
     private void OnDisable()
     {
         EventManager.instance.RemoveHandler<CallBackToSelectLevel>(OnBackToSelectLevel);
+        EventManager.instance.RemoveHandler<UpdateConfig>(OnUpdateConfig);
     }
 
     private void Update()
     {
 
+    }
+
+    private void OnUpdateConfig(UpdateConfig e)
+    {
+        GetComponent<AudioSource>().volume = GameManager.CurrentConfig.SoundEffectVol;
     }
 
     private void OnBackToSelectLevel(CallBackToSelectLevel e)

@@ -13,5 +13,13 @@ public class PlaySoundTask : Task
         Source = source;
     }
 
+    protected override void Init()
+    {
+        base.Init();
+        Source.Play();
+
+        SetState(TaskState.Success);
+    }
+
 
 }

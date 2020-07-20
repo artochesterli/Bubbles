@@ -53,7 +53,7 @@ public class MoveTask : Task
         }
         else
         {
-            Obj.GetComponent<AudioSource>().Play();
+            //Obj.GetComponent<AudioSource>().Play();
         }
     }
 

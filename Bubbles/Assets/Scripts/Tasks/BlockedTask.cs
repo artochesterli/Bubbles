@@ -36,7 +36,6 @@ public class BlockedTask : Task
 
         forward = true;
 
-        Obj.GetComponent<AudioSource>().Play();
     }
 
     internal override void Update()
