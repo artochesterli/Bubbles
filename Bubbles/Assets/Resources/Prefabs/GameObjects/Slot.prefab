@@ -96,7 +96,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MapPivotOffset: {x: 0, y: 0}
-  Size: 0.91
+  Size: 0.6
   SelectedColor: {r: 1, g: 1, b: 1, a: 1}
   NearBySelectedColor: {r: 0.8018868, g: 0.8018868, b: 0.8018868, a: 1}
   DefaultColor: {r: 0.4, g: 0.4, b: 0.4, a: 1}
@@ -109,7 +109,7 @@ MonoBehaviour:
   FinishColor: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 0}
   FinishRotationSpeed: 0
   ShakeSpeed: 0.75
-  MaxShakeDis: 0.05
+  MaxShakeDis: 0
 --- !u!61 &8344971114956251629
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -127,7 +127,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.9607843, y: 0.9607843}
+    oldSize: {x: 0.91588783, y: 0.91588783}
     newSize: {x: 0.98, y: 0.98}
     adaptiveTilingThreshold: 0.5
     drawMode: 0

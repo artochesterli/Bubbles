@@ -148,6 +148,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 07edc577c415778488941c6ef5da5904, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  IntendMoveDis: 0.15
+  IntendMoveTime: 0.25
+  IntendMoveDir: 4
   PowerUpEffectPrefab: {fileID: 1453502543553804329, guid: e81608d771cf81c48b50b74fbf81be94,
     type: 3}
   ShockWave: {fileID: 735332688}

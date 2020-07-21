@@ -74,8 +74,8 @@ SpriteRenderer:
   m_SortingLayerID: -474039353
   m_SortingLayer: 1
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: 3a91c5668704bc94cb6100b52cf19a43, type: 3}
-  m_Color: {r: 0.35686275, g: 0.5803922, b: 0.6039216, a: 1}
+  m_Sprite: {fileID: 21300000, guid: 78fc5e3d395cdd84499bcad75cd026c6, type: 3}
+  m_Color: {r: 0.44313726, g: 0.7019608, b: 0.7294118, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -102,7 +102,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.95238096, y: 0.95238096}
+    oldSize: {x: 0.93457943, y: 0.93457943}
     newSize: {x: 0.99, y: 0.99}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -124,12 +124,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   MapPivotOffset: {x: 0, y: 0}
-  Size: 0.9
+  Size: 0.6
   SelectedColor: {r: 0.6179246, g: 0.9621082, b: 1, a: 1}
   NearBySelectedColor: {r: 0.46764863, g: 0.8367261, b: 0.8773585, a: 1}
-  DefaultColor: {r: 0.35599858, g: 0.58001435, b: 0.6037736, a: 1}
-  SelectedSprite: {fileID: 21300000, guid: 3a91c5668704bc94cb6100b52cf19a43, type: 3}
-  DefaultSprite: {fileID: 21300000, guid: 3a91c5668704bc94cb6100b52cf19a43, type: 3}
+  DefaultColor: {r: 0.44313726, g: 0.7019608, b: 0.7294118, a: 1}
+  SelectedSprite: {fileID: 21300000, guid: 78fc5e3d395cdd84499bcad75cd026c6, type: 3}
+  DefaultSprite: {fileID: 21300000, guid: 78fc5e3d395cdd84499bcad75cd026c6, type: 3}
   Type: 1
   Selected: 0
   NearBySelected: 0
@@ -137,7 +137,7 @@ MonoBehaviour:
   FinishColor: {r: 0.44313726, g: 0.7019608, b: 0.7294118, a: 0}
   FinishRotationSpeed: 180
   ShakeSpeed: 0.75
-  MaxShakeDis: 0.05
+  MaxShakeDis: 0
 --- !u!114 &4841008710686151484
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -152,8 +152,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   InsideParticlePrefab: {fileID: 2092648900164286884, guid: 4ebe78d9692902b4095f96bd3dd2265b,
     type: 3}
-  BreathCycle: 0.3
-  BreathOffset: 0.04
+  BreathCycle: 0.35
+  BreathOffset: 0
   ParticleGenerateIntervalMin: 0.8
   ParticleGenerateIntervalMax: 1
   ParticleGenerationZoneSize: 0.8

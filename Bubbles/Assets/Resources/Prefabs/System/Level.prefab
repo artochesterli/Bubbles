@@ -88,7 +88,7 @@ MonoBehaviour:
   MoveDis: 1
   NormalScale: 1
   ExhaustScale: 0.7
-  BlockedDis: 0.2
+  BlockedDis: 0.4
   ConflictBlockedDis: 0.5
   TeleportSlotBlockedRotationAngle: 45
   TeleportSlotBlockedRotationTime: 0.2

@@ -2,8 +2,37 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public class PosInfo
+{
+    public Vector2 LegalPos;
+    public Dictionary<Direction, float> DicDirOffset;
+    public Dictionary<Direction, bool> DicDirMoveTask;
+
+    public PosInfo(Vector2 Pos)
+    {
+        LegalPos = Pos;
+
+        DicDirOffset = new Dictionary<Direction, float>();
+        DicDirOffset.Add(Direction.Right, 0);
+        DicDirOffset.Add(Direction.Left, 0);
+        DicDirOffset.Add(Direction.Up, 0);
+        DicDirOffset.Add(Direction.Down, 0);
+
+        DicDirMoveTask = new Dictionary<Direction, bool>();
+        DicDirMoveTask.Add(Direction.Right, false);
+        DicDirMoveTask.Add(Direction.Left, false);
+        DicDirMoveTask.Add(Direction.Up, false);
+        DicDirMoveTask.Add(Direction.Down, false);
+    }
+}
+
 public class NormalBubble : MonoBehaviour
 {
+    public float IntendMoveDis;
+    public float IntendMoveTime;
+    public Direction IntendMoveDir;
+    public PosInfo SelfPosInfo;
+
     public GameObject PowerUpEffectPrefab;
     public GameObject ShockWave;
     public float PowerUpTime;
@@ -32,8 +61,6 @@ public class NormalBubble : MonoBehaviour
 
     public float Size;
 
-
-
     private Vector2 MoveOutBasicDirection;
 
     private const float RayDis = 20;
@@ -44,6 +71,8 @@ public class NormalBubble : MonoBehaviour
         EventManager.instance.AddHandler<UpdateConfig>(OnUpdateConfig);
 
         GetComponent<AudioSource>().volume = GameManager.CurrentConfig.SoundEffectVol;
+
+        SelfPosInfo = new PosInfo(transform.localPosition);
     }
 
     private void OnDisable()
@@ -54,7 +83,57 @@ public class NormalBubble : MonoBehaviour
 
     private void Update()
     {
+        MaintainIntendMove();
+    }
 
+    private void MaintainIntendMove()
+    {
+        if (IntendMoveDir != Direction.Null)
+        {
+            if (!SelfPosInfo.DicDirMoveTask[IntendMoveDir])
+            {
+                SelfPosInfo.DicDirOffset[IntendMoveDir] += IntendMoveDis / IntendMoveTime*Time.deltaTime;
+                if(SelfPosInfo.DicDirOffset[IntendMoveDir] > IntendMoveDis)
+                {
+                    SelfPosInfo.DicDirOffset[IntendMoveDir] = IntendMoveDis;
+                }
+            }
+
+
+            Dictionary<Direction, float> Temp = new Dictionary<Direction, float>(SelfPosInfo.DicDirOffset);
+
+            foreach (KeyValuePair<Direction, float> item in SelfPosInfo.DicDirOffset)
+            {
+                if (item.Key != IntendMoveDir)
+                {
+                    Temp[item.Key] -= IntendMoveDis / IntendMoveTime * Time.deltaTime;
+                    if (Temp[item.Key] < 0)
+                    {
+                        Temp[item.Key] = 0;
+                    }
+                }
+            }
+
+            SelfPosInfo.DicDirOffset = Temp;
+        }
+        else
+        {
+            Dictionary<Direction, float> Temp = new Dictionary<Direction, float>(SelfPosInfo.DicDirOffset);
+
+            foreach (KeyValuePair<Direction, float> item in SelfPosInfo.DicDirOffset)
+            {
+                Temp[item.Key] -= IntendMoveDis / IntendMoveTime * Time.deltaTime;
+                if (Temp[item.Key] < 0)
+                {
+                    Temp[item.Key] = 0;
+                }
+            }
+
+            SelfPosInfo.DicDirOffset = Temp;
+        }
+
+        transform.localPosition = SelfPosInfo.LegalPos + Vector2.right * SelfPosInfo.DicDirOffset[Direction.Right] + Vector2.left * SelfPosInfo.DicDirOffset[Direction.Left]
+            + Vector2.up * SelfPosInfo.DicDirOffset[Direction.Up] + Vector2.down * SelfPosInfo.DicDirOffset[Direction.Down];
     }
 
     private void OnUpdateConfig(UpdateConfig e)

@@ -25,7 +25,12 @@ public class TransformTask : Task
         Obj.transform.localPosition = BeginPos;
         if (TransformTime == 0)
         {
+            if (Obj.GetComponent<NormalBubble>())
+            {
+                Obj.GetComponent<NormalBubble>().SelfPosInfo.LegalPos = TargetPos;
+            }
             Obj.transform.localPosition = TargetPos;
+
             SetState(TaskState.Success);
         }
     }
@@ -33,6 +38,12 @@ public class TransformTask : Task
     internal override void Update()
     {
         TimeCount += Time.deltaTime;
+
+        if (Obj.GetComponent<NormalBubble>())
+        {
+            Obj.GetComponent<NormalBubble>().SelfPosInfo.LegalPos = Vector3.Lerp(BeginPos, TargetPos, TimeCount / TransformTime);
+        }
+
         Obj.transform.localPosition = Vector3.Lerp(BeginPos, TargetPos, TimeCount / TransformTime);
 
         if (TimeCount >= TransformTime)

@@ -16,6 +16,32 @@ public enum SlotState
     Selected,
 }
 
+public class NearByInfo
+{
+    public GameObject RightBubble;
+    public GameObject LeftBubble;
+    public GameObject TopBubble;
+    public GameObject DownBubble;
+
+    public NearByInfo(GameObject right, GameObject left, GameObject top, GameObject down)
+    {
+        RightBubble = right;
+        LeftBubble = left;
+        TopBubble = top;
+        DownBubble = down;
+    }
+
+    public NearByInfo()
+    {
+        RightBubble = LeftBubble = TopBubble = DownBubble = null;
+    }
+
+    public bool Available()
+    {
+        return RightBubble || LeftBubble || TopBubble || DownBubble;
+    }
+}
+
 public class SlotObject : MonoBehaviour
 {
     public List<List<SlotInfo>> ConnectedMap;
@@ -28,6 +54,8 @@ public class SlotObject : MonoBehaviour
     public Color DefaultColor;
     public Sprite SelectedSprite;
     public Sprite DefaultSprite;
+    
+
     
     public SlotType Type;
     public bool Selected;
@@ -136,47 +164,33 @@ public class SlotObject : MonoBehaviour
         return CursorPos.x >= OriPos.x - Size / 2 && CursorPos.x <= OriPos.x + Size / 2 && CursorPos.y >= OriPos.y - Size / 2 && CursorPos.y <= OriPos.y + Size / 2;
     }
 
-    public bool AvailablePos(List<GameObject> NearByCircleList = null)
+    public NearByInfo GetNearByInfo()
     {
+        NearByInfo Info = new NearByInfo();
+
         Vector2Int Coordinate = ConnectedSlotInfo.Pos;
-        bool HaveNearByCircle = false;
+
         if(Coordinate.x < ConnectedMap.Count - 1 && ConnectedMap[Coordinate.x + 1][Coordinate.y] != null && ConnectedMap[Coordinate.x + 1][Coordinate.y].InsideBubbleType != BubbleType.Null)
         {
-            if (NearByCircleList != null)
-            {
-                NearByCircleList[0] = ConnectedMap[Coordinate.x + 1][Coordinate.y].ConnectedBubble;
-            }
-            HaveNearByCircle = true;
+            Info.RightBubble = ConnectedMap[Coordinate.x + 1][Coordinate.y].ConnectedBubble;
         }
 
         if(Coordinate.x > 0 && ConnectedMap[Coordinate.x - 1][Coordinate.y] != null && ConnectedMap[Coordinate.x - 1][Coordinate.y].InsideBubbleType != BubbleType.Null)
         {
-            if (NearByCircleList != null)
-            {
-                NearByCircleList[1] = ConnectedMap[Coordinate.x - 1][Coordinate.y].ConnectedBubble;
-            }
-            HaveNearByCircle = true;
+            Info.LeftBubble = ConnectedMap[Coordinate.x - 1][Coordinate.y].ConnectedBubble;
         }
 
         if(Coordinate.y < ConnectedMap[Coordinate.x].Count - 1 && ConnectedMap[Coordinate.x][Coordinate.y + 1] != null && ConnectedMap[Coordinate.x][Coordinate.y + 1].InsideBubbleType != BubbleType.Null)
         {
-            if (NearByCircleList != null)
-            {
-                NearByCircleList[2] = ConnectedMap[Coordinate.x][Coordinate.y + 1].ConnectedBubble;
-            }
-            HaveNearByCircle = true;
+            Info.TopBubble = ConnectedMap[Coordinate.x][Coordinate.y + 1].ConnectedBubble;
         }
 
         if(Coordinate.y > 0 && ConnectedMap[Coordinate.x][Coordinate.y - 1] != null && ConnectedMap[Coordinate.x][Coordinate.y - 1].InsideBubbleType != BubbleType.Null)
         {
-            if (NearByCircleList != null)
-            {
-                NearByCircleList[3] = ConnectedMap[Coordinate.x][Coordinate.y - 1].ConnectedBubble;
-            }
-            HaveNearByCircle = true;
+            Info.DownBubble = ConnectedMap[Coordinate.x][Coordinate.y - 1].ConnectedBubble;
         }
 
-        return ConnectedSlotInfo.InsideBubbleType == BubbleType.Null && GameManager.HeldBubbleType != BubbleType.Null && HaveNearByCircle;
+        return Info;
     }
 
     public ColorChangeTask GetFadeTask()

@@ -5,19 +5,20 @@ using UnityEngine;
 public class MoveTask : Task
 {
     private readonly GameObject Obj;
-    private readonly Vector3 BeginPos;
+    private Vector3 BeginPos;
     private readonly Vector3 TargetPos;
     private readonly float MoveTime;
     private readonly Vector2Int Start;
     private readonly Vector2Int End;
     private readonly BubbleType Type;
+    private readonly Direction Dir;
     private readonly List<List<SlotInfo>> Map;
     private readonly bool Teleport;
 
     private float TimeCount;
     private float Speed;
 
-    public MoveTask(GameObject obj, Vector3 begin, Vector3 target , float time , Vector2Int start, Vector2Int end , BubbleType type = BubbleType.Null, List<List<SlotInfo>> map=null, bool teleport = false)
+    public MoveTask(GameObject obj, Vector3 begin, Vector3 target , Direction dir, float time , Vector2Int start, Vector2Int end , BubbleType type = BubbleType.Null, List<List<SlotInfo>> map=null, bool teleport = false)
     {
         Obj = obj;
         BeginPos = begin;
@@ -26,6 +27,7 @@ public class MoveTask : Task
         Start = start;
         End = end;
         Type = type;
+        Dir = dir;
         Map = map;
         Teleport = teleport;
 
@@ -49,11 +51,22 @@ public class MoveTask : Task
         if (MoveTime == 0)
         {
             Obj.transform.localPosition = TargetPos;
+            if (Obj.GetComponent<NormalBubble>())
+            {
+                Obj.GetComponent<NormalBubble>().SelfPosInfo.LegalPos = TargetPos;
+            }
+
             SetState(TaskState.Success);
         }
         else
         {
-            //Obj.GetComponent<AudioSource>().Play();
+            if (Obj.GetComponent<NormalBubble>())
+            {
+                Obj.GetComponent<NormalBubble>().SelfPosInfo.LegalPos = BeginPos + (TargetPos-BeginPos).normalized* Obj.GetComponent<NormalBubble>().SelfPosInfo.DicDirOffset[Dir];
+                BeginPos = (Vector3)Obj.GetComponent<NormalBubble>().SelfPosInfo.LegalPos;
+                Obj.GetComponent<NormalBubble>().SelfPosInfo.DicDirOffset[Dir] = 0;
+                Obj.GetComponent<NormalBubble>().SelfPosInfo.DicDirMoveTask[Dir] = true;
+            }
         }
     }
 
@@ -63,23 +76,54 @@ public class MoveTask : Task
 
         if (TimeCount >= MoveTime)
         {
-            Obj.transform.localPosition = TargetPos;
+            if (Obj.GetComponent<NormalBubble>())
+            {
+                Obj.GetComponent<NormalBubble>().SelfPosInfo.LegalPos = TargetPos;
+                Obj.GetComponent<NormalBubble>().SelfPosInfo.DicDirMoveTask[Dir] = false;
+            }
+            else
+            {
+                Obj.transform.localPosition = TargetPos;
+            }
+
 
             SetState(TaskState.Success);
         }
         else if(TimeCount >= MoveTime / 2)
         {
             Speed = 2 * (TargetPos-BeginPos).magnitude / MoveTime * ((MoveTime - TimeCount) / (MoveTime / 2));
-            Obj.transform.localPosition += Speed * (TargetPos - BeginPos).normalized * Time.deltaTime;
-            if (Vector3.Dot(Obj.transform.localPosition - TargetPos, TargetPos - BeginPos) > 0)
+
+            if (Obj.GetComponent<NormalBubble>())
             {
-                Obj.transform.localPosition = TargetPos;
+                Obj.GetComponent<NormalBubble>().SelfPosInfo.LegalPos += Speed * (Vector2)(TargetPos - BeginPos).normalized * Time.deltaTime;
+                if (Vector3.Dot((Vector3)Obj.GetComponent<NormalBubble>().SelfPosInfo.LegalPos - TargetPos, TargetPos - BeginPos) > 0)
+                {
+                    Obj.GetComponent<NormalBubble>().SelfPosInfo.LegalPos = TargetPos;
+                }
             }
+            else
+            {
+                Obj.transform.localPosition += Speed * (TargetPos - BeginPos).normalized * Time.deltaTime;
+                if (Vector3.Dot(Obj.transform.localPosition - TargetPos, TargetPos - BeginPos) > 0)
+                {
+                    Obj.transform.localPosition = TargetPos;
+                }
+            }
+
         }
         else
         {
             Speed = 2 * (TargetPos - BeginPos).magnitude / MoveTime * TimeCount / (MoveTime / 2);
-            Obj.transform.localPosition += Speed * (TargetPos - BeginPos).normalized * Time.deltaTime;
+
+            if (Obj.GetComponent<NormalBubble>())
+            {
+                Obj.GetComponent<NormalBubble>().SelfPosInfo.LegalPos += Speed * (Vector2)(TargetPos - BeginPos).normalized * Time.deltaTime;
+            }
+            else
+            {
+                Obj.transform.localPosition += Speed * (TargetPos - BeginPos).normalized * Time.deltaTime;
+            }
+
         }
     }
 

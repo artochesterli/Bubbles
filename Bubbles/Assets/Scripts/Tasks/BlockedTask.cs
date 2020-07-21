@@ -5,8 +5,9 @@ using UnityEngine;
 public class BlockedTask : Task
 {
     private readonly GameObject Obj;
-    private readonly Vector3 Pos;
+    private Vector3 Pos;
     private readonly Vector3 Direction;
+    private readonly Direction Dir;
     private readonly float BlockedDis;
     private readonly float BlockedTime;
     private readonly List<List<SlotInfo>> Map;
@@ -14,16 +15,19 @@ public class BlockedTask : Task
 
     private float TimeCount;
     private bool forward;
+    private Vector3 OriPos;
 
-    public BlockedTask(GameObject obj, Vector3 pos, Vector3 dir, float dis, float time, Vector2Int v, List<List<SlotInfo>> map)
+    public BlockedTask(GameObject obj, Vector3 pos, Vector3 dir, Direction d, float dis, float time, Vector2Int v, List<List<SlotInfo>> map)
     {
         Obj = obj;
         Pos = pos;
         Direction = dir;
+        Dir = d;
         BlockedDis = dis;
         BlockedTime = time;
         V = v;
         Map = map;
+        OriPos = Pos;
 
         SetMapInfo();
     }
@@ -32,9 +36,19 @@ public class BlockedTask : Task
     {
         Activate();
 
-        Obj.transform.localPosition = Pos;
+        if (Obj.GetComponent<NormalBubble>())
+        {
+            Obj.GetComponent<NormalBubble>().SelfPosInfo.LegalPos = Pos + Direction * Obj.GetComponent<NormalBubble>().SelfPosInfo.DicDirOffset[Dir];
+            Obj.GetComponent<NormalBubble>().SelfPosInfo.DicDirOffset[Dir] = 0;
+            Obj.GetComponent<NormalBubble>().SelfPosInfo.DicDirMoveTask[Dir] = true;
+        }
+        else
+        {
+            Obj.transform.localPosition = Pos;
+        }
 
         forward = true;
+
 
     }
 
@@ -49,15 +63,35 @@ public class BlockedTask : Task
 
         if (forward)
         {
-            Obj.transform.localPosition = Vector3.Lerp(Pos, Pos + Direction * BlockedDis, 2 * TimeCount/BlockedTime);
+            if (Obj.GetComponent<NormalBubble>())
+            {
+                Obj.GetComponent<NormalBubble>().SelfPosInfo.LegalPos = Vector3.Lerp(Pos, Pos + Direction * BlockedDis, 2 * TimeCount / BlockedTime);
+            }
+            else
+            {
+                Obj.transform.localPosition = Vector3.Lerp(Pos, Pos + Direction * BlockedDis, 2 * TimeCount / BlockedTime);
+            }
+
         }
         else
         {
-            Obj.transform.localPosition = Vector3.Lerp(Pos + Direction * BlockedDis, Pos, 2 * (TimeCount - BlockedTime / 2) / BlockedTime);
+            if (Obj.GetComponent<NormalBubble>())
+            {
+                Obj.GetComponent<NormalBubble>().SelfPosInfo.LegalPos = Vector3.Lerp(Pos + Direction * BlockedDis, OriPos, 2 * (TimeCount - BlockedTime / 2) / BlockedTime);
+            }
+            else
+            {
+                Obj.transform.localPosition = Vector3.Lerp(Pos + Direction * BlockedDis, OriPos, 2 * (TimeCount - BlockedTime / 2) / BlockedTime);
+            }
+
         }
 
         if (TimeCount > BlockedTime)
         {
+            if (Obj.GetComponent<NormalBubble>())
+            {
+                Obj.GetComponent<NormalBubble>().SelfPosInfo.DicDirMoveTask[Dir] = false;
+            }
             SetState(TaskState.Success);
         }
     }

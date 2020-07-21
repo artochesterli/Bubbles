@@ -11,6 +11,7 @@ public class UsableCircle : MonoBehaviour
     public float SelectedSize;
     public float SelectedOffset;
     public GameObject ActivatedEffect;
+    public GameObject ReleaseEffect;
     public GameObject TempActivatedEffectPrefab;
 
     public float InflationTime;
@@ -28,6 +29,8 @@ public class UsableCircle : MonoBehaviour
     private List<GameObject> NearBySelectedSlots;
     private GameObject SelectedSlot;
 
+    private NearByInfo CurrentNearByInfo;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -44,9 +47,6 @@ public class UsableCircle : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-
-
-
         if (GameManager.levelState == LevelState.Play || GameManager.levelState == LevelState.Executing || GameManager.levelState == LevelState.SetUp)
         {
             CheckSelected();
@@ -132,6 +132,9 @@ public class UsableCircle : MonoBehaviour
 
             if (SelectedSlot != null)
             {
+                ResetNearByBubble(CurrentNearByInfo);
+                CurrentNearByInfo = null;
+
                 ResetOffsetInfo();
                 SelectedSlot.GetComponent<SlotObject>().Selected = false;
                 EventManager.instance.Fire(new Place(gameObject, SelectedSlot.GetComponent<SlotObject>().ConnectedSlotInfo.Pos, GameManager.HeldBubbleType));
@@ -191,87 +194,137 @@ public class UsableCircle : MonoBehaviour
         color = c;
     }
 
+    private void ResetNearByBubble(NearByInfo PreviousNearByInfo)
+    {
+        if (PreviousNearByInfo != null) //Reset previous near by bubbles
+        {
+            if (PreviousNearByInfo.RightBubble != null)
+            {
+                PreviousNearByInfo.RightBubble.GetComponent<NormalBubble>().IntendMoveDir = Direction.Null;
+            }
 
+            if (PreviousNearByInfo.LeftBubble != null)
+            {
+                PreviousNearByInfo.LeftBubble.GetComponent<NormalBubble>().IntendMoveDir = Direction.Null;
+            }
+
+            if (PreviousNearByInfo.TopBubble != null)
+            {
+                PreviousNearByInfo.TopBubble.GetComponent<NormalBubble>().IntendMoveDir = Direction.Null;
+            }
+
+            if (PreviousNearByInfo.DownBubble != null)
+            {
+                PreviousNearByInfo.DownBubble.GetComponent<NormalBubble>().IntendMoveDir = Direction.Null;
+            }
+        }
+    }
 
     private void CheckSlotSelection()
     {
         if (GameManager.gameState == GameState.Level)
         {
-            if (Selected)
+            if (Selected)//Hold
             {
                 foreach (Transform child in AllSlot.transform)
                 {
-                    List<GameObject> NearByCircleList = new List<GameObject>();
-                    for (int i = 0; i < 4; i++)
+                    if (child.GetComponent<SlotObject>().Inside(transform.position))
                     {
-                        NearByCircleList.Add(null);
-                    }
-                    if (child.GetComponent<SlotObject>().Inside(transform.position) && child.GetComponent<SlotObject>().AvailablePos(NearByCircleList))
-                    {
-                        if (child.gameObject != SelectedSlot)
+                        NearByInfo PreviousNearByInfo = CurrentNearByInfo;
+
+                        CurrentNearByInfo = child.GetComponent<SlotObject>().GetNearByInfo();
+                        if (CurrentNearByInfo.Available())
                         {
-                            if (GameManager.CurrentConfig.Vibration)
+                            if (child.gameObject != SelectedSlot) //Select a new available slot
                             {
-                                Taptic.Light();
-                            }
-
-                            if (SelectedSlot != null)
-                            {
-                                SelectedSlot.GetComponent<SlotObject>().Selected = false;
-                                ResetOffsetInfo();
-                            }
-                            child.GetComponent<SlotObject>().Selected = true;
-                            SelectedSlot = child.gameObject;
-                            for (int i = 0; i < NearByCircleList.Count; i++)
-                            {
-                                if (NearByCircleList[i] != null)
+                                if (GameManager.CurrentConfig.Vibration)
                                 {
-                                    GameObject Slot = null;
+                                    Taptic.Light();
+                                }
 
-                                    switch (i)
-                                    {
-                                        case 0:
-                                            Slot = GetNearBySlot(child.gameObject, Vector2Int.right);
-                                            Slot.GetComponent<SlotObject>().NearBySelected = true;
-                                            break;
-                                        case 1:
-                                            Slot = GetNearBySlot(child.gameObject, Vector2Int.left);
-                                            Slot.GetComponent<SlotObject>().NearBySelected = true;
-                                            break;
-                                        case 2:
-                                            Slot = GetNearBySlot(child.gameObject, Vector2Int.up);
-                                            Slot.GetComponent<SlotObject>().NearBySelected = true;
-                                            break;
-                                        case 3:
-                                            Slot = GetNearBySlot(child.gameObject, Vector2Int.down);
-                                            Slot.GetComponent<SlotObject>().NearBySelected = true;
-                                            break;
-                                        default:
-                                            break;
+                                ResetNearByBubble(PreviousNearByInfo);
 
-                                    }
+                                if (SelectedSlot != null)
+                                {
+                                    SelectedSlot.GetComponent<SlotObject>().Selected = false;
+                                    ResetOffsetInfo();
+                                }
+                                child.GetComponent<SlotObject>().Selected = true;
+                                SelectedSlot = child.gameObject;
 
-                                    NearBySelectedSlots.Add(Slot);
+                                ActivatedEffect.GetComponent<ParticleSystem>().Stop();
+                                if (CurrentNearByInfo.RightBubble)
+                                {
+                                    CurrentNearByInfo.RightBubble.GetComponent<NormalBubble>().IntendMoveDir = Direction.Right;
+                                    ReleaseEffect.transform.Find("Right").GetComponent<ParticleSystem>().Play();
+                                }
+                                else
+                                {
+                                    ReleaseEffect.transform.Find("Right").GetComponent<ParticleSystem>().Stop();
+                                }
+                                if (CurrentNearByInfo.LeftBubble)
+                                {
+                                    CurrentNearByInfo.LeftBubble.GetComponent<NormalBubble>().IntendMoveDir = Direction.Left;
+                                    ReleaseEffect.transform.Find("Left").GetComponent<ParticleSystem>().Play();
+                                }
+                                else
+                                {
+                                    ReleaseEffect.transform.Find("Left").GetComponent<ParticleSystem>().Stop();
+                                }
+                                if (CurrentNearByInfo.TopBubble)
+                                {
+                                    CurrentNearByInfo.TopBubble.GetComponent<NormalBubble>().IntendMoveDir = Direction.Up;
+                                    ReleaseEffect.transform.Find("Up").GetComponent<ParticleSystem>().Play();
+                                }
+                                else
+                                {
+                                    ReleaseEffect.transform.Find("Up").GetComponent<ParticleSystem>().Stop();
+                                }
+                                if (CurrentNearByInfo.DownBubble)
+                                {
+                                    CurrentNearByInfo.DownBubble.GetComponent<NormalBubble>().IntendMoveDir = Direction.Down;
+                                    ReleaseEffect.transform.Find("Down").GetComponent<ParticleSystem>().Play();
+                                }
+                                else
+                                {
+                                    ReleaseEffect.transform.Find("Down").GetComponent<ParticleSystem>().Stop();
                                 }
                             }
+                            return;
                         }
-                        return;
                     }
                 }
-                if (SelectedSlot != null)
+                if (SelectedSlot != null) // Not in available slot
                 {
                     SelectedSlot.GetComponent<SlotObject>().Selected = false;
                     SelectedSlot = null;
                     ResetOffsetInfo();
+
+                    ActivatedEffect.GetComponent<ParticleSystem>().Play();
+                    foreach (Transform Effect in ReleaseEffect.transform)
+                    {
+                        Effect.GetComponent<ParticleSystem>().Stop();
+                    }
+
+                    ResetNearByBubble(CurrentNearByInfo);
+                    CurrentNearByInfo = null;
                 }
             }
             else
             {
-                if (SelectedSlot != null)
+                if (SelectedSlot != null)//Release
                 {
                     SelectedSlot.GetComponent<SlotObject>().Selected = false;
                     SelectedSlot = null;
                     ResetOffsetInfo();
+
+                    foreach (Transform Effect in ReleaseEffect.transform)
+                    {
+                        Effect.GetComponent<ParticleSystem>().Stop();
+                    }
+
+                    ResetNearByBubble(CurrentNearByInfo);
+                    CurrentNearByInfo = null;
                 }
             }
 
