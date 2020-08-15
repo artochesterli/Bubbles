@@ -22,15 +22,6 @@ public class SelectLevelMenuManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.G))
-        {
-            IncreaseLevel();
-        }
-        if (Input.GetKeyDown(KeyCode.L))
-        {
-            DecreaseLevel();
-        }
-
         SetButtonFinish();
     }
 
@@ -50,6 +41,24 @@ public class SelectLevelMenuManager : MonoBehaviour
             index++;
         }
     }
+
+    //public void SetLevelIndex()
+    //{
+    //    int CurrentLevel = GameManager.CurrentSaveInfo.CurrentLevel;
+
+    //    CurrentMinLevel = CurrentLevel / LevelButtonNumber * LevelButtonNumber + 1;
+
+
+    //    for(int i = 0; i < AllLevelButtons.transform.childCount; i++)
+    //    {
+    //        child.GetComponent<LevelButton>().LevelIndex =
+    //    }
+
+    //    foreach(Transform child in AllLevelButtons.transform)
+    //    {
+            
+    //    }
+    //}
 
     public void IncreaseLevel()
     {

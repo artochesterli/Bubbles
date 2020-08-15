@@ -373,6 +373,36 @@ public class LevelManager : MonoBehaviour
         
     }
 
+    public bool TeleportAvailable(SlotInfo Slot)
+    {
+        if(Slot == TeleportSlot1)
+        {
+            if(TeleportSlot2.InsideBubbleType == BubbleType.Null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else if(Slot == TeleportSlot2)
+        {
+            if (TeleportSlot1.InsideBubbleType == BubbleType.Null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+
     private void PlaceBubble(GameObject UseableBubble, Vector2Int Pos, BubbleType Type)
     {
         ChangeInfoList.Add(new List<BubbleChangeInfo>());

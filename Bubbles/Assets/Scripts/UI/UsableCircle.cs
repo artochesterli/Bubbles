@@ -252,42 +252,50 @@ public class UsableCircle : MonoBehaviour
                                 child.GetComponent<SlotObject>().Selected = true;
                                 SelectedSlot = child.gameObject;
 
-                                ActivatedEffect.GetComponent<ParticleSystem>().Stop();
-                                if (CurrentNearByInfo.RightBubble)
+
+                                if (SelectedSlot.GetComponent<SlotObject>().Type != SlotType.Teleport || !GameManager.ActivatedLevel.GetComponent<LevelManager>().TeleportAvailable(SelectedSlot.GetComponent<SlotObject>().ConnectedSlotInfo))
                                 {
-                                    CurrentNearByInfo.RightBubble.GetComponent<NormalBubble>().IntendMoveDir = Direction.Right;
-                                    ReleaseEffect.transform.Find("Right").GetComponent<ParticleSystem>().Play();
+                                    ActivatedEffect.GetComponent<ParticleSystem>().Stop();
+                                    if (CurrentNearByInfo.RightBubble)
+                                    {
+                                        CurrentNearByInfo.RightBubble.GetComponent<NormalBubble>().IntendMoveDir = Direction.Right;
+                                        ReleaseEffect.transform.Find("Right").GetComponent<ParticleSystem>().Play();
+                                    }
+                                    else
+                                    {
+                                        ReleaseEffect.transform.Find("Right").GetComponent<ParticleSystem>().Stop();
+                                    }
+                                    if (CurrentNearByInfo.LeftBubble)
+                                    {
+                                        CurrentNearByInfo.LeftBubble.GetComponent<NormalBubble>().IntendMoveDir = Direction.Left;
+                                        ReleaseEffect.transform.Find("Left").GetComponent<ParticleSystem>().Play();
+                                    }
+                                    else
+                                    {
+                                        ReleaseEffect.transform.Find("Left").GetComponent<ParticleSystem>().Stop();
+                                    }
+                                    if (CurrentNearByInfo.TopBubble)
+                                    {
+                                        CurrentNearByInfo.TopBubble.GetComponent<NormalBubble>().IntendMoveDir = Direction.Up;
+                                        ReleaseEffect.transform.Find("Up").GetComponent<ParticleSystem>().Play();
+                                    }
+                                    else
+                                    {
+                                        ReleaseEffect.transform.Find("Up").GetComponent<ParticleSystem>().Stop();
+                                    }
+                                    if (CurrentNearByInfo.DownBubble)
+                                    {
+                                        CurrentNearByInfo.DownBubble.GetComponent<NormalBubble>().IntendMoveDir = Direction.Down;
+                                        ReleaseEffect.transform.Find("Down").GetComponent<ParticleSystem>().Play();
+                                    }
+                                    else
+                                    {
+                                        ReleaseEffect.transform.Find("Down").GetComponent<ParticleSystem>().Stop();
+                                    }
                                 }
                                 else
                                 {
-                                    ReleaseEffect.transform.Find("Right").GetComponent<ParticleSystem>().Stop();
-                                }
-                                if (CurrentNearByInfo.LeftBubble)
-                                {
-                                    CurrentNearByInfo.LeftBubble.GetComponent<NormalBubble>().IntendMoveDir = Direction.Left;
-                                    ReleaseEffect.transform.Find("Left").GetComponent<ParticleSystem>().Play();
-                                }
-                                else
-                                {
-                                    ReleaseEffect.transform.Find("Left").GetComponent<ParticleSystem>().Stop();
-                                }
-                                if (CurrentNearByInfo.TopBubble)
-                                {
-                                    CurrentNearByInfo.TopBubble.GetComponent<NormalBubble>().IntendMoveDir = Direction.Up;
-                                    ReleaseEffect.transform.Find("Up").GetComponent<ParticleSystem>().Play();
-                                }
-                                else
-                                {
-                                    ReleaseEffect.transform.Find("Up").GetComponent<ParticleSystem>().Stop();
-                                }
-                                if (CurrentNearByInfo.DownBubble)
-                                {
-                                    CurrentNearByInfo.DownBubble.GetComponent<NormalBubble>().IntendMoveDir = Direction.Down;
-                                    ReleaseEffect.transform.Find("Down").GetComponent<ParticleSystem>().Play();
-                                }
-                                else
-                                {
-                                    ReleaseEffect.transform.Find("Down").GetComponent<ParticleSystem>().Stop();
+                                    ResetNearByBubble(CurrentNearByInfo);
                                 }
                             }
                             return;

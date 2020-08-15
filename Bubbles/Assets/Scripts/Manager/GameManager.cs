@@ -619,6 +619,8 @@ public class GameManager : MonoBehaviour
             SelectLevelAppearTasks.Add(child.GetComponent<GameButton>().GetAppearTask());
         }
 
+
+
         SelectLevelAppearTasks.Add(BackButton.GetComponent<GameButton>().GetAppearTask());
 
         while (!SelectLevelAppearTasks.IsFinished)
